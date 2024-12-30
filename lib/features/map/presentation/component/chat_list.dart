@@ -1,15 +1,17 @@
 import 'package:chat_location/common/ui/box/rounded_box.dart';
 import 'package:chat_location/constants/colors.dart';
+import 'package:chat_location/features/map/domain/entities/chat_room.dart';
+import 'package:chat_location/features/map/presentation/component/chat_room.dart';
 
-import 'package:chat_location/features/map/ui/open_list_button.dart';
-import 'package:chat_location/features/map/component/chat_room.dart';
-import 'package:chat_location/features/map/screen/mapScreen.dart';
+import 'package:chat_location/features/map/presentation/ui/open_list_button.dart';
+
+import 'package:chat_location/features/map/presentation/screen/mapScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ChatListBox extends ConsumerStatefulWidget {
-  const ChatListBox({super.key, required this.LOCATION_DATA});
-  final LOCATION_DATA;
+  const ChatListBox({super.key, required this.chatRooms});
+  final List<ChatRoom_> chatRooms;
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _ChatListBoxState();
 }
@@ -105,7 +107,7 @@ class _ChatListBoxState extends ConsumerState<ChatListBox>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                '${LOCATION_DATA.length}개',
+                                '${widget.chatRooms.length}개',
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium
@@ -137,8 +139,8 @@ class _ChatListBoxState extends ConsumerState<ChatListBox>
                             padding: EdgeInsets.all(0),
                             shrinkWrap: true,
                             physics: const AlwaysScrollableScrollPhysics(),
-                            children: LOCATION_DATA
-                                .map((item) => ChatRoom())
+                            children: widget.chatRooms
+                                .map((item) => ChatRoom(data: item))
                                 .toList(),
                           )
                         : const SizedBox.shrink(),

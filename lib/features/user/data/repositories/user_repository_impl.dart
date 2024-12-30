@@ -6,7 +6,7 @@ import 'package:chat_location/features/user/domain/entities/user.dart';
 import 'package:chat_location/features/user/domain/repositories/user_repository.dart';
 
 // 실제 api 호출 로직이 작성되어있습니다.
-const signupStatusCode = 310;
+const signupStatusCode = 31;
 
 // api를 추가하고 싶으면 UserRepository 에서 함수 인터페이스 작성 후 작성할것!!!
 class UserRepositoryImpl implements UserRepository {
@@ -43,28 +43,27 @@ class UserRepositoryImpl implements UserRepository {
         return null;
       }
       // login
-
       final res = UserModel.fromJson(response['data']);
       final appUser = AppUser.fromUserModel(res);
       log("loginuser : ${response.toString()}");
       return appUser;
     } catch (error, stackTrace) {
-      log('Error in getUserProfile: $error', stackTrace: stackTrace);
+      log('Error in signIn: $error', stackTrace: stackTrace);
 
       throw Exception('Failed to fetch user profile');
     }
   }
 
   @override
-  Future<AppUser> signUp(Map<String, dynamic> body) async {
+  Future<void> signUp(Map<String, dynamic> body) async {
     try {
       final response = await apiClient.post(
-          endpoint: 'auth/login', data: body, setToken: true);
+          endpoint: 'auth/signup', data: body, setToken: true);
       // login
-      final res = UserModel.fromJson(response['data']);
-      final appUser = AppUser.fromUserModel(res);
+      // final res = UserModel.fromJson(response['data']);
+      // final appUser = AppUser.fromUserModel(res);
       log("loginuser : ${response.toString()}");
-      return appUser;
+      return;
     } catch (error, stackTrace) {
       log('Error in getUserProfile: $error', stackTrace: stackTrace);
 

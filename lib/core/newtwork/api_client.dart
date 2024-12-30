@@ -61,7 +61,10 @@ class ApiClient {
         await _refreshToken();
         return await request(); // 요청 재시도
       }
-
+      // 인증 문제
+      if (response.statusCode == 401) {
+        return jsonDecode(response.body);
+      }
       // 기타 에러
       throw Exception(
           'Request failed: ${response.statusCode} - ${response.body}');

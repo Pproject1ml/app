@@ -1,8 +1,10 @@
 import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
+import 'package:chat_location/features/map/domain/entities/chat_room.dart';
+import 'package:chat_location/features/map/domain/entities/landmark.dart';
 import 'package:flutter/material.dart';
 
-Future<void> landmarkDialog(BuildContext context) {
+Future<void> landmarkDialog(BuildContext context, ChatRoom_? chatRoom) {
   return showDialog<void>(
     context: context,
     builder: (BuildContext context) {
@@ -16,7 +18,7 @@ Future<void> landmarkDialog(BuildContext context) {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              '명동',
+              chatRoom?.landmark.name ?? 'null',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             SizedBox(
@@ -42,7 +44,7 @@ Future<void> landmarkDialog(BuildContext context) {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "서울특별시 중구",
+              chatRoom?.landmark.name ?? "null",
               style: Theme.of(context)
                   .textTheme
                   .labelSmall
@@ -100,19 +102,22 @@ Future<void> landmarkDialog(BuildContext context) {
         actions: <Widget>[
           Row(
             children: [
-              Container(
-                width: widthRatio(92),
-                height: 52,
-                decoration: BoxDecoration(
-                    color: TTColors.gray5,
-                    borderRadius: BorderRadius.circular(8)),
-                alignment: Alignment.center,
-                child: Text(
-                  "취소",
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelLarge
-                      ?.copyWith(color: TTColors.gray),
+              GestureDetector(
+                onTap: () => {Navigator.of(context).pop()},
+                child: Container(
+                  width: widthRatio(92),
+                  height: 52,
+                  decoration: BoxDecoration(
+                      color: TTColors.gray5,
+                      borderRadius: BorderRadius.circular(8)),
+                  alignment: Alignment.center,
+                  child: Text(
+                    "취소",
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelLarge
+                        ?.copyWith(color: TTColors.gray),
+                  ),
                 ),
               ),
               SizedBox(

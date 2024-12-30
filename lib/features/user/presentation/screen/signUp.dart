@@ -26,14 +26,19 @@ class _LoginPageState extends ConsumerState<SingUpPage> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            const Expanded(child: SingUpPageView()),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              child: Builder(builder: (context) {
-                return const BottomNextButton();
-              }),
+            Column(
+              children: [
+                const Expanded(child: SingUpPageView()),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  child: Builder(builder: (context) {
+                    return const BottomNextButton();
+                  }),
+                ),
+              ],
             ),
           ],
         ),

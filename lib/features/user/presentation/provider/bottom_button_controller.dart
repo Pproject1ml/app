@@ -5,19 +5,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class BottomButtonState {
   final bool isDisabled;
-  final VoidCallback? onPress;
+  final String text;
+  final Future<void> Function()? onPress;
 
   BottomButtonState({
     required this.isDisabled,
+    required this.text,
     this.onPress,
   });
 
   BottomButtonState copyWith({
     bool? isDisabled,
-    VoidCallback? onPress,
+    String? text,
+    Future<void> Function()? onPress,
   }) {
     return BottomButtonState(
       isDisabled: isDisabled ?? this.isDisabled,
+      text: text ?? this.text,
       onPress: onPress ?? this.onPress,
     );
   }
@@ -25,7 +29,7 @@ class BottomButtonState {
 
 class BottomButtonController extends StateNotifier<BottomButtonState> {
   BottomButtonController()
-      : super(BottomButtonState(isDisabled: true, onPress: null));
+      : super(BottomButtonState(isDisabled: true, text: "확인", onPress: null));
 
   // 상태 업데이트: 버튼 활성/비활성 설정
   void setDisabled(bool isDisabled) {
@@ -33,14 +37,18 @@ class BottomButtonController extends StateNotifier<BottomButtonState> {
   }
 
   // 버튼 동작 설정
-  void setOnPress(VoidCallback? onPress) {
+  void setOnPress(Future<void> Function()? onPress) {
     state = state.copyWith(onPress: onPress);
   }
 
+  void setText(String text) {
+    state = state.copyWith(text: text);
+  }
+
   // 버튼 클릭 처리
-  void handlePress() {
+  Future<void> handlePress() async {
     if (!state.isDisabled && state.onPress != null) {
-      state.onPress!();
+      await state.onPress!();
     }
   }
 }

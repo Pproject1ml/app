@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:chat_location/common/dialog/landmark_dialog.dart';
 import 'package:chat_location/constants/data.dart';
 import 'package:chat_location/controller/location_controller.dart';
+import 'package:chat_location/features/map/domain/entities/chat_room.dart';
+
 import 'package:chat_location/features/map/utils/map_utils.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,8 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Map extends ConsumerStatefulWidget {
-  const Map({super.key, required this.LOCATION_DATA});
-  final LOCATION_DATA;
+  const Map({super.key, required this.landmarks});
+  final List<ChatRoom_> landmarks;
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _GoogleMapState();
 }
@@ -41,17 +43,17 @@ class _GoogleMapState extends ConsumerState<Map> {
   void _createCustomMarker() async {
     Set<Marker> markers = {};
 
-    for (var data in widget.LOCATION_DATA) {
+    for (var data in widget.landmarks) {
       final markerIcon = await createLandmarkMarkers();
 
       markers.add(
         Marker(
-            markerId: MarkerId(data['name'] as String),
-            position: LatLng(data['lat'] as double, data['lon'] as double),
+            markerId: MarkerId(data.id.toString()),
+            position: LatLng(data.landmark.latitude, data.landmark.longitude),
             icon: markerIcon,
             // infoWindow: InfoWindow(title: data['name'] as String),
             onTap: () {
-              landmarkDialog(context);
+              landmarkDialog(context, data);
             }),
       );
     }

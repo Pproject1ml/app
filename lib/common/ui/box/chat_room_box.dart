@@ -1,19 +1,21 @@
 import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
+import 'package:chat_location/features/map/domain/entities/chat_room.dart';
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 enum ChatRoomBoxType { joined, notAvailable, available }
 
 class ChatRoomBox extends StatelessWidget {
-  const ChatRoomBox({
-    super.key,
-    this.type = ChatRoomBoxType.available,
-  });
+  const ChatRoomBox(
+      {super.key, this.type = ChatRoomBoxType.available, this.data});
   final ChatRoomBoxType type;
-
+  final ChatRoom_? data;
   @override
   Widget build(BuildContext context) {
+    if (data == null) {
+      return Container();
+    }
     return Container(
       decoration: const BoxDecoration(color: Colors.transparent),
       padding: EdgeInsets.symmetric(
@@ -40,7 +42,7 @@ class ChatRoomBox extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _chatRoomInfo("명동", 12, context),
+                            _chatRoomInfo(data!.title, 12, context),
                             _timeManager(DateTime(2024, 12, 21), context)
                           ],
                         )
@@ -49,8 +51,8 @@ class ChatRoomBox extends StatelessWidget {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                _joinedChatRoomInfo(
-                                    "명동", 12, DateTime(2024, 12, 21), context),
+                                _joinedChatRoomInfo(data!.title, 12,
+                                    DateTime(2024, 12, 21), context),
                                 Text(
                                   "지금 롯데백화점 앞인데 근처에 싸고 맛있는 식당이 있는데 놀러오세요",
                                   style: Theme.of(context)
@@ -110,7 +112,7 @@ class ChatRoomBox extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
-          "명동거리",
+          title,
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
         ),
@@ -122,7 +124,7 @@ class ChatRoomBox extends StatelessWidget {
           width: widthRatio(4),
         ),
         Text(
-          '12',
+          count.toString(),
           style: Theme.of(context)
               .textTheme
               .labelMedium

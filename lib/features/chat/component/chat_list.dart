@@ -1,7 +1,7 @@
 import 'package:chat_location/common/ui/box/chat_room_box.dart';
 import 'package:chat_location/constants/data.dart';
 import 'package:chat_location/features/chat/component/chat_room.dart';
-import 'package:chat_location/features/map/screen/mapScreen.dart';
+import 'package:chat_location/features/map/presentation/screen/mapScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -33,7 +33,7 @@ class _ChatListState extends ConsumerState<ChatList> {
       controller: _scrollController,
       scrollDirection: Axis.vertical,
       physics: const AlwaysScrollableScrollPhysics(),
-      itemCount: LOCATION_DATA.length,
+      itemCount: 2,
       itemBuilder: (context, index) {
         return ChatRoom();
       },

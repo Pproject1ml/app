@@ -1,6 +1,6 @@
 // lib/providers/router_index_provider.dart
 import 'package:chat_location/features/chat/screen/chat_list_screen.dart';
-import 'package:chat_location/features/map/screen/mapScreen.dart';
+import 'package:chat_location/features/map/presentation/screen/mapScreen.dart';
 import 'package:chat_location/features/user/presentation/screen/userInfoScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

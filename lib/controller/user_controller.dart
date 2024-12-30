@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'package:chat_location/core/database/shared_preference.dart';
 import 'package:chat_location/core/newtwork/api_client.dart';
 import 'package:chat_location/features/initialize/screen/splashScreen.dart';
-import 'package:chat_location/features/map/screen/mapScreen.dart';
+import 'package:chat_location/features/map/presentation/screen/mapScreen.dart';
 import 'package:chat_location/features/user/data/repositories/user_repository_impl.dart';
 import 'package:chat_location/features/user/domain/entities/auth.dart';
 import 'package:chat_location/features/user/domain/entities/oauth_user.dart';
@@ -17,13 +17,13 @@ import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 
-enum MODE { loginTest, signUpTest, normal }
+enum MODE { loginTest, signUpTest, normal, main }
 
 enum LoginPlatform { GOOGLE, KAKAO }
 
 class UserController with ChangeNotifier {
   // userRepository 안에 api 통신을 위한 매서드가 정의되어있으니 사용하면 됩니다.
-  final MODE mode = MODE.signUpTest;
+  final MODE mode = MODE.normal;
   final UserRepositoryImpl userRepository;
 
   UserController(this.userRepository);
@@ -92,21 +92,34 @@ class UserController with ChangeNotifier {
     }
   }
 
-  Future<void> signUp() async {
+  Future<void> signUp(Map<String, dynamic> userData) async {
     // signUp api 호출 후 성고하면 _state 변경
     try {
-      //api 호출
-      await Future.delayed(Duration(seconds: 3));
-      final res = AppUser(
-          memberId: "temp",
-          oauthId: "temp",
-          nickname: "temp",
-          oauthProvider: "GOOGLE");
-      //_state 변경
-      _authState = AuthStateAuthenticated(res);
-      notifyListeners();
-    } catch (e) {}
-    // 실패하면 login으로 튕기기 (_state authenticating(null))
+      // 회원가입
+      await userRepository.signUp(userData);
+      return;
+    } catch (e) {
+      // 실패하면 그냥 가만히 있어.
+      return;
+    }
+  }
+
+  Future<void> signIn(Map<String, dynamic> signInData) async {
+    _authState = const AuthStateAuthenticating(null);
+    AppUser? user;
+    try {
+      user = await userRepository.signIn(signInData);
+      if (user != null) {
+        await SharedPreferencesHelper.saveUser(user);
+        _authState = AuthStateAuthenticated(user);
+      } else {
+        _authState = const AuthStateUnauthenticated();
+      }
+    } catch (e) {
+      _authState = const AuthStateUnauthenticated();
+    }
+
+    notifyListeners();
   }
 
 //유저 로그인
@@ -144,6 +157,13 @@ class UserController with ChangeNotifier {
         }
       }
       // -- dev mode 에서 사용 (test용 로직입니다.)
+      if (mode == MODE.main) {
+        user = AppUser(
+            memberId: "0",
+            oauthId: "oauthId",
+            nickname: "tester",
+            oauthProvider: "Google");
+      }
       if (mode == MODE.normal) {
         user = await userRepository.signIn(_body);
       } else if (mode == MODE.signUpTest) {

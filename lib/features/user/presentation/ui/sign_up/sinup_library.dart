@@ -4,7 +4,7 @@ import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
 import 'package:chat_location/constants/theme.dart';
 import 'package:chat_location/features/user/domain/entities/signup_user.dart';
-import 'package:chat_location/features/user/presentation/provider/sign_up_controller.dart';
+import 'package:chat_location/features/user/presentation/provider/sign_up_user_controller.dart';
 import 'package:flutter/material.dart';
 
 class SignUpTitle extends StatelessWidget {

@@ -1,6 +1,10 @@
 import 'dart:developer';
 
 import 'package:chat_location/controller/user_controller.dart';
+import 'package:chat_location/core/newtwork/api_client.dart';
+import 'package:chat_location/features/user/data/repositories/sign_up_repository_impl.dart';
+import 'package:chat_location/features/user/data/repositories/user_repository_impl.dart';
+import 'package:chat_location/features/user/domain/entities/auth.dart';
 import 'package:chat_location/features/user/domain/entities/oauth_user.dart';
 import 'package:chat_location/features/user/domain/entities/signup_user.dart';
 import 'package:chat_location/features/user/presentation/provider/bottom_button_controller.dart';
@@ -9,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SignUpController extends StateNotifier<SignUpUser> {
   final Ref ref;
+  final SignUpRepositoryImpl signUpRepository;
   int currentPage = 0; // 현재 페이지 상태 추가
   bool _isPage1Valid = false; // 첫 번째 페이지: 닉네임 중복 확인 여부
   bool _isPage2Valid = false; // 두 번째 페이지: 나이와 성별 입력 확인
@@ -21,7 +26,8 @@ class SignUpController extends StateNotifier<SignUpUser> {
   late final FocusNode nickNameFocus;
   late final FocusNode ageFocus;
   late final FocusNode descriptionFocus;
-  SignUpController(SignUpUser initialUser, this.ref) : super(initialUser) {
+  SignUpController(SignUpUser initialUser, this.ref, this.signUpRepository)
+      : super(initialUser) {
     // 초기화 시 BottomButton 상태 설정
 
     pageController = PageController();
@@ -139,9 +145,9 @@ class SignUpController extends StateNotifier<SignUpUser> {
   Future<void> isNickNameValid() async {
     final nickName = state.nickname;
     try {
-      // 예시: 서버 호출
-      await Future.delayed(Duration(seconds: 5)); // 서버 응답 대기
-      final isAvailable = true; // 서버 결과 가정
+      //서버에서 이름  중복 확인
+      final isAvailable = await signUpRepository.isNicknameValid(nickName);
+
       log('available id : ${isAvailable}');
       if (isAvailable) {
         _isPage1Valid = true;
@@ -164,11 +170,14 @@ class SignUpController extends StateNotifier<SignUpUser> {
   // 회원가입 요청
   Future<void> signUp() async {
     try {
+      final userInfoJson = state.toJson();
       log("회원 가입: ${state.toJson().toString()}");
-      //
-      await ref.read(userProvider.notifier).signUp();
+      // 회원가입 시도
+      await ref.read(userProvider.notifier).signUp(userInfoJson);
 
-      print("회원가입 성공!");
+      await ref.read(userProvider.notifier).signIn(
+          {"oauthId": state.oauthId, "oauthProvider": state.oauthProvider});
+      log("성공!!! ");
     } catch (e) {
       print("회원가입 실패: $e");
       rethrow;
@@ -180,30 +189,34 @@ class SignUpController extends StateNotifier<SignUpUser> {
     log("bottom logic restart");
     final bottomButtonController = ref.read(bottomButtonProvider.notifier);
     bool _buttonDisabled = true;
-    void Function() _onPress = () {};
+    String _text = "확인";
+    Future<void> Function()? _onPress = () async {};
     switch (currentPage) {
       case 0:
         _buttonDisabled = !_isPage1Valid;
-        _onPress = () {
+        _text = "확인";
+        _onPress = () async {
           nextPage();
         };
         break;
       case 1:
         _buttonDisabled = !_isPage2Valid;
-        _onPress = () {
+        _text = "확인";
+        _onPress = () async {
           nextPage();
         };
         break;
       case 2:
         _buttonDisabled = !_isPage3Valid;
+        _text = "회원가입";
         _onPress = () async {
-          log(state.nickname.toString());
           await signUp();
         };
         break;
     }
 
     bottomButtonController.setDisabled(_buttonDisabled);
+    bottomButtonController.setText(_text);
     bottomButtonController.setOnPress(_onPress);
   }
 }
@@ -212,6 +225,15 @@ final signUpProvider = StateNotifierProvider.autoDispose
     .family<SignUpController, SignUpUser, OauthUser>(
   (ref, initialUser) {
     final SignUpUser initail = SignUpUser.fromOauthUser(initialUser);
-    return SignUpController(initail, ref);
+    final signUpRepository = ref.read(signUpRepositoryProvider);
+    return SignUpController(initail, ref, signUpRepository);
   },
 );
+
+// base Url입력하면 됩니다.
+final apiClientProvider =
+    Provider((ref) => ApiClient("http://192.168.0.11:8080/"));
+
+// signUp 관련 provider
+final signUpRepositoryProvider =
+    Provider((ref) => SignUpRepositoryImpl(ref.read(apiClientProvider)));

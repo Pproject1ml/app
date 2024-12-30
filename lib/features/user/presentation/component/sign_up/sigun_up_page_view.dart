@@ -7,7 +7,7 @@ import 'package:chat_location/features/user/domain/entities/auth.dart';
 import 'package:chat_location/features/user/domain/entities/oauth_user.dart';
 import 'package:chat_location/features/user/domain/entities/signup_user.dart';
 import 'package:chat_location/features/user/presentation/component/sign_up/bottom_next_button.dart';
-import 'package:chat_location/features/user/presentation/provider/sign_up_controller.dart';
+import 'package:chat_location/features/user/presentation/provider/sign_up_user_controller.dart';
 import 'package:chat_location/features/user/presentation/ui/sign_up/gender_button.dart';
 import 'package:chat_location/features/user/presentation/ui/sign_up/index_indicator.dart';
 import 'package:chat_location/features/user/presentation/ui/sign_up/sinup_library.dart';

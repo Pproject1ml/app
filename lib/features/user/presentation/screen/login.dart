@@ -6,7 +6,7 @@ import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
 import 'package:chat_location/controller/user_controller.dart';
 import 'package:chat_location/core/database/secure_storage.dart';
-import 'package:chat_location/features/map/screen/mapScreen.dart';
+import 'package:chat_location/features/map/presentation/screen/mapScreen.dart';
 import 'package:chat_location/features/user/presentation/component/login/login_button.dart';
 
 const LOGIN_LIST = [
