@@ -51,6 +51,7 @@ class _LoginPageState extends ConsumerState<SingUpPageView> {
               ),
               child: PageView(
                 controller: signUpNotifier.pageController,
+                physics: const NeverScrollableScrollPhysics(),
                 onPageChanged: (index) {
                   signUpNotifier.setCurrentPage(index);
                   signUpNotifier.setFocus(index);

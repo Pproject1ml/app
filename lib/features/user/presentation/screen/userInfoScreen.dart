@@ -66,19 +66,33 @@ class UserInfoScreen extends ConsumerWidget {
                                   ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                             const SizedBox(height: 2),
-                            Text(
-                              '27세 남자',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelMedium
-                                  ?.copyWith(color: TTColors.gray),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (auth.user.age != null)
+                                  Text(
+                                    '${auth.user.age}세',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelMedium
+                                        ?.copyWith(color: TTColors.gray),
+                                  ),
+                                if (auth.user.gender != null)
+                                  Text(
+                                    auth.user.gender == "male" ? "남자" : "여자",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelMedium
+                                        ?.copyWith(color: TTColors.gray),
+                                  ),
+                              ],
                             ),
                           ],
                         ),
                         const SizedBox(height: 4),
                         // 소개글
-                        roundedWithSharp('일이삼사오육칠팔구십일이삼사오육칠팔구\n'
-                            '일이삼사오육칠팔구십일이삼사오육칠팔구'),
+                        if (auth.user.introduction != null)
+                          roundedWithSharp(auth.user.introduction ?? ''),
                         const SizedBox(height: 16),
                         // 태그 리스트
                         Wrap(

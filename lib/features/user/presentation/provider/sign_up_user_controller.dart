@@ -18,7 +18,7 @@ class SignUpController extends StateNotifier<SignUpUser> {
   bool _isPage1Valid = false; // 첫 번째 페이지: 닉네임 중복 확인 여부
   bool _isPage2Valid = false; // 두 번째 페이지: 나이와 성별 입력 확인
   bool _isPage3Valid = false; // 세 번째 페이지: 한줄 소개 입력 확인
-
+  bool _isNicknameValid = false; // 닉네임 중복확인
   late final TextEditingController nicknameController;
   late final TextEditingController ageController;
   late final TextEditingController descriptionController;
@@ -75,43 +75,47 @@ class SignUpController extends StateNotifier<SignUpUser> {
 
   void setNickname(String nickname) {
     state = state.copyWith(nickname: nickname);
-    // bottomButton state 변경하기
+    _pageValidChecker(state); // valid 여부 확인
+    _updateBottomButton();
   }
 
-  void setAge(int age) {
-    state = state.copyWith(age: age);
-    // bottomButton state 변경하기
+  void setAge(int? age) {
+    state = state.copyWith(age: age ?? 0);
+    _pageValidChecker(state); // valid 여부 확인
+    _updateBottomButton();
   }
 
   void setIsVisible(bool isVisible) {
     state = state.copyWith(isVisible: isVisible);
-    // bottomButton state 변경하기
+    _pageValidChecker(state); // valid 여부 확인
+    _updateBottomButton();
   }
 
   void setIntroduction(String introduction) {
     state = state.copyWith(introduction: introduction);
-    // bottomButton state 변경하기
+    _pageValidChecker(state); // valid 여부 확인
+    _updateBottomButton();
   }
 
   void setGender(String gender) {
     state = state.copyWith(gender: gender);
-    // bottomButton state 변경하기
+    _pageValidChecker(state); // valid 여부 확인
+    _updateBottomButton();
   }
 
   void _nickeNameEventListener() {
     // 닉네임 중복 확인 및 유효성 체크
-
     setNickname(nicknameController.text);
-    _isPage1Valid = false; // 예시 조건
-    _updateBottomButton();
+    _isNicknameValid = false; // 이름이 바뀌면 nickname 중복확인 초기화;
   }
 
   void _ageEventListener() {
     // 나이 및 성별 입력 여부 체크
-    _isPage2Valid = ageController.text.isNotEmpty;
-
-    if (_isPage2Valid) setAge(int.parse(ageController.text));
-    _updateBottomButton();
+    if (ageController.text.isNotEmpty) {
+      setAge(int.parse(ageController.text));
+    } else {
+      setAge(null);
+    }
   }
 
   void _descriptionEventListener() {
@@ -141,6 +145,56 @@ class SignUpController extends StateNotifier<SignUpUser> {
     }
   }
 
+  void _pageValidChecker(SignUpUser user) {
+    switch (currentPage) {
+      case 0:
+        _page1ValidChecker(user);
+        _updateBottomButton();
+        break;
+      case 1:
+        _page2ValidChecker(user);
+        _updateBottomButton();
+        break;
+      case 2:
+        _page3ValidChecker(user);
+        _updateBottomButton();
+        break;
+    }
+  }
+
+  // 페이지 1이 valid한지 확인 로직
+  void _page1ValidChecker(SignUpUser user) {
+    // _isNicknamValid
+    if (user.nickname.isNotEmpty && _isNicknameValid) {
+      _isPage1Valid = true;
+    } else {
+      _isPage1Valid = false;
+    }
+  }
+
+// 페이지 2가 valid한지 확인 로직
+  void _page2ValidChecker(SignUpUser user) {
+    // age, 성별, 입력 여부
+    log(user.age.toString());
+    if (user.age != null &&
+        user.age! > 0 &&
+        user.age is int &&
+        user.gender != null) {
+      _isPage2Valid = true;
+    } else {
+      _isPage2Valid = false;
+    }
+  }
+
+  void _page3ValidChecker(SignUpUser user) {
+    // introduction check
+    if (user.introduction != null && user.introduction!.isNotEmpty) {
+      _isPage3Valid = true;
+    } else {
+      _isPage3Valid = false;
+    }
+  }
+
   // 닉네임 중복 확인 요청
   Future<void> isNickNameValid() async {
     final nickName = state.nickname;
@@ -148,19 +202,16 @@ class SignUpController extends StateNotifier<SignUpUser> {
       //서버에서 이름  중복 확인
       final isAvailable = await signUpRepository.isNicknameValid(nickName);
 
-      log('available id : ${isAvailable}');
       if (isAvailable) {
-        _isPage1Valid = true;
+        _isNicknameValid = true;
       }
       if (!isAvailable) {
-        _isPage1Valid = false;
+        _isNicknameValid = false;
       }
-      _updateBottomButton(); // 상태 업데이트
     } catch (e) {
-      nicknameError = "닉네임 확인에 실패했습니다.";
-
-      _updateBottomButton(); // 상태 업데이트
+      _isNicknameValid = false;
     }
+    _pageValidChecker(state);
   }
 
   void setCurrentPage(index) {

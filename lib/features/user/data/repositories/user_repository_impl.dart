@@ -75,8 +75,9 @@ class UserRepositoryImpl implements UserRepository {
   Future<void> updateUser(AppUser user) async {
     try {
       final userJson = user.toJson();
-      final response = await apiClient.post(
-          endpoint: 'auth/userinfo', data: userJson, setToken: true);
+      log("user Info: ${userJson}");
+      final response = await apiClient.patch(
+          endpoint: 'user', data: userJson, setToken: true);
       log("updateuser : ${response.toString()}");
     } catch (error, stackTrace) {
       log('Error in getUserProfile: $error', stackTrace: stackTrace);

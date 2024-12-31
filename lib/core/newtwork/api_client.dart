@@ -9,14 +9,15 @@ class ApiClient {
   ApiClient(this.baseUrl);
 
   // GET 요청
-  Future<dynamic> get({required String endpoint, bool setToke = false}) async {
+  Future<dynamic> get({required String endpoint, bool setToken = false}) async {
     final headers = await _getHeaders();
     return _requestWithAuth(
-        request: () => http.get(
-              Uri.parse('$baseUrl$endpoint'),
-              headers: headers,
-            ),
-        setToken: setToke);
+      request: () => http.get(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: headers,
+      ),
+      setToken: setToken,
+    );
   }
 
   // POST 요청
@@ -27,12 +28,30 @@ class ApiClient {
     final headers = await _getHeaders();
 
     return _requestWithAuth(
-        request: () => http.post(
-              Uri.parse('$baseUrl$endpoint'),
-              headers: headers,
-              body: jsonEncode(data),
-            ),
-        setToken: setToken);
+      request: () => http.post(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: headers,
+        body: jsonEncode(data),
+      ),
+      setToken: setToken,
+    );
+  }
+
+  // PATCH 요청
+  Future<dynamic> patch(
+      {required String endpoint,
+      Map<String, dynamic>? data,
+      bool setToken = false}) async {
+    final headers = await _getHeaders();
+
+    return _requestWithAuth(
+      request: () => http.patch(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: headers,
+        body: jsonEncode(data),
+      ),
+      setToken: setToken,
+    );
   }
 
   // 공통 요청 처리
@@ -77,9 +96,10 @@ class ApiClient {
   // 헤더 생성
   Future<Map<String, String>> _getHeaders() async {
     final token = await SecureStorageHelper.getAuthToken();
+    log("token:${token}");
     return {
       'Content-Type': 'application/json',
-      if (token != null) 'Authorization': 'Bearer $token',
+      if (token != null) 'Authorization': token,
     };
   }
 

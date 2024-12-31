@@ -6,6 +6,7 @@ import 'package:chat_location/constants/data.dart';
 import 'package:chat_location/controller/user_controller.dart';
 import 'package:chat_location/features/user/domain/entities/auth.dart';
 import 'package:chat_location/features/user/domain/entities/user.dart';
+import 'package:chat_location/features/user/presentation/provider/edit_user_controller.dart';
 import 'package:chat_location/features/user/presentation/screen/userInfoScreen.dart';
 import 'package:chat_location/features/user/presentation/ui/build_tag_box.dart';
 import 'package:flutter/material.dart';
@@ -49,9 +50,9 @@ class _EditUserState extends ConsumerState<EditUser> {
   @override
   Widget build(BuildContext context) {
     log("UserName: ${widget.currentUser.nickname}");
-    final _tempUserInfo = ref.watch(_userProfileProvider(widget.currentUser));
+    final _tempUserInfo = ref.watch(userProfileProvider(widget.currentUser));
     final _tempUserNotifier =
-        ref.read(_userProfileProvider(widget.currentUser).notifier);
+        ref.read(userProfileProvider(widget.currentUser).notifier);
     return Container(
       decoration: BoxDecoration(
           color: Colors.white,
@@ -283,43 +284,3 @@ class _EditUserState extends ConsumerState<EditUser> {
     );
   }
 }
-
-class UserProfileNotifier extends StateNotifier<AppUser> {
-  UserProfileNotifier(AppUser initialUser) : super(initialUser);
-
-  // 이름 업데이트
-  void updateName(String nickname) {
-    state = state.copyWith(nickname: nickname);
-  }
-
-  // 사진 URL 업데이트
-  void updatePhoto(String photoUrl) {
-    state = state.copyWith(profileImage: photoUrl);
-  }
-
-  // 성별 공개 여부 업데이트
-  void toggleGenderVisibility(bool isVisible) {
-    // state = state.copyWith(isGenderVisible: isVisible);
-  }
-
-  // 랜드마크 공개 여부 업데이트
-  void toggleLandmarkVisibility(bool isVisible) {
-    // state = state.copyWith(isLandmarkVisible: isVisible);
-  }
-
-  // 한줄 소개 업데이트
-  void updateIntroduction(String introduction) {
-    state = state.copyWith(introduction: introduction);
-  }
-}
-
-final _userProfileProvider = StateNotifierProvider.autoDispose
-    .family<UserProfileNotifier, AppUser, AppUser>(
-  (ref, initialUser) {
-    log("provider start");
-    ref.onDispose(
-      () => {log("dispose provider")},
-    );
-    return UserProfileNotifier(initialUser);
-  },
-);

@@ -10,6 +10,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
+import 'package:lottie/lottie.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 /// Splash 화면으로 초기화 작업 및 사용자 인증 확인을 처리합니다.
@@ -57,14 +58,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       'assets/svgs/kakao.svg',
       'assets/svgs/google.svg',
     ]);
+    await Future.delayed(const Duration(seconds: 2));
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: SafeArea(
         child: Center(
-          child: CircularProgressIndicator(),
+          child: Lottie.asset('assets/animation/logo.json', repeat: true),
         ),
       ),
     );
