@@ -14,6 +14,7 @@ class UserModel {
   final String oauthProvider;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final bool isVisible;
   final bool isDeleted;
 
   UserModel({
@@ -29,6 +30,7 @@ class UserModel {
     required this.oauthProvider,
     required this.createdAt,
     required this.updatedAt,
+    required this.isVisible,
     required this.isDeleted,
   });
 
@@ -47,6 +49,7 @@ class UserModel {
       oauthProvider: json['oauthProvider'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
+      isVisible: json['isVisible'] as bool,
       isDeleted: json['isDeleted'] as bool,
     );
   }
@@ -66,7 +69,8 @@ class UserModel {
       'oauthProvider': oauthProvider,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
-      'active': isDeleted,
+      'isVisible': isVisible,
+      'isDeleted': isDeleted,
     };
   }
 
@@ -85,7 +89,8 @@ class UserModel {
     String? oauthProvider,
     DateTime? createdAt,
     DateTime? updatedAt,
-    bool? active,
+    bool? isVisible,
+    bool? isDeleted,
   }) {
     return UserModel(
       memberId: memberId ?? this.memberId,
@@ -100,7 +105,8 @@ class UserModel {
       oauthProvider: oauthProvider ?? this.oauthProvider,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      isDeleted: active ?? this.isDeleted,
+      isVisible: isVisible ?? this.isVisible,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 
@@ -116,6 +122,7 @@ class UserModel {
       gender: gender,
       role: role,
       oauthProvider: oauthProvider,
+      isVisible: isVisible,
       isDeleted: isDeleted,
     );
   }

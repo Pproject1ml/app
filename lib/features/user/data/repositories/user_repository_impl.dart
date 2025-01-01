@@ -22,7 +22,8 @@ class UserRepositoryImpl implements UserRepository {
           memberId: 'memberId',
           oauthId: "oauthId",
           nickname: "nickname",
-          oauthProvider: "oauthProvider");
+          oauthProvider: "oauthProvider",
+          isVisible: true);
     } catch (error, stackTrace) {
       log('Error in getUserProfile: $error', stackTrace: stackTrace);
 
@@ -59,9 +60,6 @@ class UserRepositoryImpl implements UserRepository {
     try {
       final response = await apiClient.post(
           endpoint: 'auth/signup', data: body, setToken: true);
-      // login
-      // final res = UserModel.fromJson(response['data']);
-      // final appUser = AppUser.fromUserModel(res);
       log("loginuser : ${response.toString()}");
       return;
     } catch (error, stackTrace) {
@@ -75,10 +73,8 @@ class UserRepositoryImpl implements UserRepository {
   Future<void> updateUser(AppUser user) async {
     try {
       final userJson = user.toJson();
-      log("user Info: ${userJson}");
-      final response = await apiClient.patch(
-          endpoint: 'user', data: userJson, setToken: true);
-      log("updateuser : ${response.toString()}");
+
+      await apiClient.patch(endpoint: 'user', data: userJson, setToken: true);
     } catch (error, stackTrace) {
       log('Error in getUserProfile: $error', stackTrace: stackTrace);
 

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:chat_location/controller/location_controller.dart';
 import 'package:chat_location/features/map/domain/entities/chat_room.dart';
 import 'package:chat_location/features/map/domain/entities/landmark.dart';
@@ -5,14 +7,12 @@ import 'package:chat_location/features/map/presentation/component/chat_list.dart
 
 import 'package:chat_location/features/map/presentation/component/map.dart';
 import 'package:chat_location/features/map/presentation/component/refresh.dart';
+import 'package:chat_location/features/map/presentation/provider/googl_map_controller.dart';
+import 'package:chat_location/features/map/presentation/provider/landmark_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-// const LOCATION_DATA = [
-//   {"lat": 37.5658049, "lon": 126.9751461, "name": "덕수궁"},
-//   {"lat": 37.5511694, "lon": 126.9882266, "name": "남산타워"},
-//   {"lat": 37.579617, "lon": 126.977041, "name": "경복궁"},
-// ];
 final List<ChatRoom_> chatRooms = [
   ChatRoom_(
     id: 0,
@@ -45,26 +45,6 @@ final List<ChatRoom_> chatRooms = [
         radius: 10),
   )
 ];
-final List<Landmark_> LandmarkDatas = [
-  Landmark_(
-      id: 0,
-      name: "경복궁",
-      latitude: 37.579617,
-      longitude: 126.977041,
-      radius: 10),
-  Landmark_(
-      id: 1,
-      name: "남산타워",
-      latitude: 37.5511694,
-      longitude: 126.9882266,
-      radius: 10),
-  Landmark_(
-      id: 2,
-      name: "덕수궁",
-      latitude: 37.5658049,
-      longitude: 126.9751461,
-      radius: 10),
-];
 
 class MapScreen extends ConsumerStatefulWidget {
   static const String routeName = '/map'; // routeName 정의
@@ -81,18 +61,35 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     // TODO: implement initState
     super.initState();
 
-    ref.read(positionProvider.notifier).startPositionStream();
+    ref.read(positionProvider.notifier).startPositionStream().then((_) => {
+          Future.delayed(Duration.zero, () async {
+            await ref
+                .read(landmarkListProvider.notifier)
+                .getAllLandMarkFromServer(
+                    currentPosition: ref
+                        .read(positionProvider.notifier)
+                        .getCurrentPosition());
+          })
+        });
+  }
+
+  Future<void> onRefresh() async {
+    await ref.read(landmarkListProvider.notifier).getAllLandMarkFromServer(
+        currentPosition:
+            ref.read(positionProvider.notifier).getCurrentPosition());
   }
 
   @override
   Widget build(BuildContext context) {
     final currentPosition = ref.watch(positionProvider);
+    final landmarks = ref.watch(landmarkListProvider);
 
     return Scaffold(
       body: Stack(
         children: [
           Map(
-            landmarks: chatRooms,
+            chatRooms: chatRooms,
+            landmarks: landmarks,
           ),
           SafeArea(
             child: Padding(
@@ -104,7 +101,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   )),
             ),
           ),
-          Positioned(bottom: 20, left: 12, child: RefreshLocation()),
         ],
       ),
     );

@@ -1,7 +1,9 @@
+import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/features/chat/screen/chat_list_screen.dart';
 import 'package:chat_location/features/map/presentation/screen/mapScreen.dart';
 import 'package:chat_location/features/user/presentation/screen/userInfoScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
 class BottomNavigationBarScaffold extends StatefulWidget {
@@ -53,11 +55,12 @@ class _BottomNavigationBarScaffoldState
         body: widget.child,
         bottomNavigationBar: NavigationBar(
             selectedIndex: _index,
-            destinations: const [
+            destinations: [
+              const NavigationDestination(label: '홈', icon: Icon(Icons.home)),
               NavigationDestination(
-                  label: 'map', icon: Icon(Icons.check_circle)),
-              NavigationDestination(label: 'chat', icon: Icon(Icons.dashboard)),
-              NavigationDestination(label: 'profile', icon: Icon(Icons.person)),
+                  label: '채팅', icon: SvgPicture.asset('assets/svgs/chat.svg')),
+              const NavigationDestination(
+                  label: '마이페이지', icon: Icon(Icons.person)),
             ],
             onDestinationSelected: onDestinationSelected));
   }
@@ -71,10 +74,34 @@ class ShellRouteIndex extends StatelessWidget {
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.check_circle), label: 'map'),
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'chat'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'profile'),
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+              icon: SvgPicture.asset(
+                'assets/svgs/home.svg',
+              ),
+              activeIcon: SvgPicture.asset(
+                'assets/svgs/home.svg',
+                color: TTColors.ttPurple,
+              ),
+              label: '홈'),
+          BottomNavigationBarItem(
+              icon: SvgPicture.asset(
+                'assets/svgs/chat.svg',
+              ),
+              activeIcon: SvgPicture.asset(
+                'assets/svgs/chat.svg',
+                color: TTColors.ttPurple,
+              ),
+              label: '채팅'),
+          BottomNavigationBarItem(
+              icon: SvgPicture.asset(
+                'assets/svgs/person.svg',
+              ),
+              activeIcon: SvgPicture.asset(
+                'assets/svgs/person.svg',
+                color: TTColors.ttPurple,
+              ),
+              label: '마이페이지'),
         ],
         currentIndex: navigationShell.currentIndex,
         onTap: (int index) {

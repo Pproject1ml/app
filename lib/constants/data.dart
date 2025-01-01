@@ -23,6 +23,7 @@ double heightRatio(double height) {
 int selectedUserId = 0;
 int userListLength = 0;
 
+String BASE_URL = "http://3.37.171.121:8080/";
 // user info 와 관련된 데이터 정의
 
 // 어디에서 input_user_screen으로 진입하는지 분기점 설정

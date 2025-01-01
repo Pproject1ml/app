@@ -12,6 +12,7 @@ class AppUser {
   final String? gender;
   final String role;
   final String oauthProvider;
+  final bool isVisible;
   final bool isDeleted;
 
   AppUser({
@@ -25,6 +26,7 @@ class AppUser {
     this.gender,
     this.role = "USER",
     required this.oauthProvider,
+    required this.isVisible,
     this.isDeleted = false,
   });
 
@@ -41,6 +43,7 @@ class AppUser {
       'gender': gender,
       'role': role, // 열거형을 문자열로 저장
       'oauthProvider': oauthProvider,
+      'isVisible': isVisible,
       'isDeleted': isDeleted,
     };
   }
@@ -57,6 +60,7 @@ class AppUser {
       gender: json['gender'] as String?,
       role: json['role'] as String ?? 'USER',
       oauthProvider: json['oauthProvider'] as String,
+      isVisible: json['isVisible'] as bool ?? true,
       isDeleted: json['isDeleted'] as bool? ?? false,
     );
   }
@@ -73,6 +77,7 @@ class AppUser {
     String? gender,
     String? role,
     String? oauthProvider,
+    bool? isVisible,
     bool? isDeleted,
   }) {
     return AppUser(
@@ -86,6 +91,7 @@ class AppUser {
       gender: gender ?? this.gender,
       role: role ?? this.role,
       oauthProvider: oauthProvider ?? this.oauthProvider,
+      isVisible: isVisible ?? this.isVisible,
       isDeleted: isDeleted ?? this.isDeleted,
     );
   }
@@ -102,6 +108,7 @@ class AppUser {
       gender: userModel.gender,
       role: userModel.role,
       oauthProvider: userModel.oauthProvider,
+      isVisible: userModel.isVisible,
       isDeleted: userModel.isDeleted,
     );
   }
@@ -120,6 +127,7 @@ class AppUser {
       oauthProvider: oauthProvider,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      isVisible: isVisible,
       isDeleted: isDeleted,
     );
   }

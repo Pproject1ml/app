@@ -124,17 +124,19 @@ class SignUpTextInput extends StatelessWidget {
       required this.focusNode,
       required this.hintText,
       this.maxLength = 40,
-      this.maxLines = 4});
+      this.maxLines = 4,
+      this.onTapOutsideAutoFocuseOut = true});
   final TextEditingController controller;
   final FocusNode focusNode;
   final int? maxLines;
   final int? maxLength;
   final String hintText;
+  final bool onTapOutsideAutoFocuseOut;
   @override
   Widget build(BuildContext context) {
     return TextField(
       onTapOutside: (event) {
-        FocusScope.of(context).unfocus();
+        if (onTapOutsideAutoFocuseOut) FocusScope.of(context).unfocus();
       },
       autocorrect: false,
       controller: controller,

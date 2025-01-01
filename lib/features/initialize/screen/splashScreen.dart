@@ -28,7 +28,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-
+    log("splash Screen initState");
     // 앱 초기화 작업을 실행하고 사용자 인증 상태를 확인합니다.
     _initializeApp().then((_) {
       Future.delayed(Duration.zero, () async {
@@ -59,10 +59,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       'assets/svgs/google.svg',
     ]);
     await Future.delayed(const Duration(seconds: 2));
+    log("splash screen init end");
   }
 
   @override
   Widget build(BuildContext context) {
+    log("splash Screen build");
     return Scaffold(
       body: SafeArea(
         child: Center(

@@ -1,8 +1,9 @@
-import 'dart:async';
-import 'package:chat_location/common/dialog/landmark_dialog.dart';
-import 'package:chat_location/constants/data.dart';
+import 'dart:developer';
 import 'package:chat_location/controller/location_controller.dart';
 import 'package:chat_location/features/map/domain/entities/chat_room.dart';
+import 'package:chat_location/features/map/domain/entities/landmark.dart';
+import 'package:chat_location/features/map/presentation/component/refresh.dart';
+import 'package:chat_location/features/map/presentation/provider/googl_map_controller.dart';
 
 import 'package:chat_location/features/map/utils/map_utils.dart';
 import 'package:flutter/services.dart';
@@ -12,101 +13,104 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Map extends ConsumerStatefulWidget {
-  const Map({super.key, required this.landmarks});
-  final List<ChatRoom_> landmarks;
+  const Map({super.key, required this.chatRooms, this.landmarks = const []});
+  final List<ChatRoom_> chatRooms;
+  final List<Landmark_> landmarks;
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _GoogleMapState();
 }
 
 class _GoogleMapState extends ConsumerState<Map> {
-  final Completer<GoogleMapController> _controller =
-      Completer<GoogleMapController>();
-  BitmapDescriptor userMarker = BitmapDescriptor.defaultMarker;
-  Set<Marker> _markers = {};
-  Set<Circle> _circles = {};
   late String _mapStyleString;
 
   @override
   void initState() {
     // TODO: implement initState
+    log("map init");
     // google map dar theme 설정 파일 로드
     rootBundle
         .loadString('assets/json/google_map_dark_mode.json')
         .then((string) {
       _mapStyleString = string;
     });
-    _createUserCustomMarker();
-    _createCustomMarker();
     super.initState();
   }
 
-  void _createCustomMarker() async {
-    Set<Marker> markers = {};
-
-    for (var data in widget.landmarks) {
-      final markerIcon = await createLandmarkMarkers();
-
-      markers.add(
-        Marker(
-            markerId: MarkerId(data.id.toString()),
-            position: LatLng(data.landmark.latitude, data.landmark.longitude),
-            icon: markerIcon,
-            // infoWindow: InfoWindow(title: data['name'] as String),
-            onTap: () {
-              landmarkDialog(context, data);
-            }),
+  Future<void> handleClickRefresh(LatLng position) async {
+    // 현재 위치를 바탕으로 landMark 정보를 다시 요청한다.
+    try {
+      ref.read(googleMapStateProvider.notifier).animateCamera(position);
+      // 랜드마크 데이터 요청 api call
+      await Future.delayed(Duration(seconds: 3));
+      final List<Landmark_> LandmarkDatas = [
+        Landmark_(
+            id: 0,
+            name: "경복궁",
+            latitude: 37.579617,
+            longitude: 126.977041,
+            radius: 10),
+        Landmark_(
+            id: 1,
+            name: "남산타워",
+            latitude: 37.5511694,
+            longitude: 126.9882266,
+            radius: 10),
+        Landmark_(
+            id: 2,
+            name: "덕수궁",
+            latitude: 37.5658049,
+            longitude: 126.9751461,
+            radius: 10),
+      ];
+      // 가져온 정보로 marker update
+      await ref
+          .read(googleMapStateProvider.notifier)
+          .updateMarker(LandmarkDatas);
+      // 지도 중심을 이동
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+          duration: Duration(seconds: 3),
+        ),
       );
     }
-    setState(() {
-      _markers = markers; // 상태 업데이트
-    });
-  }
-
-  void _createUserCustomMarker() {
-    BitmapDescriptor.asset(
-            const ImageConfiguration(), "assets/images/user_marker.png",
-            height: heightRatio(71.12), width: widthRatio(53))
-        .then((icon) {
-      setState(() {
-        userMarker = icon;
-      });
-    });
-  }
-
-  void _setCircle(currentPosition) {
-    setState(() {
-      _circles = createCircle(currentPosition);
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    GoogleMapController? mapController;
-    void onMapCreated(GoogleMapController controller) {
-      mapController = controller;
+    final position = ref.watch(positionProvider);
+    if (position == null) {
+      return const Center(child: CircularProgressIndicator());
     }
+    final googleMapState = ref.watch(googleMapStateProvider);
 
-    final currentPosition = ref.watch(positionProvider);
-    if (currentPosition == null) {
-      return const CircularProgressIndicator();
-    }
-    _setCircle(currentPosition);
-    return GoogleMap(
-      onMapCreated: onMapCreated,
-      initialCameraPosition: CameraPosition(
-        target: currentPosition,
-        zoom: 15.0,
-      ),
-      myLocationButtonEnabled: true,
-      circles: _circles, // 원 추가
-      markers: {
-        ..._markers,
-        Marker(
-            markerId: MarkerId('currentLocation'),
-            position: currentPosition,
-            icon: userMarker),
-      },
-      // style: _mapStyleString,
+    // _createCustomMarker();
+    return Stack(
+      children: [
+        GoogleMap(
+            onMapCreated:
+                ref.read(googleMapStateProvider.notifier).onMapCreated,
+            initialCameraPosition: CameraPosition(
+              target: position,
+              zoom: 12.0,
+            ),
+            mapToolbarEnabled: false,
+            myLocationButtonEnabled: false,
+            myLocationEnabled: true,
+            markers: googleMapState.markers,
+            circles: googleMapState.circle.isEmpty
+                ? createCircle(position)
+                : googleMapState.circle),
+        Positioned(
+            bottom: 20,
+            left: 12,
+            child: RefreshLocation(
+              onRefresh: () async {
+                await handleClickRefresh(position);
+              },
+            )),
+      ],
     );
   }
 }

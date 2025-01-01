@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class RefreshLocation extends ConsumerStatefulWidget {
-  const RefreshLocation({super.key});
-
+  const RefreshLocation({super.key, required this.onRefresh});
+  final Future<void> Function() onRefresh;
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
       _RefreshLocationState();
@@ -12,24 +12,7 @@ class RefreshLocation extends ConsumerStatefulWidget {
 
 class _RefreshLocationState extends ConsumerState<RefreshLocation> {
   Future<void> _refreshLocation() async {
-    // await Future.delayed(const Duration(seconds: 10)); // 예시로 2초 대기
-    showModalBottomSheet(
-      context: context,
-      //  isScrollControlled: true,
-      useSafeArea: true,
-      builder: (BuildContext context) {
-        return Container(
-          // height: 200,
-          color: Colors.white,
-          child: Center(
-            child: Text(
-              'This is a Bottom Popup!',
-              style: TextStyle(fontSize: 18),
-            ),
-          ),
-        );
-      },
-    );
+    await widget.onRefresh();
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'package:chat_location/common/dialog/bottom_up_dialog.dart';
 import 'package:chat_location/common/ui/box/round_user_image_box.dart';
 import 'package:chat_location/common/ui/box/rounded_with_sharp_box.dart';
 import 'package:chat_location/constants/colors.dart';
@@ -124,23 +125,25 @@ class UserInfoScreen extends ConsumerWidget {
                       right: 24,
                       child: IconButton(
                           onPressed: () => {
-                                // showDialog(
-                                //       context: context,
-                                //       barrierDismissible: true, // 외부 탭으로 닫기 가능
-                                //       builder: (BuildContext context) {
-                                //         return BottomUpDialog(child: EditUser(currentUser: auth.user),);
-                                //       },
-                                //     )
-                                showModalBottomSheet(
-                                    useSafeArea: false,
-                                    isScrollControlled: true,
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return SizedBox(
-                                          height: heightRatio(763),
-                                          child:
-                                              EditUser(currentUser: auth.user));
-                                    })
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: true, // 외부 탭으로 닫기 가능
+                                  builder: (BuildContext context) {
+                                    return BottomUpDialog(
+                                      child: EditUser(currentUser: auth.user),
+                                    );
+                                  },
+                                )
+                                // showModalBottomSheet(
+                                //     useSafeArea: false,
+                                //     isScrollControlled: true,
+                                //     context: context,
+                                //     builder: (BuildContext context) {
+                                //       return SizedBox(
+                                //           height: heightRatio(763),
+                                //           child:
+                                //               EditUser(currentUser: auth.user));
+                                //     })
                               },
                           icon: const Icon(
                             Icons.edit,

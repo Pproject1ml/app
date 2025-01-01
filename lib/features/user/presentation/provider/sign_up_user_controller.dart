@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:chat_location/constants/data.dart';
 import 'package:chat_location/controller/user_controller.dart';
 import 'package:chat_location/core/newtwork/api_client.dart';
 import 'package:chat_location/features/user/data/repositories/sign_up_repository_impl.dart';
@@ -282,8 +283,7 @@ final signUpProvider = StateNotifierProvider.autoDispose
 );
 
 // base Url입력하면 됩니다.
-final apiClientProvider =
-    Provider((ref) => ApiClient("http://192.168.0.11:8080/"));
+final apiClientProvider = Provider((ref) => ApiClient(BASE_URL));
 
 // signUp 관련 provider
 final signUpRepositoryProvider =

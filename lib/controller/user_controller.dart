@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:chat_location/constants/data.dart';
 import 'package:chat_location/core/database/shared_preference.dart';
 import 'package:chat_location/core/newtwork/api_client.dart';
 import 'package:chat_location/features/initialize/screen/splashScreen.dart';
@@ -23,9 +24,9 @@ enum LoginPlatform { GOOGLE, KAKAO }
 
 class UserController with ChangeNotifier {
   // userRepository 안에 api 통신을 위한 매서드가 정의되어있으니 사용하면 됩니다.
-  final MODE mode = MODE.normal;
+  final MODE mode = MODE.main;
   final UserRepositoryImpl userRepository;
-
+  String routeNameFrom = MapScreen.routeName;
   UserController(this.userRepository);
 
   // AuthState
@@ -33,9 +34,9 @@ class UserController with ChangeNotifier {
 
   AuthState get authState => _authState;
 
-  Future<void> init() async {
-    await checkIfAuthenticated();
-  }
+  // Future<void> init() async {
+  //   await checkIfAuthenticated();
+  // }
 
 // 로컬 유저 확인
   Future<void> checkIfAuthenticated() async {
@@ -58,13 +59,13 @@ class UserController with ChangeNotifier {
 
         // 기존 유저 정보를 복사하면서 새로운 정보를 업데이트
         final updatedUser = authenticatedState.user.copyWith(
-          nickname: userInfo.nickname,
-          email: userInfo.email,
-          profileImage: userInfo.profileImage,
-          introduction: userInfo.introduction,
-          age: userInfo.age,
-          gender: userInfo.gender,
-        );
+            nickname: userInfo.nickname,
+            email: userInfo.email,
+            profileImage: userInfo.profileImage,
+            introduction: userInfo.introduction,
+            age: userInfo.age,
+            gender: userInfo.gender,
+            isVisible: userInfo.isVisible);
         // 유저 정보 변경 api
         await userRepository.updateUser(updatedUser);
 
@@ -73,15 +74,13 @@ class UserController with ChangeNotifier {
 
         // 상태 업데이트
         _authState = AuthStateAuthenticated(updatedUser);
-
-        log("User updated: ${updatedUser.nickname}");
-        notifyListeners();
-      } catch (error) {
-        throw Exception("user 정보 변경에 실패하였습니다.");
+      } catch (e) {
+        throw "user 정보 변경에 실패하였습니다.";
       }
     } else {
       log("Cannot update user info: User is not authenticated.");
     }
+    notifyListeners();
   }
 
   dynamic getUser() {
@@ -162,7 +161,8 @@ class UserController with ChangeNotifier {
             memberId: "0",
             oauthId: "oauthId",
             nickname: "tester",
-            oauthProvider: "Google");
+            oauthProvider: "Google",
+            isVisible: true);
       }
       if (mode == MODE.normal) {
         user = await userRepository.signIn(_body);
@@ -231,7 +231,7 @@ class UserController with ChangeNotifier {
             ? LoginPage.routeName + SingUpPage.routeName
             : null;
       }
-      return isAuthenticated ? MapScreen.routeName : LoginPage.routeName;
+      return isAuthenticated ? routeNameFrom : LoginPage.routeName;
     }
     // 만약 로그인 페이지인데 인증 중이면 그대로, 인증되었다면 가던기, 아니면 로그인
     if (goRouterState.matchedLocation.endsWith(LoginPage.routeName)) {
@@ -241,7 +241,7 @@ class UserController with ChangeNotifier {
             ? LoginPage.routeName + SingUpPage.routeName
             : null;
       }
-      return isAuthenticated ? null : LoginPage.routeName;
+      return isAuthenticated ? MapScreen.routeName : LoginPage.routeName;
     }
     // 만약 회원가입 페이지인데 인증 중이면 그대로, 인증되었다면 가던기, 아니면 로그인
     if (goRouterState.matchedLocation.endsWith(SingUpPage.routeName)) {
@@ -249,8 +249,13 @@ class UserController with ChangeNotifier {
         return null;
       }
     }
-
-    return isAuthenticated ? null : LoginPage.routeName;
+    if (isAuthenticated) {
+      routeNameFrom = goRouterState.fullPath ?? MapScreen.routeName;
+      return null;
+    }
+    if (!isAuthenticated) {
+      return LoginPage.routeName;
+    }
   }
 }
 
@@ -260,8 +265,7 @@ final userProvider = ChangeNotifierProvider((ref) {
 });
 
 // base Url입력하면 됩니다.
-final apiClientProvider =
-    Provider((ref) => ApiClient("http://192.168.0.11:8080/"));
+final apiClientProvider = Provider((ref) => ApiClient(BASE_URL));
 
 // user 관련 provider
 final userRepositoryProvider =

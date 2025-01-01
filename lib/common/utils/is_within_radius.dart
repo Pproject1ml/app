@@ -1,21 +1,21 @@
-import 'package:geolocator/geolocator.dart';
+import 'dart:math';
 
-/// 특정 위도와 경도에서 반경 100m 이내인지 확인
-bool isWithinRadius({
-  required double targetLatitude,
-  required double targetLongitude,
-  required double radius,
-  required double currentLatitude,
-  required double currentLongitude,
-}) {
-  // 두 지점 간의 거리 계산
-  double distance = Geolocator.distanceBetween(
-    currentLatitude,
-    currentLongitude,
-    targetLatitude,
-    targetLongitude,
-  );
+bool isWithinRadius(
+    double lat1, double lon1, double lat2, double lon2, double radiusKm) {
+  const double earthRadiusKm = 6371.0;
 
-  // 거리 비교
-  return distance <= radius;
+  final double lat1Rad = lat1 * pi / 180;
+  final double lon1Rad = lon1 * pi / 180;
+  final double lat2Rad = lat2 * pi / 180;
+  final double lon2Rad = lon2 * pi / 180;
+
+  final double deltaLat = lat2Rad - lat1Rad;
+  final double deltaLon = lon2Rad - lon1Rad;
+
+  final double a = pow(sin(deltaLat / 2), 2) +
+      cos(lat1Rad) * cos(lat2Rad) * pow(sin(deltaLon / 2), 2);
+  final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+  final double distanceKm = earthRadiusKm * c;
+  return distanceKm <= radiusKm;
 }

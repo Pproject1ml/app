@@ -1,5 +1,6 @@
 import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
+import 'package:chat_location/constants/text_style.dart';
 import 'package:chat_location/constants/theme.dart';
 import 'package:chat_location/pages/router.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,22 @@ class MyApp extends ConsumerWidget {
           color: Colors.white,
           centerTitle: true,
         ),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+            elevation: 0,
+            backgroundColor: Colors.white,
+            selectedIconTheme: const IconThemeData(
+              size: 24,
+              color: TTColors.ttPurple,
+              shadows: [
+                Shadow(blurRadius: 10, color: Colors.grey, offset: Offset.zero)
+              ],
+            ),
+            unselectedIconTheme:
+                const IconThemeData(size: 24, color: TTColors.gray3),
+            selectedLabelStyle:
+                TTTextStyle.captionMedium12.copyWith(color: TTColors.ttPurple),
+            unselectedLabelStyle:
+                TTTextStyle.captionMedium12.copyWith(color: TTColors.gray3)),
         navigationBarTheme:
             const NavigationBarThemeData(backgroundColor: Colors.white),
         dialogBackgroundColor: Colors.white,
@@ -50,6 +67,22 @@ class MyApp extends ConsumerWidget {
         ),
         textTheme: TTTextTheme.darkTextTheme,
         scaffoldBackgroundColor: Colors.black,
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+            elevation: 0,
+            backgroundColor: Colors.black,
+            selectedIconTheme: const IconThemeData(
+              size: 24,
+              color: TTColors.ttPurple,
+              shadows: [
+                Shadow(blurRadius: 10, color: Colors.grey, offset: Offset.zero)
+              ],
+            ),
+            unselectedIconTheme:
+                const IconThemeData(size: 24, color: TTColors.gray3),
+            selectedLabelStyle:
+                TTTextStyle.captionMedium12.copyWith(color: TTColors.ttPurple),
+            unselectedLabelStyle:
+                TTTextStyle.captionMedium12.copyWith(color: TTColors.gray3)),
         appBarTheme: const AppBarTheme(color: Colors.black, centerTitle: true),
         navigationBarTheme:
             const NavigationBarThemeData(backgroundColor: Colors.black),
