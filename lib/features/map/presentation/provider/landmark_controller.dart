@@ -43,8 +43,14 @@ class LandmarkListNotifier extends StateNotifier<List<Landmark_>> {
   }
 
   // 내 위치에서 접근 가능한 랜드마크 서버에서 가져오기
-  Future<void> getAvailableLangMarkFromServer(
-      {required double currentLat, required double currentLon}) async {}
+  Future<void> getAvailableLangMarkFromServer({LatLng? position}) async {
+    try {
+      await landmarkRepository.getAvailableLandmark(
+          position!.latitude, position!.longitude);
+    } catch (e) {
+      throw e;
+    }
+  }
 
   // 현재 State에서 접근 가능한 landMark 가져오기
   void getAvailableLandMark() {}

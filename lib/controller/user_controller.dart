@@ -24,7 +24,7 @@ enum LoginPlatform { GOOGLE, KAKAO }
 
 class UserController with ChangeNotifier {
   // userRepository 안에 api 통신을 위한 매서드가 정의되어있으니 사용하면 됩니다.
-  final MODE mode = MODE.main;
+  final MODE mode = MODE.normal;
   final UserRepositoryImpl userRepository;
   String routeNameFrom = MapScreen.routeName;
   UserController(this.userRepository);

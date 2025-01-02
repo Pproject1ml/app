@@ -4,6 +4,7 @@ import 'package:chat_location/features/map/domain/entities/chat_room.dart';
 import 'package:chat_location/features/map/domain/entities/landmark.dart';
 import 'package:chat_location/features/map/presentation/component/refresh.dart';
 import 'package:chat_location/features/map/presentation/provider/googl_map_controller.dart';
+import 'package:chat_location/features/map/presentation/provider/landmark_controller.dart';
 
 import 'package:chat_location/features/map/utils/map_utils.dart';
 import 'package:flutter/services.dart';
@@ -62,6 +63,13 @@ class _GoogleMapState extends ConsumerState<Map> {
             longitude: 126.9751461,
             radius: 10),
       ];
+
+      await ref
+          .read(landmarkListProvider.notifier)
+          .getAvailableLangMarkFromServer(
+              position:
+                  ref.read(positionProvider.notifier).getCurrentPosition());
+
       // 가져온 정보로 marker update
       await ref
           .read(googleMapStateProvider.notifier)

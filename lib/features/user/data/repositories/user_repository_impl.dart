@@ -35,7 +35,7 @@ class UserRepositoryImpl implements UserRepository {
   Future<AppUser?> signIn(Map<String, dynamic> body) async {
     try {
       final response = await apiClient.post(
-          endpoint: 'auth/login', data: body, setToken: true);
+          endpoint: '/auth/login', data: body, setToken: true);
       final status = response['status'];
       // signin
       if (status == signupStatusCode) {
@@ -59,7 +59,7 @@ class UserRepositoryImpl implements UserRepository {
   Future<void> signUp(Map<String, dynamic> body) async {
     try {
       final response = await apiClient.post(
-          endpoint: 'auth/signup', data: body, setToken: true);
+          endpoint: '/auth/signup', data: body, setToken: true);
       log("loginuser : ${response.toString()}");
       return;
     } catch (error, stackTrace) {
@@ -74,7 +74,7 @@ class UserRepositoryImpl implements UserRepository {
     try {
       final userJson = user.toJson();
 
-      await apiClient.patch(endpoint: 'user', data: userJson, setToken: true);
+      await apiClient.patch(endpoint: '/user', data: userJson, setToken: true);
     } catch (error, stackTrace) {
       log('Error in getUserProfile: $error', stackTrace: stackTrace);
 

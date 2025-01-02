@@ -9,7 +9,7 @@ class SignUpRepositoryImpl implements SignUpRepository {
   Future<bool> isNicknameValid(String nickname) async {
     try {
       final Map<String, String> data = {'nickname': nickname};
-      await apiClient.post(endpoint: "auth/check-nickname", data: data);
+      await apiClient.post(endpoint: "/auth/check-nickname", data: data);
       return true;
     } catch (e) {
       return false;

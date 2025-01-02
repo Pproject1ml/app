@@ -61,22 +61,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     // TODO: implement initState
     super.initState();
 
-    ref.read(positionProvider.notifier).startPositionStream().then((_) => {
-          Future.delayed(Duration.zero, () async {
-            await ref
-                .read(landmarkListProvider.notifier)
-                .getAllLandMarkFromServer(
-                    currentPosition: ref
-                        .read(positionProvider.notifier)
-                        .getCurrentPosition());
-          })
-        });
-  }
+    Future.delayed(Duration.zero, () async {
+      await ref.read(positionProvider.notifier).startPositionStream();
+    });
 
-  Future<void> onRefresh() async {
-    await ref.read(landmarkListProvider.notifier).getAllLandMarkFromServer(
-        currentPosition:
-            ref.read(positionProvider.notifier).getCurrentPosition());
+    Future.delayed(Duration.zero, () async {
+      await ref
+          .read(landmarkListProvider.notifier)
+          .getAvailableLangMarkFromServer(
+              position:
+                  ref.read(positionProvider.notifier).getCurrentPosition());
+    });
   }
 
   @override

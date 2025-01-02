@@ -9,11 +9,16 @@ class ApiClient {
   ApiClient(this.baseUrl);
 
   // GET 요청
-  Future<dynamic> get({required String endpoint, bool setToken = false}) async {
+  Future<dynamic> get(
+      {required String endpoint,
+      bool setToken = false,
+      Map<String, dynamic>? queryParameters}) async {
     final headers = await _getHeaders();
+    final uri = Uri.http(baseUrl, endpoint, queryParameters);
+    log(uri.toString());
     return _requestWithAuth(
       request: () => http.get(
-        Uri.parse('$baseUrl$endpoint'),
+        uri,
         headers: headers,
       ),
       setToken: setToken,
@@ -24,12 +29,13 @@ class ApiClient {
   Future<dynamic> post(
       {required String endpoint,
       Map<String, dynamic>? data,
+      Map<String, dynamic>? queryParameters,
       bool setToken = false}) async {
     final headers = await _getHeaders();
-
+    final uri = Uri.http(baseUrl, endpoint, queryParameters);
     return _requestWithAuth(
       request: () => http.post(
-        Uri.parse('$baseUrl$endpoint'),
+        uri,
         headers: headers,
         body: jsonEncode(data),
       ),
@@ -38,15 +44,17 @@ class ApiClient {
   }
 
   // PATCH 요청
-  Future<dynamic> patch(
-      {required String endpoint,
-      Map<String, dynamic>? data,
-      bool setToken = false}) async {
+  Future<dynamic> patch({
+    required String endpoint,
+    Map<String, dynamic>? data,
+    bool setToken = false,
+    Map<String, dynamic>? queryParameters,
+  }) async {
     final headers = await _getHeaders();
-
+    final uri = Uri.http(baseUrl, endpoint, queryParameters);
     return _requestWithAuth(
       request: () => http.patch(
-        Uri.parse('$baseUrl$endpoint'),
+        uri,
         headers: headers,
         body: jsonEncode(data),
       ),
