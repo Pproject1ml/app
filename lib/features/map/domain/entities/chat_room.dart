@@ -1,13 +1,13 @@
 import 'package:chat_location/features/map/domain/entities/landmark.dart';
 
-class ChatRoom_ {
+class ChatRoomInterface {
   final int id; // 채팅방 고유 ID
-  final Landmark_ landmark; // 랜드마크 객체
+  final LandmarkInterface landmark; // 랜드마크 객체
   final String title; // 채팅방 이름
   final DateTime? createdAt; // 생성 일자
   final DateTime? updatedAt; // 업데이트 일자
 
-  ChatRoom_({
+  ChatRoomInterface({
     required this.id,
     required this.landmark,
     required this.title,
@@ -26,10 +26,11 @@ class ChatRoom_ {
     };
   }
 
-  factory ChatRoom_.fromJson(Map<String, dynamic> json) {
-    return ChatRoom_(
+  factory ChatRoomInterface.fromJson(Map<String, dynamic> json) {
+    return ChatRoomInterface(
       id: json['id'] as int,
-      landmark: Landmark_.fromJson(json['landmark'] as Map<String, dynamic>),
+      landmark:
+          LandmarkInterface.fromJson(json['landmark'] as Map<String, dynamic>),
       title: json['title'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
@@ -37,14 +38,14 @@ class ChatRoom_ {
   }
 
   // copyWith 메서드 추가
-  ChatRoom_ copyWith({
+  ChatRoomInterface copyWith({
     int? id,
-    Landmark_? landmark,
+    LandmarkInterface? landmark,
     String? title,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
-    return ChatRoom_(
+    return ChatRoomInterface(
       id: id ?? this.id,
       landmark: landmark ?? this.landmark,
       title: title ?? this.title,

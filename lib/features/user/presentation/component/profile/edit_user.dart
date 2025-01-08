@@ -1,19 +1,21 @@
 import 'dart:developer';
 
 import 'package:chat_location/common/ui/box/round_user_image_box.dart';
+import 'package:chat_location/common/ui/box/text_field.dart';
+import 'package:chat_location/common/ui/text_input/bottom_border_text_input.dart';
 import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
-import 'package:chat_location/features/user/domain/entities/user.dart';
+import 'package:chat_location/features/user/domain/entities/member.dart';
 import 'package:chat_location/features/user/presentation/component/profile/edit_profile_button.dart';
 import 'package:chat_location/features/user/presentation/provider/edit_user_controller.dart';
 import 'package:chat_location/features/user/presentation/ui/build_tag_box.dart';
-import 'package:chat_location/features/user/presentation/ui/sign_up/sinup_library.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class EditUser extends ConsumerStatefulWidget {
   const EditUser({super.key, required this.currentUser});
-  final AppUser currentUser;
+  final MemberInterface currentUser;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _EditUserState();
@@ -33,7 +35,7 @@ class _EditUserState extends ConsumerState<EditUser> {
 
   @override
   Widget build(BuildContext context) {
-    final _tempUserInfo = ref.watch(userProfileProvider(widget.currentUser));
+    final _tempMemberInfo = ref.watch(userProfileProvider(widget.currentUser));
     final _tempUserNotifier =
         ref.read(userProfileProvider(widget.currentUser).notifier);
     return Container(
@@ -150,7 +152,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                                   fontWeight: FontWeight.bold),
                         ),
                         Switch(
-                            value: _tempUserInfo.isVisible,
+                            value: _tempMemberInfo.profile.isVisible,
                             onChanged: (value) {
                               _tempUserNotifier.toggleGenderVisibility(value);
                             }),
@@ -206,7 +208,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                           fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
-                    SignUpTextInput(
+                    CustomTextField(
                       controller: _tempUserNotifier.descriptionController,
                       focusNode: _tempUserNotifier.descriptionFocusNode,
                       maxLength: 40,
@@ -228,7 +230,7 @@ class _EditUserState extends ConsumerState<EditUser> {
           Padding(
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
               child: EditProfileButton(
-                tempUser: _tempUserInfo,
+                tempUser: _tempMemberInfo,
               )),
         ],
       ),

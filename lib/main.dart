@@ -32,6 +32,7 @@ class MyApp extends ConsumerWidget {
           color: Colors.white,
           centerTitle: true,
         ),
+        drawerTheme: DrawerThemeData(backgroundColor: Colors.white),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
             elevation: 0,
             backgroundColor: Colors.white,
@@ -67,6 +68,7 @@ class MyApp extends ConsumerWidget {
         ),
         textTheme: TTTextTheme.darkTextTheme,
         scaffoldBackgroundColor: Colors.black,
+        drawerTheme: DrawerThemeData(backgroundColor: Colors.black),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
             elevation: 0,
             backgroundColor: Colors.black,

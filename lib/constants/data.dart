@@ -22,22 +22,17 @@ double heightRatio(double height) {
 
 int selectedUserId = 0;
 int userListLength = 0;
+const String server = "3.37.171.121:8080";
+const String local1 = "192.168.0.11:8080";
+const String local3 = "192.168.0.190:8080";
+const String localAnyang = "172.30.1.6:8080";
+const String BASE_URL = localAnyang;
+const String LOCAL_URL = localAnyang;
 
-String BASE_URL = "3.37.171.121:8080";
 // user info 와 관련된 데이터 정의
 
-// 어디에서 input_user_screen으로 진입하는지 분기점 설정
-// first - 첫 진입
-// add - 추가
-// modify - 수정
-enum InputStatus { first, add, modify }
+const String HIVE_CHATROOM = 'chatrooms';
+const String HIVE_CHAT_MESSAGE = 'chatMessage';
 
-// 어디에서 tutorial_screen으로 진입하는지 분기점 설정
-// first - 첫 진입
-// second - setting 창에서 진입
-enum TutorialStatus { first, second }
-
-// 어디에서 show_select_user_dialog로 진입하는지 분기점 설정
-// goonghap - 궁합에서 진입
-// infobar - user_info_bar에서 진입
-enum SelectUserStatus { goonghap, infobar }
+const String SUBSCRIBE_BASE_URL = 'sub';
+const String PUBLISH_BASE_URL = 'pub';

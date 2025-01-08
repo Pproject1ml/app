@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ChatRoom extends ConsumerStatefulWidget {
   const ChatRoom({super.key, required this.data});
-  final ChatRoom_ data;
+  final ChatRoomInterface data;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _ChatRoomState();

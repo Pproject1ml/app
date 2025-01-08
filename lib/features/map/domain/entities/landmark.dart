@@ -1,4 +1,4 @@
-class Landmark_ {
+class LandmarkInterface {
   final int id; // 랜드마크 고유 ID
   final String name; // 랜드마크 이름
   final double latitude; // 랜드마크의 위도
@@ -7,7 +7,7 @@ class Landmark_ {
   final DateTime? createdAt; // 생성 일자
   final DateTime? updatedAt; // 업데이트 일자
 
-  Landmark_({
+  LandmarkInterface({
     required this.id,
     required this.name,
     required this.latitude,
@@ -30,8 +30,8 @@ class Landmark_ {
     };
   }
 
-  factory Landmark_.fromJson(Map<String, dynamic> json) {
-    return Landmark_(
+  factory LandmarkInterface.fromJson(Map<String, dynamic> json) {
+    return LandmarkInterface(
       id: json['id'] as int,
       name: json['name'] as String,
       latitude: json['latitude'] as double,
@@ -43,7 +43,7 @@ class Landmark_ {
   }
 
   // copyWith 메서드 추가
-  Landmark_ copyWith({
+  LandmarkInterface copyWith({
     int? id,
     String? name,
     double? latitude,
@@ -52,7 +52,7 @@ class Landmark_ {
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
-    return Landmark_(
+    return LandmarkInterface(
       id: id ?? this.id,
       name: name ?? this.name,
       latitude: latitude ?? this.latitude,

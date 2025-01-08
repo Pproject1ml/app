@@ -1,10 +1,14 @@
+import 'dart:developer';
+
 import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
+import 'package:chat_location/features/chat/presentation/screen/chat_list_screen.dart';
+import 'package:chat_location/features/chat/presentation/screen/chat_page_screen.dart';
 import 'package:chat_location/features/map/domain/entities/chat_room.dart';
-import 'package:chat_location/features/map/domain/entities/landmark.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-Future<void> landmarkDialog(BuildContext context, ChatRoom_? chatRoom) {
+Future<void> landmarkDialog(BuildContext context, ChatRoomInterface? chatRoom) {
   return showDialog<void>(
     context: context,
     builder: (BuildContext context) {
@@ -124,18 +128,30 @@ Future<void> landmarkDialog(BuildContext context, ChatRoom_? chatRoom) {
                 width: widthRatio(8),
               ),
               Expanded(
-                child: Container(
-                  height: 52,
-                  decoration: BoxDecoration(
-                      color: TTColors.ttPurple,
-                      borderRadius: BorderRadius.circular(8)),
-                  alignment: Alignment.center,
-                  child: Text(
-                    "채팅방 입장하기",
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelLarge
-                        ?.copyWith(color: Colors.white),
+                child: GestureDetector(
+                  onTap: () {
+                    log("clicked");
+                    Navigator.pop(context);
+                    context.goNamed(
+                      ChatScreen.pageName,
+                    );
+                    log("chat screen");
+                    context.pushNamed(ChatPage.pageName,
+                        pathParameters: {'id': "10"});
+                  },
+                  child: Container(
+                    height: 52,
+                    decoration: BoxDecoration(
+                        color: TTColors.ttPurple,
+                        borderRadius: BorderRadius.circular(8)),
+                    alignment: Alignment.center,
+                    child: Text(
+                      "채팅방 입장하기",
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelLarge
+                          ?.copyWith(color: Colors.white),
+                    ),
                   ),
                 ),
               ),

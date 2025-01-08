@@ -10,7 +10,7 @@ class ChatRoomBox extends StatelessWidget {
   const ChatRoomBox(
       {super.key, this.type = ChatRoomBoxType.available, this.data});
   final ChatRoomBoxType type;
-  final ChatRoom_? data;
+  final ChatRoomInterface? data;
   @override
   Widget build(BuildContext context) {
     if (data == null) {

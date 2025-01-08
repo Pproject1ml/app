@@ -33,7 +33,7 @@ class GoogleMapStateNotifier extends StateNotifier<GoogleMapState> {
     log("on Map created 로 인한 요금제 추가됨");
   }
 
-  Future<Set<Marker>> _createCustomMarker(List<Landmark_> datas) async {
+  Future<Set<Marker>> _createCustomMarker(List<LandmarkInterface> datas) async {
     Set<Marker> _markers = {};
 
     log("custom marker");
@@ -76,7 +76,7 @@ class GoogleMapStateNotifier extends StateNotifier<GoogleMapState> {
     }
   }
 
-  Future<void> updateMarker(List<Landmark_> landmarkData) async {
+  Future<void> updateMarker(List<LandmarkInterface> landmarkData) async {
     try {
       final _markers = await _createCustomMarker(landmarkData);
       state = state.copyWith(markers: _markers);
@@ -109,4 +109,4 @@ final googleMapStateProvider =
   },
 );
 
-// 현재 위치 정보 받아와야함 
+// 현재 위치 정보 받아와야함

@@ -2,12 +2,11 @@ import 'package:chat_location/common/dialog/bottom_up_dialog.dart';
 import 'package:chat_location/common/ui/box/round_user_image_box.dart';
 import 'package:chat_location/common/ui/box/rounded_with_sharp_box.dart';
 import 'package:chat_location/constants/colors.dart';
-import 'package:chat_location/constants/data.dart';
-import 'package:chat_location/controller/user_controller.dart';
-import 'package:chat_location/core/database/secure_storage.dart';
+import 'package:chat_location/constants/text_style.dart';
+import 'package:chat_location/features/user/presentation/provider/user_controller.dart';
+import 'package:chat_location/features/auth/presentaation/provider/auth_controller.dart';
+import 'package:chat_location/features/user/domain/entities/member.dart';
 import 'package:chat_location/features/user/presentation/component/profile/edit_user.dart';
-import 'package:chat_location/features/user/domain/entities/auth.dart';
-
 import 'package:chat_location/features/user/presentation/ui/build_tag_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -19,10 +18,10 @@ class UserInfoScreen extends ConsumerWidget {
   static const String routeName = '/userInfo';
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final auth = ref.watch(userProvider).authState as AuthStateAuthenticated;
+    final user = ref.watch(userProvider) as MemberInterface;
 
     return Scaffold(
-        backgroundColor: TTColors.backgroundSecondary,
+        backgroundColor: TTColors.gray6,
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(
@@ -48,8 +47,8 @@ class UserInfoScreen extends ConsumerWidget {
                 children: [
                   Container(
                     width: double.infinity,
-                    color: Colors.white,
-                    padding: EdgeInsets.only(
+                    color: Theme.of(context).cardTheme.color,
+                    padding: const EdgeInsets.only(
                         top: 24, bottom: 32, left: 50.5, right: 50.5),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -60,7 +59,7 @@ class UserInfoScreen extends ConsumerWidget {
                         Column(
                           children: [
                             Text(
-                              auth.user.nickname,
+                              user.profile.nickname,
                               style: Theme.of(context)
                                   .textTheme
                                   .titleSmall
@@ -70,17 +69,17 @@ class UserInfoScreen extends ConsumerWidget {
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                if (auth.user.age != null)
+                                if (user.profile.age != null)
                                   Text(
-                                    '${auth.user.age}세',
+                                    '${user.profile.age}세',
                                     style: Theme.of(context)
                                         .textTheme
                                         .labelMedium
                                         ?.copyWith(color: TTColors.gray),
                                   ),
-                                if (auth.user.gender != null)
+                                if (user.profile.gender != null)
                                   Text(
-                                    auth.user.gender == "male" ? "남자" : "여자",
+                                    user.profile.gender == "male" ? "남자" : "여자",
                                     style: Theme.of(context)
                                         .textTheme
                                         .labelMedium
@@ -92,8 +91,8 @@ class UserInfoScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 4),
                         // 소개글
-                        if (auth.user.introduction != null)
-                          roundedWithSharp(auth.user.introduction ?? ''),
+                        if (user.profile.introduction != null)
+                          roundedWithSharp(user.profile.introduction ?? ''),
                         const SizedBox(height: 16),
                         // 태그 리스트
                         Wrap(
@@ -130,7 +129,7 @@ class UserInfoScreen extends ConsumerWidget {
                                   barrierDismissible: true, // 외부 탭으로 닫기 가능
                                   builder: (BuildContext context) {
                                     return BottomUpDialog(
-                                      child: EditUser(currentUser: auth.user),
+                                      child: EditUser(currentUser: user),
                                     );
                                   },
                                 )
@@ -160,16 +159,20 @@ class UserInfoScreen extends ConsumerWidget {
               Column(
                 children: [
                   _buildMenuItem(
-                      title: '내 채팅 기록', icon: Icons.chat_bubble_outline),
+                      backgroundColor: Theme.of(context).cardTheme.color,
+                      textColor: Theme.of(context).textTheme.bodyMedium?.color,
+                      title: '내 채팅 기록',
+                      icon: Icons.chat_bubble_outline),
                   const SizedBox(
                     height: 4,
                   ),
                   _buildMenuItem(
+                      backgroundColor: Theme.of(context).cardTheme.color,
+                      textColor: Theme.of(context).textTheme.bodyMedium?.color,
                       title: '로그아웃',
                       icon: Icons.settings_outlined,
                       onTap: () async {
-                        SecureStorageHelper.clearAll();
-                        await ref.read(userProvider.notifier).logout();
+                        await ref.read(authProvider.notifier).logout();
                       }),
                 ],
               ),
@@ -178,12 +181,20 @@ class UserInfoScreen extends ConsumerWidget {
         ));
   }
 
-  Widget _buildMenuItem(
-      {required String title, required IconData icon, VoidCallback? onTap}) {
+  Widget _buildMenuItem({
+    required String title,
+    required IconData icon,
+    VoidCallback? onTap,
+    Color? backgroundColor,
+    Color? textColor,
+  }) {
     return ListTile(
-      tileColor: Colors.white,
+      tileColor: backgroundColor,
       // leading: Icon(icon, color: Colors.grey),
-      title: Text(title),
+      title: Text(
+        title,
+        style: TTTextStyle.bodyMedium16.copyWith(color: textColor),
+      ),
       trailing:
           const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
       onTap: () {

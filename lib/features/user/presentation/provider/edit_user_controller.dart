@@ -1,18 +1,20 @@
 import 'dart:developer';
 
-import 'package:chat_location/features/user/domain/entities/user.dart';
+import 'package:chat_location/features/user/domain/entities/profile.dart';
+import 'package:chat_location/features/user/domain/entities/member.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class UserProfileNotifier extends StateNotifier<AppUser> {
+class UserProfileNotifier extends StateNotifier<MemberInterface> {
   late final TextEditingController nicknameController;
   late final FocusNode nickNameFocusNode;
   late final TextEditingController descriptionController;
   late final FocusNode descriptionFocusNode;
-  UserProfileNotifier(AppUser initialUser) : super(initialUser) {
-    nicknameController = TextEditingController(text: initialUser.nickname);
+  UserProfileNotifier(MemberInterface initialUser) : super(initialUser) {
+    nicknameController =
+        TextEditingController(text: initialUser.profile.nickname);
     descriptionController =
-        TextEditingController(text: initialUser.introduction);
+        TextEditingController(text: initialUser.profile.introduction);
     nicknameController.addListener(_nickeNameEventListener);
     descriptionController.addListener(_descriptionEventListener);
 
@@ -41,17 +43,23 @@ class UserProfileNotifier extends StateNotifier<AppUser> {
 
   // 이름 업데이트
   void updateName(String nickname) {
-    state = state.copyWith(nickname: nickname);
+    ProfileInterface _profile = state.profile;
+    _profile = _profile.copyWith(nickname: nickname);
+    state = state.copyWith(profile: _profile);
   }
 
   // 사진 URL 업데이트
   void updatePhoto(String photoUrl) {
-    state = state.copyWith(profileImage: photoUrl);
+    ProfileInterface _profile = state.profile;
+    _profile = _profile.copyWith(profileImage: photoUrl);
+    state = state.copyWith(profile: _profile);
   }
 
   // 성별 공개 여부 업데이트
   void toggleGenderVisibility(bool isVisible) {
-    state = state.copyWith(isVisible: isVisible);
+    ProfileInterface _profile = state.profile;
+    _profile = _profile.copyWith(isVisible: isVisible);
+    state = state.copyWith(profile: _profile);
   }
 
   // 랜드마크 공개 여부 업데이트
@@ -61,17 +69,15 @@ class UserProfileNotifier extends StateNotifier<AppUser> {
 
   // 한줄 소개 업데이트
   void updateIntroduction(String introduction) {
-    state = state.copyWith(introduction: introduction);
+    ProfileInterface _profile = state.profile;
+    _profile = _profile.copyWith(introduction: introduction);
+    state = state.copyWith(profile: _profile);
   }
 }
 
 final userProfileProvider = StateNotifierProvider.autoDispose
-    .family<UserProfileNotifier, AppUser, AppUser>(
+    .family<UserProfileNotifier, MemberInterface, MemberInterface>(
   (ref, initialUser) {
-    log("provider start");
-    ref.onDispose(
-      () => {log("dispose provider")},
-    );
     return UserProfileNotifier(initialUser);
   },
 );

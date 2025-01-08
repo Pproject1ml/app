@@ -1,8 +1,9 @@
-import '../entities/user.dart';
+import 'package:chat_location/features/user/data/models/member.dart';
+import 'package:chat_location/features/user/data/models/profile.dart';
 
 abstract class UserRepository {
-  Future<AppUser> getUserProfile();
-  Future<void> updateUser(AppUser user);
-  Future<AppUser?> signIn(Map<String, dynamic> body);
-  Future<void> signUp(Map<String, dynamic> body);
+  Future<MemeberModel> getUserProfile();
+  Future<void> updateUser(ProfileModel user);
+  Future<void> fetchUser();
+  Future<void> fetchRoomList();
 }

@@ -1,12 +1,12 @@
 import 'dart:developer';
 
-import 'package:chat_location/controller/user_controller.dart';
-import 'package:chat_location/features/chat/screen/chat_list_screen.dart';
-import 'package:chat_location/features/chat/screen/chat_page_screen.dart';
+import 'package:chat_location/features/auth/presentaation/provider/auth_controller.dart';
+import 'package:chat_location/features/auth/presentaation/screen/login_screen.dart';
+import 'package:chat_location/features/auth/presentaation/screen/sign_up_screen.dart';
+import 'package:chat_location/features/chat/presentation/screen/chat_list_screen.dart';
+import 'package:chat_location/features/chat/presentation/screen/chat_page_screen.dart';
 import 'package:chat_location/features/map/presentation/screen/mapScreen.dart';
 
-import 'package:chat_location/features/user/presentation/screen/login.dart';
-import 'package:chat_location/features/user/presentation/screen/signUp.dart';
 import 'package:chat_location/features/user/presentation/screen/userInfoScreen.dart';
 import 'package:chat_location/pages/index.dart';
 import 'package:chat_location/features/initialize/screen/splashScreen.dart';
@@ -16,7 +16,7 @@ import 'package:go_router/go_router.dart';
 
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(userProvider);
+  final authState = ref.watch(authProvider);
 
   return GoRouter(
       initialLocation: SplashScreen.routeName,
@@ -28,17 +28,17 @@ final routerProvider = Provider<GoRouter>((ref) {
                   child: SplashScreen(),
                 )),
         GoRoute(
-            name: LoginPage.pageName,
-            path: LoginPage.routeName,
+            name: LoginPageT.pageName,
+            path: LoginPageT.routeName,
             pageBuilder: (context, state) => const NoTransitionPage(
-                  child: LoginPage(),
+                  child: LoginPageT(),
                 ),
             routes: [
               GoRoute(
-                name: SingUpPage.pageName,
-                path: SingUpPage.routeName,
+                name: SingUpScreenT.pageName,
+                path: SingUpScreenT.routeName,
                 pageBuilder: (context, state) => const NoTransitionPage(
-                  child: SingUpPage(),
+                  child: SingUpScreenT(),
                 ),
               )
             ]),
@@ -71,26 +71,27 @@ final routerProvider = Provider<GoRouter>((ref) {
               //chat
               StatefulShellBranch(routes: <RouteBase>[
                 GoRoute(
-                    name: ChatScreen.pageName,
-                    path: ChatScreen.routeName,
-                    pageBuilder: (context, state) => CustomTransitionPage(
-                          key: state.pageKey,
-                          child: const ChatScreen(),
-                          transitionsBuilder:
-                              (context, animation, secondaryAnimation, child) {
-                            // Change the opacity of the screen using a Curve based on the the animation's
-                            // value
-                            return SlideTransition(
-                              position: animation.drive(
-                                Tween<Offset>(
-                                  begin: const Offset(1.25, 0),
-                                  end: Offset.zero,
-                                ).chain(CurveTween(curve: Curves.easeIn)),
-                              ),
-                              child: child,
-                            );
-                          },
-                        )),
+                  name: ChatScreen.pageName,
+                  path: ChatScreen.routeName,
+                  pageBuilder: (context, state) => CustomTransitionPage(
+                    key: state.pageKey,
+                    child: const ChatScreen(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      // Change the opacity of the screen using a Curve based on the the animation's
+                      // value
+                      return SlideTransition(
+                        position: animation.drive(
+                          Tween<Offset>(
+                            begin: const Offset(1.25, 0),
+                            end: Offset.zero,
+                          ).chain(CurveTween(curve: Curves.easeIn)),
+                        ),
+                        child: child,
+                      );
+                    },
+                  ),
+                ),
               ]),
 //profile
               StatefulShellBranch(routes: <RouteBase>[
@@ -117,65 +118,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                         )),
               ])
             ]),
-        // ShellRoute(
-        //   navigatorKey: _shellNavigatorKey,
-        //   builder: (context, state, child) =>
-        //       BottomNavigationBarScaffold(child: child),
-        //   routes: [
-        //     GoRoute(
-        //         name: MapScreen.pageName,
-        //         path: MapScreen.routeName,
-        //         pageBuilder: (context, state) =>
-        //             const NoTransitionPage(child: MapScreen()),
-        //         routes: [
-        //           GoRoute(
-        //               name: ChatScreen.pageName,
-        //               path: ChatScreen.routeName,
-        //               pageBuilder: (context, state) => CustomTransitionPage(
-        //                     key: state.pageKey,
-        //                     child: const ChatScreen(),
-        //                     transitionsBuilder: (context, animation,
-        //                         secondaryAnimation, child) {
-        //                       // Change the opacity of the screen using a Curve based on the the animation's
-        //                       // value
-        //                       return SlideTransition(
-        //                         position: animation.drive(
-        //                           Tween<Offset>(
-        //                             begin: const Offset(1.25, 0),
-        //                             end: Offset.zero,
-        //                           ).chain(CurveTween(curve: Curves.easeIn)),
-        //                         ),
-        //                         child: child,
-        //                       );
-        //                     },
-        //                   )),
-        //           GoRoute(
-        //               name: UserInfoScreen.pageName,
-        //               path: UserInfoScreen.routeName,
-        //               pageBuilder: (context, state) => CustomTransitionPage(
-        //                     key: state.pageKey,
-        //                     child: const UserInfoScreen(),
-        //                     transitionsBuilder: (context, animation,
-        //                         secondaryAnimation, child) {
-        //                       // Change the opacity of the screen using a Curve based on the the animation's
-        //                       // value
-        //                       return SlideTransition(
-        //                         position: animation.drive(
-        //                           Tween<Offset>(
-        //                             begin: const Offset(1.25, 0),
-        //                             end: Offset.zero,
-        //                           ).chain(CurveTween(curve: Curves.easeIn)),
-        //                         ),
-        //                         child: child,
-        //                       );
-        //                     },
-        //                   )),
-        //         ]),
-        //   ],
-        // ),
       ],
-
-      // refreshListenable: authState, desperated 라고 하는 issue 가 있음 -> 없어도 작동은 함
       redirect: (context, state) => authState.redirect(
           goRouterState: state, showErrorIfNonExistentRoute: true));
 });

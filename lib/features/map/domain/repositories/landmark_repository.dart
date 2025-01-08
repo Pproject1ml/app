@@ -1,6 +1,6 @@
-import 'package:chat_location/features/map/domain/entities/landmark.dart';
+import 'package:chat_location/features/map/data/models/landmart.dart';
 
 abstract class LandmarkRepository {
-  Future<List<Landmark_>> getAllLandmark(double lat, double lon);
-  Future<List<Landmark_>> getAvailableLandmark(double lat, double lon);
+  Future<List<LandmarkModel>> getAllLandmark(double lat, double lon);
+  Future<List<LandmarkModel>> getAvailableLandmark(double lat, double lon);
 }

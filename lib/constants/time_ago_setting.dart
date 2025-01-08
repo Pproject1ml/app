@@ -1,4 +1,6 @@
+import 'package:intl/intl.dart';
 import 'package:timeago/src/messages/lookupmessages.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 /// Korean messages
 class CustomKoMessages implements LookupMessages {
@@ -34,4 +36,17 @@ class CustomKoMessages implements LookupMessages {
   String years(int years) => '${years}년';
   @override
   String wordSeparator() => ' ';
+}
+
+String formatCustomTime(DateTime dateTime) {
+  final now = DateTime.now();
+  final differenceInDays = now.difference(dateTime).inDays;
+
+  if (differenceInDays < 7) {
+    // 7일 이내: 날짜 표시
+    return DateFormat('M월 d일').format(dateTime);
+  } else {
+    // 7일 이후: timeago 사용
+    return timeago.format(dateTime, locale: 'ko');
+  }
 }

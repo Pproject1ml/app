@@ -11,7 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ChatListBox extends ConsumerStatefulWidget {
   const ChatListBox({super.key, required this.chatRooms});
-  final List<ChatRoom_> chatRooms;
+  final List<ChatRoomInterface> chatRooms;
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _ChatListBoxState();
 }

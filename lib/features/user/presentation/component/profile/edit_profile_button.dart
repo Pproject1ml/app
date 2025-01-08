@@ -1,19 +1,25 @@
 import 'dart:developer';
 
 import 'package:chat_location/common/components/async_button.dart';
+import 'package:chat_location/common/utils/bottom_snack_bar.dart';
 import 'package:chat_location/constants/colors.dart';
-import 'package:chat_location/controller/user_controller.dart';
-import 'package:chat_location/features/user/domain/entities/user.dart';
+import 'package:chat_location/features/user/presentation/provider/user_controller.dart';
+import 'package:chat_location/features/user/domain/entities/member.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class EditProfileButton extends ConsumerWidget {
   const EditProfileButton({super.key, required this.tempUser});
-  final AppUser tempUser;
+  final MemberInterface tempUser;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Future<void> _onClickSave(AppUser userInfo) async {
-      await ref.read(userProvider.notifier).updateUserInfo(userInfo);
+    Future<void> _onClickSave(MemberInterface userInfo) async {
+      try {
+        log("clci");
+        await ref.read(userProvider.notifier).updateUserInfo(userInfo);
+      } catch (e) {
+        showSnackBar(context: context, message: e.toString());
+      }
     }
 
     return AsyncButton(

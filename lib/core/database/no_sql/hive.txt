@@ -1,0 +1,6 @@
+
+1. hive adapter 생성을 위해 다음 코드로 실행을 해야함.
+flutter packages pub run build_runner build
+
+2. 이미 있는 파일에 대한 오류 해결 코드
+flutter pub run build_runner build --delete-conflicting-outputs

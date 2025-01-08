@@ -1,8 +1,10 @@
 import 'dart:developer';
+import 'dart:js_interop';
 
+import 'package:chat_location/core/database/no_sql/chat_room.dart';
 import 'package:chat_location/core/newtwork/api_client.dart';
-import 'package:chat_location/features/user/data/models/user_model.dart';
-import 'package:chat_location/features/user/domain/entities/user.dart';
+import 'package:chat_location/features/user/data/models/member.dart';
+import 'package:chat_location/features/user/data/models/profile.dart';
 import 'package:chat_location/features/user/domain/repositories/user_repository.dart';
 
 // 실제 api 호출 로직이 작성되어있습니다.
@@ -14,16 +16,12 @@ class UserRepositoryImpl implements UserRepository {
 
   UserRepositoryImpl(this.apiClient);
 
-  Future<AppUser> getUserProfile() async {
+  @override
+  Future<MemeberModel> getUserProfile() async {
     try {
       final response = await apiClient.get(endpoint: '/user');
       // return UserModel.fromJson(response);
-      return AppUser(
-          memberId: 'memberId',
-          oauthId: "oauthId",
-          nickname: "nickname",
-          oauthProvider: "oauthProvider",
-          isVisible: true);
+      throw Error;
     } catch (error, stackTrace) {
       log('Error in getUserProfile: $error', stackTrace: stackTrace);
 
@@ -32,53 +30,24 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<AppUser?> signIn(Map<String, dynamic> body) async {
-    try {
-      final response = await apiClient.post(
-          endpoint: '/auth/login', data: body, setToken: true);
-      final status = response['status'];
-      // signin
-      if (status == signupStatusCode) {
-        // 회원가입 폼으로 이동
-        log("회원가입");
-        return null;
-      }
-      // login
-      final res = UserModel.fromJson(response['data']);
-      final appUser = AppUser.fromUserModel(res);
-      log("loginuser : ${response.toString()}");
-      return appUser;
-    } catch (error, stackTrace) {
-      log('Error in signIn: $error', stackTrace: stackTrace);
-
-      throw Exception('Failed to fetch user profile');
-    }
-  }
-
-  @override
-  Future<void> signUp(Map<String, dynamic> body) async {
-    try {
-      final response = await apiClient.post(
-          endpoint: '/auth/signup', data: body, setToken: true);
-      log("loginuser : ${response.toString()}");
-      return;
-    } catch (error, stackTrace) {
-      log('Error in getUserProfile: $error', stackTrace: stackTrace);
-
-      throw Exception('Failed to fetch user profile');
-    }
-  }
-
-  @override
-  Future<void> updateUser(AppUser user) async {
+  Future<void> updateUser(ProfileModel user) async {
     try {
       final userJson = user.toJson();
-
-      await apiClient.patch(endpoint: '/user', data: userJson, setToken: true);
-    } catch (error, stackTrace) {
-      log('Error in getUserProfile: $error', stackTrace: stackTrace);
-
-      throw Exception('Failed to fetch user profile');
+      await apiClient.patch(endpoint: '/user2', data: userJson, setToken: true);
+    } catch (e) {
+      throw "유저업데이트에 실패하였습니다.";
     }
+  }
+
+  @override
+  Future<List<ChatRoom>> fetchRoomList() {
+    // TODO: implement fetchRoomList
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<MemeberModel> fetchUser() {
+    // TODO: implement fetchUser
+    throw UnimplementedError();
   }
 }

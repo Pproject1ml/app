@@ -1,12 +1,3 @@
-// import 'package:chat_location/constants/colors.dart';
-// import 'package:flutter/material.dart';
-
-// const ThemeData theme = ThemeData(
-//   primaryColor: TTColors.ttPurple,
-//   accentColor:
-
-// );
-
 import 'package:flutter/material.dart';
 
 class TTTextTheme {

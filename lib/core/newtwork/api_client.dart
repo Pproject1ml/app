@@ -33,6 +33,7 @@ class ApiClient {
       bool setToken = false}) async {
     final headers = await _getHeaders();
     final uri = Uri.http(baseUrl, endpoint, queryParameters);
+    log(uri.toString());
     return _requestWithAuth(
       request: () => http.post(
         uri,

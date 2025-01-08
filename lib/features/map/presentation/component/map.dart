@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:chat_location/common/utils/bottom_snack_bar.dart';
 import 'package:chat_location/controller/location_controller.dart';
 import 'package:chat_location/features/map/domain/entities/chat_room.dart';
 import 'package:chat_location/features/map/domain/entities/landmark.dart';
@@ -15,8 +16,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Map extends ConsumerStatefulWidget {
   const Map({super.key, required this.chatRooms, this.landmarks = const []});
-  final List<ChatRoom_> chatRooms;
-  final List<Landmark_> landmarks;
+  final List<ChatRoomInterface> chatRooms;
+  final List<LandmarkInterface> landmarks;
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _GoogleMapState();
 }
@@ -43,20 +44,20 @@ class _GoogleMapState extends ConsumerState<Map> {
       ref.read(googleMapStateProvider.notifier).animateCamera(position);
       // 랜드마크 데이터 요청 api call
       await Future.delayed(Duration(seconds: 3));
-      final List<Landmark_> LandmarkDatas = [
-        Landmark_(
+      final List<LandmarkInterface> LandmarkDatas = [
+        LandmarkInterface(
             id: 0,
             name: "경복궁",
             latitude: 37.579617,
             longitude: 126.977041,
             radius: 10),
-        Landmark_(
+        LandmarkInterface(
             id: 1,
             name: "남산타워",
             latitude: 37.5511694,
             longitude: 126.9882266,
             radius: 10),
-        Landmark_(
+        LandmarkInterface(
             id: 2,
             name: "덕수궁",
             latitude: 37.5658049,
@@ -76,12 +77,7 @@ class _GoogleMapState extends ConsumerState<Map> {
           .updateMarker(LandmarkDatas);
       // 지도 중심을 이동
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          duration: Duration(seconds: 3),
-        ),
-      );
+      showSnackBar(context: context, message: e.toString());
     }
   }
 

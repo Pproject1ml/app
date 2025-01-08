@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:chat_location/controller/location_controller.dart';
+import 'package:chat_location/features/chat/presentation/provider/socket_controller.dart';
 import 'package:chat_location/features/map/domain/entities/chat_room.dart';
 import 'package:chat_location/features/map/domain/entities/landmark.dart';
 import 'package:chat_location/features/map/presentation/component/chat_list.dart';
@@ -10,34 +11,36 @@ import 'package:chat_location/features/map/presentation/component/refresh.dart';
 import 'package:chat_location/features/map/presentation/provider/googl_map_controller.dart';
 import 'package:chat_location/features/map/presentation/provider/landmark_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:stomp_dart_client/stomp_dart_client.dart';
 
-final List<ChatRoom_> chatRooms = [
-  ChatRoom_(
+final List<ChatRoomInterface> chatRooms = [
+  ChatRoomInterface(
     id: 0,
     title: "경복궁",
-    landmark: Landmark_(
+    landmark: LandmarkInterface(
         id: 0,
         name: "경복궁",
         latitude: 37.579617,
         longitude: 126.977041,
         radius: 10),
   ),
-  ChatRoom_(
+  ChatRoomInterface(
     id: 1,
     title: "남산타워",
-    landmark: Landmark_(
+    landmark: LandmarkInterface(
         id: 1,
         name: "남산타워",
         latitude: 37.5511694,
         longitude: 126.9882266,
         radius: 10),
   ),
-  ChatRoom_(
+  ChatRoomInterface(
     id: 2,
     title: "덕수궁",
-    landmark: Landmark_(
+    landmark: LandmarkInterface(
         id: 2,
         name: "덕수궁",
         latitude: 37.5658049,
@@ -87,13 +90,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             landmarks: landmarks,
           ),
           SafeArea(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Align(
-                  alignment: Alignment.topCenter,
-                  child: ChatListBox(
-                    chatRooms: chatRooms,
-                  )),
+            child: Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Align(
+                      alignment: Alignment.topCenter,
+                      child: ChatListBox(
+                        chatRooms: chatRooms,
+                      )),
+                ),
+              ],
             ),
           ),
         ],
