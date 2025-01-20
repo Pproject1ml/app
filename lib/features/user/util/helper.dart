@@ -78,8 +78,9 @@ class GoogleLoginHelper {
       // print(googleSignInAuthentication.accessToken);
 
       return googleSignInAccount;
-    } catch (error) {
-      print(error);
+    } catch (e, s) {
+      log(e.toString());
+      log(s.toString());
     }
     return null;
   }

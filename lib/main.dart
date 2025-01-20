@@ -1,3 +1,4 @@
+import 'package:chat_location/common/utils/pre_load_svg.dart';
 import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
 import 'package:chat_location/constants/text_style.dart';
@@ -5,6 +6,7 @@ import 'package:chat_location/constants/theme.dart';
 import 'package:chat_location/pages/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 void main() async {
   runApp(const ProviderScope(child: MyApp()));
@@ -26,6 +28,11 @@ class MyApp extends ConsumerWidget {
         cardTheme: const CardTheme(
           color: Colors.white,
         ),
+        indicatorColor: TTColors.ttPurple,
+        progressIndicatorTheme: const ProgressIndicatorThemeData(
+            circularTrackColor: TTColors.ttPurple,
+            color: TTColors.purple100,
+            refreshBackgroundColor: TTColors.white),
         textTheme: TTTextTheme.lightTextTheme,
         scaffoldBackgroundColor: Colors.white,
         appBarTheme: const AppBarTheme(
@@ -44,11 +51,11 @@ class MyApp extends ConsumerWidget {
               ],
             ),
             unselectedIconTheme:
-                const IconThemeData(size: 24, color: TTColors.gray3),
+                const IconThemeData(size: 24, color: TTColors.gray400),
             selectedLabelStyle:
                 TTTextStyle.captionMedium12.copyWith(color: TTColors.ttPurple),
             unselectedLabelStyle:
-                TTTextStyle.captionMedium12.copyWith(color: TTColors.gray3)),
+                TTTextStyle.captionMedium12.copyWith(color: TTColors.gray400)),
         navigationBarTheme:
             const NavigationBarThemeData(backgroundColor: Colors.white),
         dialogBackgroundColor: Colors.white,
@@ -56,7 +63,7 @@ class MyApp extends ConsumerWidget {
           style: ElevatedButton.styleFrom(
               backgroundColor: TTColors.ttPurple,
               foregroundColor: Colors.white,
-              disabledBackgroundColor: TTColors.gray5),
+              disabledBackgroundColor: TTColors.gray200),
         ),
       ),
       darkTheme: ThemeData(
@@ -66,6 +73,9 @@ class MyApp extends ConsumerWidget {
         cardTheme: const CardTheme(
           color: Colors.black,
         ),
+        indicatorColor: TTColors.white,
+        progressIndicatorTheme: const ProgressIndicatorThemeData(
+            color: TTColors.ttPurple, refreshBackgroundColor: TTColors.black),
         textTheme: TTTextTheme.darkTextTheme,
         scaffoldBackgroundColor: Colors.black,
         drawerTheme: DrawerThemeData(backgroundColor: Colors.black),
@@ -80,11 +90,11 @@ class MyApp extends ConsumerWidget {
               ],
             ),
             unselectedIconTheme:
-                const IconThemeData(size: 24, color: TTColors.gray3),
+                const IconThemeData(size: 24, color: TTColors.gray400),
             selectedLabelStyle:
                 TTTextStyle.captionMedium12.copyWith(color: TTColors.ttPurple),
             unselectedLabelStyle:
-                TTTextStyle.captionMedium12.copyWith(color: TTColors.gray3)),
+                TTTextStyle.captionMedium12.copyWith(color: TTColors.gray400)),
         appBarTheme: const AppBarTheme(color: Colors.black, centerTitle: true),
         navigationBarTheme:
             const NavigationBarThemeData(backgroundColor: Colors.black),

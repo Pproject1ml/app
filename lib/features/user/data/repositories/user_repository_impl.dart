@@ -1,6 +1,4 @@
 import 'dart:developer';
-import 'dart:js_interop';
-
 import 'package:chat_location/core/database/no_sql/chat_room.dart';
 import 'package:chat_location/core/newtwork/api_client.dart';
 import 'package:chat_location/features/user/data/models/member.dart';
@@ -33,14 +31,14 @@ class UserRepositoryImpl implements UserRepository {
   Future<void> updateUser(ProfileModel user) async {
     try {
       final userJson = user.toJson();
-      await apiClient.patch(endpoint: '/user2', data: userJson, setToken: true);
+      await apiClient.patch(endpoint: '/user', data: userJson, setToken: true);
     } catch (e) {
       throw "유저업데이트에 실패하였습니다.";
     }
   }
 
   @override
-  Future<List<ChatRoom>> fetchRoomList() {
+  Future<List<ChatRoomHiveModel>> fetchRoomList() {
     // TODO: implement fetchRoomList
     throw UnimplementedError();
   }

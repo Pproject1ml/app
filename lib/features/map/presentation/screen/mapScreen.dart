@@ -1,53 +1,18 @@
 import 'dart:developer';
 
+import 'package:chat_location/common/utils/is_within_radius.dart';
+import 'package:chat_location/constants/data.dart';
 import 'package:chat_location/controller/location_controller.dart';
-import 'package:chat_location/features/chat/presentation/provider/socket_controller.dart';
-import 'package:chat_location/features/map/domain/entities/chat_room.dart';
+
 import 'package:chat_location/features/map/domain/entities/landmark.dart';
 import 'package:chat_location/features/map/presentation/component/chat_list.dart';
 
 import 'package:chat_location/features/map/presentation/component/map.dart';
-import 'package:chat_location/features/map/presentation/component/refresh.dart';
-import 'package:chat_location/features/map/presentation/provider/googl_map_controller.dart';
 import 'package:chat_location/features/map/presentation/provider/landmark_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:stomp_dart_client/stomp_dart_client.dart';
 
-final List<ChatRoomInterface> chatRooms = [
-  ChatRoomInterface(
-    id: 0,
-    title: "경복궁",
-    landmark: LandmarkInterface(
-        id: 0,
-        name: "경복궁",
-        latitude: 37.579617,
-        longitude: 126.977041,
-        radius: 10),
-  ),
-  ChatRoomInterface(
-    id: 1,
-    title: "남산타워",
-    landmark: LandmarkInterface(
-        id: 1,
-        name: "남산타워",
-        latitude: 37.5511694,
-        longitude: 126.9882266,
-        radius: 10),
-  ),
-  ChatRoomInterface(
-    id: 2,
-    title: "덕수궁",
-    landmark: LandmarkInterface(
-        id: 2,
-        name: "덕수궁",
-        latitude: 37.5658049,
-        longitude: 126.9751461,
-        radius: 10),
-  )
-];
+final List<LandmarkInterface> landmarks = [];
 
 class MapScreen extends ConsumerStatefulWidget {
   static const String routeName = '/map'; // routeName 정의
@@ -67,14 +32,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     Future.delayed(Duration.zero, () async {
       await ref.read(positionProvider.notifier).startPositionStream();
     });
-
-    Future.delayed(Duration.zero, () async {
-      await ref
-          .read(landmarkListProvider.notifier)
-          .getAvailableLangMarkFromServer(
-              position:
-                  ref.read(positionProvider.notifier).getCurrentPosition());
-    });
   }
 
   @override
@@ -86,7 +43,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       body: Stack(
         children: [
           Map(
-            chatRooms: chatRooms,
             landmarks: landmarks,
           ),
           SafeArea(
@@ -97,7 +53,24 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   child: Align(
                       alignment: Alignment.topCenter,
                       child: ChatListBox(
-                        chatRooms: chatRooms,
+                        landmarks: landmarks.where((v) {
+                          if (currentPosition == null) {
+                            return false;
+                          }
+                          final _distance = getDistance(
+                            currentPosition.latitude,
+                            currentPosition.longitude,
+                            v.latitude,
+                            v.longitude,
+                          );
+
+                          final _isWithinRadius = isWithinRadius(
+                            _distance,
+                            AVAILABLE_RADIUS_M,
+                          );
+
+                          return _isWithinRadius;
+                        }).toList(),
                       )),
                 ),
               ],

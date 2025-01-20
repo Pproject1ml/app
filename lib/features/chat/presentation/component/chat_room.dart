@@ -1,13 +1,16 @@
 import 'package:chat_location/common/ui/box/chat_room_box.dart';
 import 'package:chat_location/constants/data.dart';
+import 'package:chat_location/features/chat/domain/entities/chatroom.dart';
 import 'package:chat_location/features/chat/presentation/screen/chat_page_screen.dart';
-import 'package:chat_location/pages/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class ChatRoomContainer extends ConsumerStatefulWidget {
-  const ChatRoomContainer({super.key});
+  final String chatroomId;
+  final ChatRoomInterface data;
+  const ChatRoomContainer(
+      {super.key, required this.chatroomId, required this.data});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _ChatRoomState();
@@ -18,14 +21,12 @@ class _ChatRoomState extends ConsumerState<ChatRoomContainer> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => {
-        context.pushNamed(ChatPage.pageName, pathParameters: {'id': "123"})
+        context.pushNamed(ChatPage.pageName,
+            pathParameters: {'id': widget.chatroomId})
       },
       child: Container(
-        height: heightRatio(90),
-        decoration: BoxDecoration(color: Theme.of(context).cardTheme.color),
-        child: ChatRoomBox(
-          type: ChatRoomBoxType.joined,
-        ),
+        // decoration: BoxDecoration(color: Theme.of(context).cardTheme.color),
+        child: ChatRoomBox(type: ChatRoomBoxType.joined, data: widget.data),
       ),
     );
   }

@@ -29,15 +29,13 @@ class CustomTextField extends StatelessWidget {
       maxLines: maxLines,
       decoration: InputDecoration(
         counterStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
-            color: TTColors.gray,
+            color: TTColors.gray500,
             fontSize: 13,
             height: 1.5,
             letterSpacing: -0.3),
         hintText: hintText,
-        hintStyle: Theme.of(context)
-            .textTheme
-            .labelMedium
-            ?.copyWith(color: TTColors.gray, height: 1.5, letterSpacing: -0.3),
+        hintStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
+            color: TTColors.gray600, height: 1.5, letterSpacing: -0.3),
         labelStyle: Theme.of(context)
             .textTheme
             .labelMedium
@@ -50,7 +48,7 @@ class CustomTextField extends StatelessWidget {
         enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
             borderSide: const BorderSide(
-              color: TTColors.gray4,
+              color: TTColors.gray300,
             )),
       ),
     );

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:chat_location/common/ui/box/chat_ballon_box.dart';
+import 'package:chat_location/constants/data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -16,7 +17,7 @@ Set<Circle> createCircle(LatLng position) {
     Circle(
       circleId: CircleId("outer_circle"),
       center: position,
-      radius: 5000, // 외측 반경
+      radius: AVAILABLE_RADIUS_M, // 외측 반경
       fillColor: const Color.fromRGBO(141, 155, 255, 0.5),
       strokeWidth: 0,
     ),

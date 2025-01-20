@@ -6,39 +6,42 @@ part of 'chat_message.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class ChatMessageAdapter extends TypeAdapter<ChatMessage> {
+class ChatMessageHiveModelAdapter extends TypeAdapter<ChatMessageHiveModel> {
   @override
   final int typeId = 0;
 
   @override
-  ChatMessage read(BinaryReader reader) {
+  ChatMessageHiveModel read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return ChatMessage(
-      id: fields[0] as String?,
+    return ChatMessageHiveModel(
+      messageId: fields[0] as String,
       chatRoomId: fields[1] as String,
-      senderId: fields[2] as String,
-      message: fields[3] as String,
-      timestamp: fields[4] as DateTime,
+      profileId: fields[2] as String,
+      content: fields[3] as String,
+      messageType: fields[4] as String,
+      createdAt: fields[5] as DateTime,
     );
   }
 
   @override
-  void write(BinaryWriter writer, ChatMessage obj) {
+  void write(BinaryWriter writer, ChatMessageHiveModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
-      ..write(obj.id)
+      ..write(obj.messageId)
       ..writeByte(1)
       ..write(obj.chatRoomId)
       ..writeByte(2)
-      ..write(obj.senderId)
+      ..write(obj.profileId)
       ..writeByte(3)
-      ..write(obj.message)
+      ..write(obj.content)
       ..writeByte(4)
-      ..write(obj.timestamp);
+      ..write(obj.messageType)
+      ..writeByte(5)
+      ..write(obj.createdAt);
   }
 
   @override
@@ -47,7 +50,7 @@ class ChatMessageAdapter extends TypeAdapter<ChatMessage> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ChatMessageAdapter &&
+      other is ChatMessageHiveModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
@@ -56,19 +59,24 @@ class ChatMessageAdapter extends TypeAdapter<ChatMessage> {
 // JsonSerializableGenerator
 // **************************************************************************
 
-ChatMessage _$ChatMessageFromJson(Map<String, dynamic> json) => ChatMessage(
-      id: json['id'] as String?,
+ChatMessageHiveModel _$ChatMessageHiveModelFromJson(
+        Map<String, dynamic> json) =>
+    ChatMessageHiveModel(
+      messageId: json['messageId'] as String,
       chatRoomId: json['chatRoomId'] as String,
-      senderId: json['senderId'] as String,
-      message: json['message'] as String,
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      profileId: json['profileId'] as String,
+      content: json['content'] as String,
+      messageType: json['messageType'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
     );
 
-Map<String, dynamic> _$ChatMessageToJson(ChatMessage instance) =>
+Map<String, dynamic> _$ChatMessageHiveModelToJson(
+        ChatMessageHiveModel instance) =>
     <String, dynamic>{
-      'id': instance.id,
+      'messageId': instance.messageId,
       'chatRoomId': instance.chatRoomId,
-      'senderId': instance.senderId,
-      'message': instance.message,
-      'timestamp': instance.timestamp.toIso8601String(),
+      'profileId': instance.profileId,
+      'content': instance.content,
+      'messageType': instance.messageType,
+      'createdAt': instance.createdAt.toIso8601String(),
     };

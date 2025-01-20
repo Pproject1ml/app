@@ -1,15 +1,31 @@
+import 'package:chat_location/common/utils/permissions.dart';
 import 'package:chat_location/constants/colors.dart';
+import 'package:chat_location/features/chat/presentation/provider/chatting_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
-class ShellRouteIndex extends StatelessWidget {
+class ShellRouteIndex extends ConsumerStatefulWidget {
   const ShellRouteIndex({super.key, required this.navigationShell});
   final StatefulNavigationShell navigationShell;
   @override
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _ShellRouteIndexState();
+}
+
+class _ShellRouteIndexState extends ConsumerState<ShellRouteIndex> {
+  @override
+  void initState() {
+    permissionWithNotification();
+    super.initState();
+    Future.microtask(() => {ref.read(chattingControllerProvider.notifier)});
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: navigationShell,
+      body: widget.navigationShell,
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -40,10 +56,10 @@ class ShellRouteIndex extends StatelessWidget {
               ),
               label: '마이페이지'),
         ],
-        currentIndex: navigationShell.currentIndex,
+        currentIndex: widget.navigationShell.currentIndex,
         onTap: (int index) {
           // 브랜치를 전환하는데는 StatefulNavigationShell.goBranch 메서드를 사용한다.
-          navigationShell.goBranch(index);
+          widget.navigationShell.goBranch(index);
         },
       ),
     );

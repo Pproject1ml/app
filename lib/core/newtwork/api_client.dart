@@ -15,7 +15,7 @@ class ApiClient {
       Map<String, dynamic>? queryParameters}) async {
     final headers = await _getHeaders();
     final uri = Uri.http(baseUrl, endpoint, queryParameters);
-    log(uri.toString());
+    log("http get : ${uri.toString()}");
     return _requestWithAuth(
       request: () => http.get(
         uri,
@@ -33,7 +33,7 @@ class ApiClient {
       bool setToken = false}) async {
     final headers = await _getHeaders();
     final uri = Uri.http(baseUrl, endpoint, queryParameters);
-    log(uri.toString());
+    log("http post: ${uri.toString()}");
     return _requestWithAuth(
       request: () => http.post(
         uri,
@@ -79,8 +79,8 @@ class ApiClient {
             await SecureStorageHelper.saveAuthToken(token);
           }
         }
-        log(response.body.toString());
-        return jsonDecode(response.body);
+
+        return jsonDecode(utf8.decode(response.bodyBytes));
       }
 
       // 권한 문제 (403) 발생 시 토큰 갱신
@@ -91,13 +91,13 @@ class ApiClient {
       }
       // 인증 문제
       if (response.statusCode == 401) {
-        return jsonDecode(response.body);
+        return jsonDecode(utf8.decode(response.bodyBytes));
       }
       // 기타 에러
       throw Exception(
           'Request failed: ${response.statusCode} - ${response.body}');
-    } catch (e) {
-      log('Error during request: $e');
+    } catch (e, s) {
+      log('Error during request: $e, ${s.toString()}');
       rethrow;
     }
   }

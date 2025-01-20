@@ -1,3 +1,4 @@
+import 'package:chat_location/core/database/no_sql/profile.dart';
 import 'package:chat_location/features/user/data/models/profile.dart';
 import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -6,7 +7,7 @@ part 'chat_room.g.dart';
 
 @HiveType(typeId: 1)
 @JsonSerializable() // json_serializable 사용
-class ChatRoom extends HiveObject {
+class ChatRoomHiveModel extends HiveObject {
   @HiveField(0)
   final String chatroomId;
 
@@ -14,27 +15,39 @@ class ChatRoom extends HiveObject {
   final String title;
 
   @HiveField(2)
-  final List<ProfileModel> members;
+  final int? count;
 
   @HiveField(3)
-  final String lastMessage;
+  final List<ProfileHiveModel> profiles;
 
   @HiveField(4)
-  final String lastReadMessageId;
+  final String? lastMessage;
 
   @HiveField(5)
-  final DateTime updatedAt;
+  final String? lastReadMessageId;
 
-  ChatRoom(
+  @HiveField(6)
+  final double longitude;
+
+  @HiveField(7)
+  final double latitude;
+
+  @HiveField(8)
+  final DateTime? lastMessageAt;
+
+  ChatRoomHiveModel(
       {required this.chatroomId,
       required this.title,
-      required this.members,
+      this.count,
+      required this.profiles,
       required this.lastMessage,
-      required this.lastReadMessageId,
-      required this.updatedAt});
+      this.lastReadMessageId,
+      required this.longitude,
+      required this.latitude,
+      this.lastMessageAt});
 
-  factory ChatRoom.fromJson(Map<String, dynamic> json) =>
-      _$ChatRoomFromJson(json);
+  factory ChatRoomHiveModel.fromJson(Map<String, dynamic> json) =>
+      _$ChatRoomHiveModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$ChatRoomToJson(this);
+  Map<String, dynamic> toJson() => _$ChatRoomHiveModelToJson(this);
 }

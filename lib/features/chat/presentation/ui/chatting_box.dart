@@ -2,11 +2,12 @@ import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
 import 'package:chat_location/constants/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:timeago/timeago.dart' as timeago;
+import 'package:intl/intl.dart' as intl;
 
+final intl.DateFormat koreamTimeForamt = intl.DateFormat('a hh:mm', 'ko_KR');
 Widget chatBubbleBox(
     {required String message,
-    Color backgroundColor = TTColors.gray6,
+    Color backgroundColor = TTColors.gray100,
     Color textColor = Colors.black,
     int unread = -1,
     required DateTime time,
@@ -17,13 +18,17 @@ Widget chatBubbleBox(
     crossAxisAlignment: CrossAxisAlignment.end,
     textDirection: reversed ? TextDirection.rtl : TextDirection.ltr,
     children: [
-      Container(
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20), color: backgroundColor),
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
-        child: Text(message,
-            style: TTTextTheme.lightTextTheme.labelMedium
-                ?.copyWith(color: textColor)),
+      Flexible(
+        child: Container(
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20), color: backgroundColor),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
+          child: Text(message,
+              softWrap: true, // 줄바꿈 허용
+              overflow: TextOverflow.visible, // 넘친 텍스트 처리
+              style: TTTextTheme.lightTextTheme.labelMedium?.copyWith(
+                  color: textColor, fontWeight: FontWeight.w400)), // 메시지 내용
+        ),
       ),
       SizedBox(
         width: widthRatio(4),
@@ -34,21 +39,21 @@ Widget chatBubbleBox(
         crossAxisAlignment:
             reversed ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
+          // Text(
+          //   unread.toString(),
+          //   style: const TextStyle(
+          //       height: 0,
+          //       fontSize: 10,
+          //       color: TTColors.gray,
+          //       letterSpacing: 0,
+          //       fontWeight: FontWeight.normal),
+          // ),
           Text(
-            unread.toString(),
+            koreamTimeForamt.format(time),
             style: const TextStyle(
                 height: 0,
                 fontSize: 10,
-                color: TTColors.gray,
-                letterSpacing: 0,
-                fontWeight: FontWeight.normal),
-          ),
-          Text(
-            timeago.format(time, locale: "ko"),
-            style: const TextStyle(
-                height: 0,
-                fontSize: 10,
-                color: TTColors.gray200,
+                color: TTColors.gray600,
                 letterSpacing: -0,
                 fontWeight: FontWeight.normal),
           )

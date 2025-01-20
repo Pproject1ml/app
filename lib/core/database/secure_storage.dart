@@ -3,7 +3,11 @@ import 'dart:developer';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorageHelper {
-  static const _secureStorage = FlutterSecureStorage();
+  static const _secureStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: true, // 암호화된 SharedPreferences 사용
+    ),
+  );
   static const String _authTokenKey = 'authToken';
 
   // 인증 토큰 저장

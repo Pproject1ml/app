@@ -1,17 +1,20 @@
+import 'package:chat_location/common/dialog/landmark_dialog.dart';
+import 'package:chat_location/common/ui/box/chat_room_box.dart';
 import 'package:chat_location/common/ui/box/rounded_box.dart';
 import 'package:chat_location/constants/colors.dart';
-import 'package:chat_location/features/map/domain/entities/chat_room.dart';
-import 'package:chat_location/features/map/presentation/component/chat_room.dart';
-
+import 'package:chat_location/constants/data.dart';
+import 'package:chat_location/features/chat/presentation/provider/chatting_controller.dart';
+import 'package:chat_location/features/chat/presentation/screen/chat_page_screen.dart';
+import 'package:chat_location/features/chat/presentation/screen/chat_tab_screen.dart';
+import 'package:chat_location/features/map/domain/entities/landmark.dart';
 import 'package:chat_location/features/map/presentation/ui/open_list_button.dart';
-
-import 'package:chat_location/features/map/presentation/screen/mapScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class ChatListBox extends ConsumerStatefulWidget {
-  const ChatListBox({super.key, required this.chatRooms});
-  final List<ChatRoomInterface> chatRooms;
+  const ChatListBox({super.key, required this.landmarks});
+  final List<LandmarkInterface> landmarks;
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _ChatListBoxState();
 }
@@ -69,6 +72,7 @@ class _ChatListBoxState extends ConsumerState<ChatListBox>
 
   @override
   Widget build(BuildContext context) {
+    final notifier = ref.read(chattingControllerProvider.notifier);
     return Container(
       decoration: BoxDecoration(boxShadow: [
         BoxShadow(
@@ -107,7 +111,7 @@ class _ChatListBoxState extends ConsumerState<ChatListBox>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                '${widget.chatRooms.length}개',
+                                '${widget.landmarks.length}개',
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium
@@ -130,20 +134,38 @@ class _ChatListBoxState extends ConsumerState<ChatListBox>
                     ],
                   ),
                 ),
-                SizeTransition(
-                  sizeFactor: _animation, // 애니메이션 적용
-                  axis: Axis.vertical, // 수직 방향으로 애니메이션
-                  child: Container(
-                    child: isListOpen
-                        ? ListView(
-                            padding: EdgeInsets.all(0),
-                            shrinkWrap: true,
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            children: widget.chatRooms
-                                .map((item) => ChatRoom(data: item))
-                                .toList(),
-                          )
-                        : const SizedBox.shrink(),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxHeight: heightRatio(500)),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: SizeTransition(
+                      sizeFactor: _animation, // 애니메이션 적용
+                      axis: Axis.vertical, // 수직 방향으로 애니메이션
+                      child: Container(
+                        child: isListOpen
+                            ? ListView(
+                                padding: EdgeInsets.all(0),
+                                shrinkWrap: true,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                children: widget.landmarks
+                                    .map((item) => GestureDetector(
+                                        onTap: () async {
+                                          // landmarkDialog(context, item);
+                                          await notifier
+                                              .joinAction(item.chatroom!);
+                                          context.goNamed(ChatScreen.pageName);
+                                          context.pushNamed(ChatPage.pageName,
+                                              pathParameters: {
+                                                'id': item.chatroom!.chatroomId
+                                              });
+                                        },
+                                        child:
+                                            ChatRoomBox(data: item.chatroom)))
+                                    .toList(),
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                    ),
                   ),
                 ),
               ],

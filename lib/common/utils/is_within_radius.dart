@@ -1,7 +1,12 @@
 import 'dart:math';
+import 'dart:developer' as dev;
 
-bool isWithinRadius(
-    double lat1, double lon1, double lat2, double lon2, double radiusKm) {
+double getDistance(
+  double lat1,
+  double lon1,
+  double lat2,
+  double lon2,
+) {
   const double earthRadiusKm = 6371.0;
 
   final double lat1Rad = lat1 * pi / 180;
@@ -17,5 +22,10 @@ bool isWithinRadius(
   final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
 
   final double distanceKm = earthRadiusKm * c;
-  return distanceKm <= radiusKm;
+  final double distanceMeters = distanceKm * 1000; // km를 m로 변환
+  return distanceMeters;
+}
+
+bool isWithinRadius(double distanceMeter, double radiusMeters) {
+  return distanceMeter <= radiusMeters; // 거리 비교
 }

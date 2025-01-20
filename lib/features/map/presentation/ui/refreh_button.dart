@@ -16,7 +16,7 @@ class _RefreshButtonState extends State<RefreshButton>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
-
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -35,8 +35,17 @@ class _RefreshButtonState extends State<RefreshButton>
   }
 
   Future<void> _handleRefresh() async {
+    if (isLoading) {
+      return;
+    }
     _controller.repeat();
+    setState(() {
+      isLoading = true;
+    });
     await widget.onRefresh();
+    setState(() {
+      isLoading = false;
+    });
     _controller.stop();
   }
 
@@ -47,7 +56,8 @@ class _RefreshButtonState extends State<RefreshButton>
       child: Container(
         height: heightRatio(52),
         decoration: BoxDecoration(
-            color: TTColors.ttPurple, borderRadius: BorderRadius.circular(100)),
+            color: isLoading ? TTColors.gray600 : TTColors.ttPurple,
+            borderRadius: BorderRadius.circular(100)),
         padding:
             const EdgeInsets.only(left: 14, top: 12, bottom: 12, right: 20),
         child: Row(

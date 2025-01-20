@@ -21,7 +21,7 @@ class _AsyncButtonState extends State<AsyncButton> {
     setState(() {
       _isLoading = true;
     });
-    log('clicked');
+
     try {
       await widget.onClick();
     } catch (e) {

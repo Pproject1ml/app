@@ -12,7 +12,7 @@ class MemberInterface {
   final String oauthProvider;
   final bool isDeleted;
   final ProfileInterface profile;
-  final List<ChatRoom> roomList;
+  final List<ChatRoomHiveModel> roomList;
   MemberInterface(
       {required this.memberId,
       required this.oauthId,
@@ -51,7 +51,7 @@ class MemberInterface {
       String? role,
       String? oauthProvider,
       bool? isDeleted,
-      List<ChatRoom>? roomList,
+      List<ChatRoomHiveModel>? roomList,
       ProfileInterface? profile}) {
     return MemberInterface(
         memberId: memberId ?? this.memberId,

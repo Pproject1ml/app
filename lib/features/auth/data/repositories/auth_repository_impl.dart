@@ -15,12 +15,11 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<bool> isNicknameValid(String nickname) async {
     try {
       final Map<String, String> data = {'nickname': nickname};
-      log('api isNickName valid');
+
       // api 수정 요청하기
       await apiClient.post(endpoint: "/auth/check-nickname", data: data);
       return true;
     } catch (e) {
-      log("api isNicknameValid : ${e.toString()}");
       return false;
     }
   }
@@ -34,7 +33,7 @@ class AuthRepositoryImpl implements AuthRepository {
       if (status == signupStatusCode) {
         return null;
       }
-      log(response['data'].toString());
+
       final res = MemeberModel.fromJson(response['data']);
 
       return res;

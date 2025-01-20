@@ -24,10 +24,8 @@ class SignUpSubTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(message,
-        style: Theme.of(context)
-            .textTheme
-            .labelMedium
-            ?.copyWith(color: TTColors.gray, height: 1.2, letterSpacing: -0.3));
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            color: TTColors.gray500, height: 1.2, letterSpacing: -0.3));
   }
 }
 
@@ -72,15 +70,13 @@ class SignUpTextInput extends StatelessWidget {
       maxLines: maxLines,
       decoration: InputDecoration(
         counterStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
-            color: TTColors.gray,
+            color: TTColors.gray500,
             fontSize: 13,
             height: 1.5,
             letterSpacing: -0.3),
         hintText: hintText,
-        hintStyle: Theme.of(context)
-            .textTheme
-            .labelMedium
-            ?.copyWith(color: TTColors.gray, height: 1.5, letterSpacing: -0.3),
+        hintStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
+            color: TTColors.gray600, height: 1.5, letterSpacing: -0.3),
         labelStyle: Theme.of(context)
             .textTheme
             .labelMedium
@@ -93,7 +89,7 @@ class SignUpTextInput extends StatelessWidget {
         enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
             borderSide: const BorderSide(
-              color: TTColors.gray4,
+              color: TTColors.gray300,
             )),
       ),
     );
@@ -105,14 +101,14 @@ Widget nickNameValidationgButton({bool isButtonValid = false}) {
     width: double.infinity,
     height: double.infinity,
     decoration: BoxDecoration(
-        color: isButtonValid ? TTColors.ttPurple : TTColors.gray6,
+        color: isButtonValid ? TTColors.ttPurple : TTColors.gray100,
         borderRadius: BorderRadius.circular(5)),
     child: Align(
       alignment: Alignment.center,
       child: Text(
         "중복확인",
         style: TTTextTheme.lightTextTheme.labelMedium
-            ?.copyWith(color: isButtonValid ? Colors.white : TTColors.gray),
+            ?.copyWith(color: isButtonValid ? Colors.white : TTColors.gray500),
       ),
     ),
   );

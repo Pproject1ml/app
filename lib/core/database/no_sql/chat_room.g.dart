@@ -6,42 +6,51 @@ part of 'chat_room.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class ChatRoomAdapter extends TypeAdapter<ChatRoom> {
+class ChatRoomHiveModelAdapter extends TypeAdapter<ChatRoomHiveModel> {
   @override
   final int typeId = 1;
 
   @override
-  ChatRoom read(BinaryReader reader) {
+  ChatRoomHiveModel read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return ChatRoom(
+    return ChatRoomHiveModel(
       chatroomId: fields[0] as String,
       title: fields[1] as String,
-      members: (fields[2] as List).cast<ProfileModel>(),
-      lastMessage: fields[3] as String,
-      lastReadMessageId: fields[4] as String,
-      updatedAt: fields[5] as DateTime,
+      count: fields[2] as int?,
+      profiles: (fields[3] as List).cast<ProfileHiveModel>(),
+      lastMessage: fields[4] as String?,
+      lastReadMessageId: fields[5] as String?,
+      longitude: fields[6] as double,
+      latitude: fields[7] as double,
+      lastMessageAt: fields[8] as DateTime?,
     );
   }
 
   @override
-  void write(BinaryWriter writer, ChatRoom obj) {
+  void write(BinaryWriter writer, ChatRoomHiveModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.chatroomId)
       ..writeByte(1)
       ..write(obj.title)
       ..writeByte(2)
-      ..write(obj.members)
+      ..write(obj.count)
       ..writeByte(3)
-      ..write(obj.lastMessage)
+      ..write(obj.profiles)
       ..writeByte(4)
-      ..write(obj.lastReadMessageId)
+      ..write(obj.lastMessage)
       ..writeByte(5)
-      ..write(obj.updatedAt);
+      ..write(obj.lastReadMessageId)
+      ..writeByte(6)
+      ..write(obj.longitude)
+      ..writeByte(7)
+      ..write(obj.latitude)
+      ..writeByte(8)
+      ..write(obj.lastMessageAt);
   }
 
   @override
@@ -50,7 +59,7 @@ class ChatRoomAdapter extends TypeAdapter<ChatRoom> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ChatRoomAdapter &&
+      other is ChatRoomHiveModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
@@ -59,22 +68,32 @@ class ChatRoomAdapter extends TypeAdapter<ChatRoom> {
 // JsonSerializableGenerator
 // **************************************************************************
 
-ChatRoom _$ChatRoomFromJson(Map<String, dynamic> json) => ChatRoom(
+ChatRoomHiveModel _$ChatRoomHiveModelFromJson(Map<String, dynamic> json) =>
+    ChatRoomHiveModel(
       chatroomId: json['chatroomId'] as String,
       title: json['title'] as String,
-      members: (json['members'] as List<dynamic>)
-          .map((e) => ProfileModel.fromJson(e as Map<String, dynamic>))
+      count: (json['count'] as num?)?.toInt(),
+      profiles: (json['profiles'] as List<dynamic>)
+          .map((e) => ProfileHiveModel.fromJson(e as Map<String, dynamic>))
           .toList(),
-      lastMessage: json['lastMessage'] as String,
-      lastReadMessageId: json['lastReadMessageId'] as String,
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      lastMessage: json['lastMessage'] as String?,
+      lastReadMessageId: json['lastReadMessageId'] as String?,
+      longitude: (json['longitude'] as num).toDouble(),
+      latitude: (json['latitude'] as num).toDouble(),
+      lastMessageAt: json['lastMessageAt'] == null
+          ? null
+          : DateTime.parse(json['lastMessageAt'] as String),
     );
 
-Map<String, dynamic> _$ChatRoomToJson(ChatRoom instance) => <String, dynamic>{
+Map<String, dynamic> _$ChatRoomHiveModelToJson(ChatRoomHiveModel instance) =>
+    <String, dynamic>{
       'chatroomId': instance.chatroomId,
       'title': instance.title,
-      'members': instance.members,
+      'count': instance.count,
+      'profiles': instance.profiles,
       'lastMessage': instance.lastMessage,
       'lastReadMessageId': instance.lastReadMessageId,
-      'updatedAt': instance.updatedAt.toIso8601String(),
+      'longitude': instance.longitude,
+      'latitude': instance.latitude,
+      'lastMessageAt': instance.lastMessageAt?.toIso8601String(),
     };

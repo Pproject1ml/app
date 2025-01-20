@@ -1,4 +1,5 @@
 //DB 에서 사용하는 유저이 모델입니다.
+import 'package:chat_location/core/database/no_sql/profile.dart';
 import 'package:chat_location/features/user/domain/entities/profile.dart';
 import 'package:chat_location/features/user/domain/entities/member.dart';
 
@@ -10,7 +11,6 @@ class ProfileModel {
   final String? introduction;
   final int? age;
   final String? gender;
-
   final bool isVisible;
 
   ProfileModel({
@@ -35,6 +35,19 @@ class ProfileModel {
       age: json['age'] as int?,
       gender: json['gender'] as String?,
       isVisible: json['isVisible'] as bool,
+    );
+  }
+
+  factory ProfileModel.fromHive(ProfileHiveModel data) {
+    return ProfileModel(
+      profileId: data.profileId,
+      nickname: data.nickname,
+      email: data.email,
+      profileImage: data.profileImage,
+      introduction: data.introduction,
+      age: data.age,
+      gender: data.gender,
+      isVisible: data.isVisible,
     );
   }
 
@@ -88,5 +101,10 @@ class ProfileModel {
         age: age,
         gender: gender,
         isVisible: isVisible);
+  }
+
+  ProfileHiveModel toHiveProfileModel() {
+    return ProfileHiveModel(
+        profileId: profileId, nickname: nickname, isVisible: isVisible);
   }
 }

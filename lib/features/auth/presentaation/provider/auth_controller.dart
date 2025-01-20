@@ -63,7 +63,6 @@ class AuthController with ChangeNotifier {
       return _user;
     }
 
-    log('here');
     //1-2. 없다면 unAuthenticated로 변경
     authState = authState.copyWith(authState: AuthStateT.unauthenticated);
     // 상태 변경 알림
@@ -89,13 +88,13 @@ class AuthController with ChangeNotifier {
       authState = authState.copyWith(
         authState: AuthStateT.authenticated,
       );
-      log("1");
+
       // userProvider 상태 변경해주기.
       userNotifier.setUser(user);
 
       // 유저 저장
       await SharedPreferencesHelper.saveUser(user);
-      log("3");
+
       notifyListeners();
       return user;
     }
@@ -117,7 +116,6 @@ class AuthController with ChangeNotifier {
     }
 
     if (mode == RUNTIMEMODE.passLogin) {
-      log("pass login");
       final dynamic res = {
         "memberId": "2a1c9422-0c10-4582-81d0-e41aad8fe5ef",
         "nickname": "테스트",
@@ -136,14 +134,13 @@ class AuthController with ChangeNotifier {
     }
     try {
       // signIn api 실행
-      log('authState: ${authState.toJson().toString()}');
+
       final res = await authRepository.signIn(authState.toOauthModel());
 
       // res null 이라면 SignUp으로
       if (res == null) {
         return _redirectionSatate();
       } else {
-        log("a[[ usesr : ${res.toString()}");
         final appUser = await _successState(res.toMemberInterface());
         return appUser;
       }
@@ -239,7 +236,6 @@ class AuthController with ChangeNotifier {
           oauthId: null,
           oauthProvider: null);
 
-      log('User logged out');
       notifyListeners();
     } catch (e) {
       // 3.local 저장소 초기화

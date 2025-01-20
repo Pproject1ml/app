@@ -10,12 +10,14 @@ class BottomBorderTextInput extends StatelessWidget {
       this.maxLength,
       this.isCounterVisible = true,
       this.keyboardType,
-      this.enabled = true});
+      this.enabled = true,
+      this.autofocus = true});
   final TextEditingController controller;
   final FocusNode focusNode;
   final int? maxLength;
   final bool isCounterVisible;
   final TextInputType? keyboardType;
+  final bool autofocus;
   final bool enabled;
   @override
   Widget build(BuildContext context) {
@@ -24,7 +26,7 @@ class BottomBorderTextInput extends StatelessWidget {
       onTapOutside: (event) {
         FocusScope.of(context).unfocus();
       },
-      autofocus: true,
+      autofocus: autofocus,
       keyboardType: keyboardType,
       controller: controller,
       focusNode: focusNode,
@@ -33,7 +35,7 @@ class BottomBorderTextInput extends StatelessWidget {
         counterText: "",
         contentPadding: EdgeInsets.all(0),
         border: const UnderlineInputBorder(
-          borderSide: BorderSide(color: TTColors.gray), // 기본 상태 border 색상
+          borderSide: BorderSide(color: TTColors.gray500), // 기본 상태 border 색상
         ),
         focusedBorder: const UnderlineInputBorder(
           borderSide: BorderSide(
@@ -42,12 +44,12 @@ class BottomBorderTextInput extends StatelessWidget {
         ),
         enabledBorder: const UnderlineInputBorder(
           borderSide: BorderSide(
-            color: TTColors.gray,
+            color: TTColors.gray500,
           ), // 활성화된 상태 border 색상
         ),
         disabledBorder: const UnderlineInputBorder(
           borderSide: BorderSide(
-            color: TTColors.gray,
+            color: TTColors.gray500,
           ), // 비활성화된 상태 border 색상
         ),
         suffix: isCounterVisible
@@ -61,7 +63,7 @@ class BottomBorderTextInput extends StatelessWidget {
                       style: Theme.of(context)
                           .textTheme
                           .labelSmall
-                          ?.copyWith(color: TTColors.gray),
+                          ?.copyWith(color: TTColors.gray500),
                       textAlign: TextAlign.end,
                     );
                   },

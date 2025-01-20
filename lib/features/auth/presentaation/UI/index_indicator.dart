@@ -11,7 +11,7 @@ Widget indexIndicator(int currentPage) {
         height: 10.0,
         decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: currentPage == index ? TTColors.ttPurple : TTColors.gray4),
+            color: currentPage == index ? TTColors.ttPurple : TTColors.gray300),
       );
     }),
   );

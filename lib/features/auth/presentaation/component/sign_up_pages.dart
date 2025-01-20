@@ -138,7 +138,7 @@ class SignUpPage2 extends ConsumerWidget {
                       ),
                       activeColor: TTColors.ttPurple,
                       activeTrackColor: TTColors.ttPurple.withOpacity(1.0),
-                      inactiveTrackColor: TTColors.gray.withOpacity(1.0),
+                      inactiveTrackColor: TTColors.gray300.withOpacity(1.0),
                       value: state.isVisible ?? false,
                       onChanged: (value) {
                         notifier.setIsVisible(value);
@@ -201,9 +201,9 @@ class _SignUpNicknameContainerState extends State<SignUpNicknameContainer> {
     setState(() {
       _isValidating = true;
     });
-    log("handle tap 중복확인 start");
+
     await widget.notifier.isNickNameValid();
-    log("handle tap 중복확인 end");
+
     setState(() {
       _isValidating = false;
     });

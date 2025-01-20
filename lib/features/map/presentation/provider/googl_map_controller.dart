@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:chat_location/common/dialog/landmark_dialog.dart';
 import 'package:chat_location/constants/data.dart';
 import 'package:chat_location/features/map/domain/entities/landmark.dart';
@@ -28,20 +27,26 @@ class GoogleMapStateNotifier extends StateNotifier<GoogleMapState> {
   late GoogleMapController _controller;
   GoogleMapStateNotifier() : super(GoogleMapState());
   // 지도가 build 되고 해당 함수가 실행. 이후 _controller 할당
-  void onMapCreated(GoogleMapController controller) {
+  Future<void> onMapCreated(
+    GoogleMapController controller,
+    String? mapStyle,
+    Future<void> Function() callback,
+  ) async {
     _controller = controller;
-    log("on Map created 로 인한 요금제 추가됨");
+    if (mapStyle != null) {
+      _controller.setMapStyle(mapStyle);
+    }
+    await callback();
   }
 
   Future<Set<Marker>> _createCustomMarker(List<LandmarkInterface> datas) async {
     Set<Marker> _markers = {};
 
-    log("custom marker");
     for (final data in datas) {
       final markerIcon = await createLandmarkMarkers();
       _markers.add(
         Marker(
-            markerId: MarkerId(data.id.toString()),
+            markerId: MarkerId(data.landmarkId.toString()),
             position: LatLng(data.latitude, data.longitude),
             icon: markerIcon,
             // infoWindow: InfoWindow(title: data['name'] as String),
@@ -60,8 +65,6 @@ class GoogleMapStateNotifier extends StateNotifier<GoogleMapState> {
 
   void updateCircle(LatLng currentLocation) {
     if (_controller != null) {
-      log("update");
-
       final newCircles = createCircle(currentLocation);
 
       // 상태를 업데이트
@@ -96,7 +99,7 @@ class GoogleMapStateNotifier extends StateNotifier<GoogleMapState> {
 
   void animateCamera(LatLng position) {
     _controller.animateCamera(
-      CameraUpdate.newLatLngZoom(position, 12),
+      CameraUpdate.newLatLngZoom(position, 13),
     );
   }
 }

@@ -1,14 +1,27 @@
 import 'dart:developer';
 
+import 'package:chat_location/common/components/network_image.dart';
 import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
-import 'package:chat_location/features/chat/presentation/screen/chat_list_screen.dart';
+import 'package:chat_location/features/chat/domain/entities/chatroom.dart';
+import 'package:chat_location/features/chat/presentation/screen/chat_tab_screen.dart';
 import 'package:chat_location/features/chat/presentation/screen/chat_page_screen.dart';
-import 'package:chat_location/features/map/domain/entities/chat_room.dart';
+import 'package:chat_location/features/map/domain/entities/landmark.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-Future<void> landmarkDialog(BuildContext context, ChatRoomInterface? chatRoom) {
+Future<void> landmarkDialog(BuildContext context, LandmarkInterface landmark) {
+  final String count = landmark.chatroom == null
+      ? "0"
+      : landmark.chatroom!.count >= 1000
+          ? "999+"
+          : landmark.chatroom!.count.toString();
+  final String distance = landmark.chatroom?.distance == null
+      ? "5km"
+      : landmark.chatroom!.distance! < 1000
+          ? "${landmark.chatroom?.distance}m"
+          : "${((landmark.chatroom!.distance!) / 1000).toInt()}km";
   return showDialog<void>(
     context: context,
     builder: (BuildContext context) {
@@ -22,7 +35,7 @@ Future<void> landmarkDialog(BuildContext context, ChatRoomInterface? chatRoom) {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              chatRoom?.landmark.name ?? 'null',
+              landmark.name,
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             SizedBox(
@@ -32,15 +45,16 @@ Future<void> landmarkDialog(BuildContext context, ChatRoomInterface? chatRoom) {
               'assets/images/people_alt.png',
               height: 18,
               width: 18,
+              color: TTColors.gray600,
             ),
             SizedBox(
               width: widthRatio(4),
             ),
-            Text("999+",
+            Text(count,
                 style: Theme.of(context)
                     .textTheme
                     .labelMedium
-                    ?.copyWith(color: TTColors.gray))
+                    ?.copyWith(color: TTColors.gray600))
           ],
         ),
         content: Column(
@@ -48,26 +62,22 @@ Future<void> landmarkDialog(BuildContext context, ChatRoomInterface? chatRoom) {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              chatRoom?.landmark.name ?? "null",
+              landmark.name,
               style: Theme.of(context)
                   .textTheme
                   .labelSmall
-                  ?.copyWith(color: TTColors.gray),
+                  ?.copyWith(color: TTColors.gray500),
             ),
             SizedBox(
               height: heightRatio(16),
             ),
             Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4), // 원하는 반지름 설정
-                image: DecorationImage(
-                  image: AssetImage('assets/images/test_img.png'),
-                  fit: BoxFit.cover, // 이미지 비율 유지
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4), // 원하는 반지름 설정
                 ),
-              ),
-              height: heightRatio(150),
-              width: widthRatio(270),
-            ),
+                height: heightRatio(150),
+                width: double.infinity,
+                child: NetWorkImage(imagePath: landmark.imagePath)),
             SizedBox(
               height: heightRatio(20),
             ),
@@ -77,7 +87,7 @@ Future<void> landmarkDialog(BuildContext context, ChatRoomInterface? chatRoom) {
                   "내 위치에서",
                   style: Theme.of(context).textTheme.labelMedium,
                 ),
-                Text("300m ",
+                Text(distance,
                     style: Theme.of(context)
                         .textTheme
                         .labelMedium
@@ -90,13 +100,13 @@ Future<void> landmarkDialog(BuildContext context, ChatRoomInterface? chatRoom) {
             ),
             Row(
               children: [
-                Text("999명 이상",
+                Text(count,
                     style: Theme.of(context)
                         .textTheme
                         .labelMedium
                         ?.copyWith(color: TTColors.ttPurple)),
                 Text(
-                  "의 사람들이 채팅에 참여하고 있어요.",
+                  "명 의 사람들이 채팅에 참여하고 있어요.",
                   style: Theme.of(context).textTheme.labelMedium,
                 )
               ],
@@ -112,15 +122,15 @@ Future<void> landmarkDialog(BuildContext context, ChatRoomInterface? chatRoom) {
                   width: widthRatio(92),
                   height: 52,
                   decoration: BoxDecoration(
-                      color: TTColors.gray5,
+                      color: TTColors.gray300,
                       borderRadius: BorderRadius.circular(8)),
                   alignment: Alignment.center,
                   child: Text(
-                    "취소",
+                    "닫기",
                     style: Theme.of(context)
                         .textTheme
                         .labelLarge
-                        ?.copyWith(color: TTColors.gray),
+                        ?.copyWith(color: TTColors.gray500),
                   ),
                 ),
               ),
@@ -130,12 +140,11 @@ Future<void> landmarkDialog(BuildContext context, ChatRoomInterface? chatRoom) {
               Expanded(
                 child: GestureDetector(
                   onTap: () {
-                    log("clicked");
                     Navigator.pop(context);
                     context.goNamed(
                       ChatScreen.pageName,
                     );
-                    log("chat screen");
+
                     context.pushNamed(ChatPage.pageName,
                         pathParameters: {'id': "10"});
                   },

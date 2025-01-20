@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:chat_location/features/auth/presentaation/provider/auth_controller.dart';
 import 'package:chat_location/features/auth/presentaation/screen/login_screen.dart';
 import 'package:chat_location/features/auth/presentaation/screen/sign_up_screen.dart';
-import 'package:chat_location/features/chat/presentation/screen/chat_list_screen.dart';
+import 'package:chat_location/features/chat/presentation/screen/chat_tab_screen.dart';
 import 'package:chat_location/features/chat/presentation/screen/chat_page_screen.dart';
 import 'package:chat_location/features/map/presentation/screen/mapScreen.dart';
 

@@ -47,10 +47,8 @@ class BottomButtonControllerT extends StateNotifier<BottomButtonState> {
 
   void update(
       {bool? isDisabled, Future<void> Function()? onPress, String? text}) {
-    log("bottom button update");
     state =
         state.copyWith(isDisabled: isDisabled, onPress: onPress, text: text);
-    log("bottom button end");
   }
 
   // 버튼 클릭 처리

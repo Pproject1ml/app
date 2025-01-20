@@ -1,4 +1,5 @@
 //DB 에서 사용하는 유저이 모델입니다.
+import 'package:chat_location/core/database/no_sql/profile.dart';
 import 'package:chat_location/features/user/data/models/profile.dart';
 import 'package:chat_location/features/user/domain/entities/member.dart';
 
@@ -88,6 +89,18 @@ class ProfileInterface {
         isVisible: profileModel.isVisible);
   }
 
+  factory ProfileInterface.fromProfileHiveModel(ProfileHiveModel profileModel) {
+    return ProfileInterface(
+        profileId: profileModel.profileId,
+        nickname: profileModel.nickname,
+        email: profileModel.email,
+        profileImage: profileModel.profileImage,
+        introduction: profileModel.introduction,
+        age: profileModel.age,
+        gender: profileModel.gender,
+        isVisible: profileModel.isVisible);
+  }
+
   ProfileModel toProfileModel() {
     return ProfileModel(
         profileId: profileId,
@@ -98,5 +111,10 @@ class ProfileInterface {
         introduction: introduction,
         age: age,
         gender: gender);
+  }
+
+  ProfileHiveModel toProfileHiveModel() {
+    return ProfileHiveModel(
+        profileId: profileId, nickname: nickname, isVisible: isVisible);
   }
 }

@@ -30,7 +30,7 @@ class SignUpFormControllerT extends StateNotifier<SignUpInterface> {
       this.signUpBottomButtonRepository, this.authNotifier)
       : super(initialUser) {
     // 초기화 시 BottomButton 상태 설정
-    log("init");
+
     pageController = PageController();
     nicknameController = TextEditingController(text: initialUser.nickname);
     ageController = TextEditingController();
@@ -55,7 +55,7 @@ class SignUpFormControllerT extends StateNotifier<SignUpInterface> {
     nicknameController.removeListener(_nickeNameEventListener);
     ageController.removeListener(_ageEventListener);
     descriptionController.removeListener(_descriptionEventListener);
-    log("dispose");
+
     super.dispose();
   }
 
@@ -147,7 +147,6 @@ class SignUpFormControllerT extends StateNotifier<SignUpInterface> {
   }
 
   void _pageValidChecker(SignUpInterface user) {
-    log("valid checker start");
     switch (currentPage) {
       case 0:
         _page1ValidChecker(user);
@@ -177,7 +176,7 @@ class SignUpFormControllerT extends StateNotifier<SignUpInterface> {
 // 페이지 2가 valid한지 확인 로직
   void _page2ValidChecker(SignUpInterface user) {
     // age, 성별, 입력 여부
-    log(user.age.toString());
+
     if (user.age != null &&
         user.age! > 0 &&
         user.age is int &&
@@ -200,11 +199,11 @@ class SignUpFormControllerT extends StateNotifier<SignUpInterface> {
   // 닉네임 중복 확인 요청
   Future<void> isNickNameValid() async {
     final nickName = state.nickname;
-    log("isNickNameValid servider start");
+
     try {
       //서버에서 이름  중복 확인
       final isAvailable = await authNotifier.isNickNameValid(nickName);
-      log("서버에서 응답옴: ${isAvailable}");
+
       if (isAvailable) {
         _isNicknameValid = true;
       }
@@ -215,7 +214,6 @@ class SignUpFormControllerT extends StateNotifier<SignUpInterface> {
       _isNicknameValid = false;
     }
     _pageValidChecker(state);
-    log("종료");
   }
 
   void setCurrentPage(index) {
@@ -240,12 +238,10 @@ class SignUpFormControllerT extends StateNotifier<SignUpInterface> {
 
   // BottomButton 상태 업데이트
   void _updateBottomButton() {
-    log("bottom logic restart");
-
     bool _buttonDisabled = true;
     String _text = "확인";
     Future<void> Function()? _onPress = () async {};
-    log("currentPage: ${currentPage.toString()}");
+
     switch (currentPage) {
       case 0:
         _buttonDisabled = !_isPage1Valid;
@@ -268,13 +264,12 @@ class SignUpFormControllerT extends StateNotifier<SignUpInterface> {
           try {
             await signUp();
           } catch (e) {
-            log("message");
             throw e.toString();
           }
         };
         break;
     }
-    log("_updateBottomButton 완료");
+
     signUpBottomButtonRepository.update(
         isDisabled: _buttonDisabled, onPress: _onPress, text: _text);
   }

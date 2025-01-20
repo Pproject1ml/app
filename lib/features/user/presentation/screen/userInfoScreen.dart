@@ -2,6 +2,7 @@ import 'package:chat_location/common/dialog/bottom_up_dialog.dart';
 import 'package:chat_location/common/ui/box/round_user_image_box.dart';
 import 'package:chat_location/common/ui/box/rounded_with_sharp_box.dart';
 import 'package:chat_location/constants/colors.dart';
+import 'package:chat_location/constants/data.dart';
 import 'package:chat_location/constants/text_style.dart';
 import 'package:chat_location/features/user/presentation/provider/user_controller.dart';
 import 'package:chat_location/features/auth/presentaation/provider/auth_controller.dart';
@@ -21,7 +22,7 @@ class UserInfoScreen extends ConsumerWidget {
     final user = ref.watch(userProvider) as MemberInterface;
 
     return Scaffold(
-        backgroundColor: TTColors.gray6,
+        backgroundColor: TTColors.gray100,
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(
@@ -75,7 +76,7 @@ class UserInfoScreen extends ConsumerWidget {
                                     style: Theme.of(context)
                                         .textTheme
                                         .labelMedium
-                                        ?.copyWith(color: TTColors.gray),
+                                        ?.copyWith(color: TTColors.gray500),
                                   ),
                                 if (user.profile.gender != null)
                                   Text(
@@ -83,7 +84,7 @@ class UserInfoScreen extends ConsumerWidget {
                                     style: Theme.of(context)
                                         .textTheme
                                         .labelMedium
-                                        ?.copyWith(color: TTColors.gray),
+                                        ?.copyWith(color: TTColors.gray500),
                                   ),
                               ],
                             ),
@@ -95,27 +96,27 @@ class UserInfoScreen extends ConsumerWidget {
                           roundedWithSharp(user.profile.introduction ?? ''),
                         const SizedBox(height: 16),
                         // 태그 리스트
-                        Wrap(
-                          spacing: 4,
-                          runSpacing: 4,
-                          alignment: WrapAlignment.center,
-                          children: [
-                            buildTag('잠실 롯데타워'),
-                            buildTag('경복궁'),
-                            buildTag('홍대'),
-                            buildTag('명동'),
-                            buildTag('남산타워'),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          '내가 자주 갔던 상위 5개의 랜드마크 태그로 노출돼요.',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: TTColors.gray,
-                            letterSpacing: -0.3,
-                          ),
-                        ),
+                        // Wrap(
+                        //   spacing: 4,
+                        //   runSpacing: 4,
+                        //   alignment: WrapAlignment.center,
+                        //   children: [
+                        //     buildTag('잠실 롯데타워'),
+                        //     buildTag('경복궁'),
+                        //     buildTag('홍대'),
+                        //     buildTag('명동'),
+                        //     buildTag('남산타워'),
+                        //   ],
+                        // ),
+                        // const SizedBox(height: 8),
+                        // const Text(
+                        //   '내가 자주 갔던 상위 5개의 랜드마크 태그로 노출돼요.',
+                        //   style: TextStyle(
+                        //     fontSize: 10,
+                        //     color: TTColors.gray,
+                        //     letterSpacing: -0.3,
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
@@ -124,30 +125,30 @@ class UserInfoScreen extends ConsumerWidget {
                       right: 24,
                       child: IconButton(
                           onPressed: () => {
-                                showDialog(
-                                  context: context,
-                                  barrierDismissible: true, // 외부 탭으로 닫기 가능
-                                  builder: (BuildContext context) {
-                                    return BottomUpDialog(
-                                      child: EditUser(currentUser: user),
-                                    );
-                                  },
-                                )
-                                // showModalBottomSheet(
-                                //     useSafeArea: false,
-                                //     isScrollControlled: true,
-                                //     context: context,
-                                //     builder: (BuildContext context) {
-                                //       return SizedBox(
-                                //           height: heightRatio(763),
-                                //           child:
-                                //               EditUser(currentUser: auth.user));
-                                //     })
+                                // showDialog(
+                                //   context: context,
+                                //   barrierDismissible: true, // 외부 탭으로 닫기 가능
+                                //   builder: (BuildContext context) {
+                                //     return BottomUpDialog(
+                                //       child: EditUser(currentUser: user),
+                                //     );
+                                //   },
+                                // )
+                                showModalBottomSheet(
+                                    useSafeArea: false,
+                                    isScrollControlled: true,
+                                    useRootNavigator: true,
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return SizedBox(
+                                          height: heightRatio(763),
+                                          child: EditUser(currentUser: user));
+                                    })
                               },
                           icon: const Icon(
                             Icons.edit,
                             size: 24,
-                            color: TTColors.gray,
+                            color: TTColors.gray500,
                           ))),
                 ],
               ),

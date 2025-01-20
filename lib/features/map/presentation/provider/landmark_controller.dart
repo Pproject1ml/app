@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:chat_location/constants/data.dart';
 import 'package:chat_location/core/newtwork/api_client.dart';
+import 'package:chat_location/features/chat/domain/entities/chatroom.dart';
 import 'package:chat_location/features/map/data/repositories/landmark_repository_imp.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chat_location/features/map/domain/entities/landmark.dart';
@@ -9,59 +10,23 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class LandmarkListNotifier extends StateNotifier<List<LandmarkInterface>> {
   final LandmarkRepositoryImp landmarkRepository;
-  LandmarkListNotifier(this.landmarkRepository)
-      : super([
-          LandmarkInterface(
-              id: 0,
-              name: "경복궁",
-              latitude: 37.579617,
-              longitude: 126.977041,
-              radius: 10),
-          LandmarkInterface(
-              id: 1,
-              name: "남산타워",
-              latitude: 37.5511694,
-              longitude: 126.9882266,
-              radius: 10),
-          LandmarkInterface(
-              id: 2,
-              name: "덕수궁",
-              latitude: 37.5658049,
-              longitude: 126.9751461,
-              radius: 10),
-        ]);
+  LandmarkListNotifier(this.landmarkRepository) : super([]);
 
   // 내 위치에서 모든 랜드마크 가져오기
-  Future<void> getAllLandMarkFromServer({LatLng? currentPosition}) async {
-    log("get all current Position");
-    await Future.delayed(Duration(seconds: 5));
-    LandmarkInterface tmp = state[state.length - 1].copyWith(
-        latitude: state[state.length - 1].latitude + 100,
-        longitude: state[state.length - 1].longitude + 10);
-    state = [...state, tmp];
-    log(tmp.latitude.toString());
-  }
-
-  // 내 위치에서 접근 가능한 랜드마크 서버에서 가져오기
-  Future<void> getAvailableLangMarkFromServer({LatLng? position}) async {
+  Future<List<LandmarkInterface>> getAllLandMarkFromServer(
+      LatLng currentPosition) async {
     try {
-      await landmarkRepository.getAvailableLandmark(
-          position!.latitude, position!.longitude);
-    } catch (e) {
-      throw e;
+      final res = await landmarkRepository.getAvailableLandmark(
+          currentPosition.latitude, currentPosition.longitude);
+
+      final landmarks =
+          res.map((v) => LandmarkInterface.fromLandmarkModel(v)).toList();
+      state = landmarks;
+      return landmarks;
+    } catch (e, s) {
+      log(e.toString() + s.toString());
+      throw "랜드마크 불러오기에 실패하였습니다.";
     }
-  }
-
-  // 현재 State에서 접근 가능한 landMark 가져오기
-  void getAvailableLandMark() {}
-
-  // 채팅방에 들어가기전 현재 위치와 채팅방 위치를 비교해 들어갈 수 있는지 확인
-  bool isAvailableLandmark(
-      {required LandmarkInterface target,
-      required double currentLat,
-      required double currentLon}) {
-    // isWithinRadius
-    return false;
   }
 
   /// 랜드마크 추가
@@ -71,13 +36,27 @@ class LandmarkListNotifier extends StateNotifier<List<LandmarkInterface>> {
 
   /// 랜드마크 제거
   void removeLandmark(int id) {
-    state = state.where((landmark) => landmark.id != id).toList();
+    state = state.where((landmark) => landmark.landmarkId != id).toList();
+  }
+
+  /// 랜드마크들 중에 바뀐것 업데이트
+  void updateLandmarks(List<LandmarkInterface> updatedLandmarks) {
+    log("updated landmark markers");
+    final updatedMap = {
+      for (var landmark in updatedLandmarks) landmark.landmarkId: landmark
+    };
+
+    state = state.map((landmark) {
+      return updatedMap[landmark.landmarkId] ?? landmark;
+    }).toList();
   }
 
   /// 랜드마크 업데이트
   void updateLandmark(LandmarkInterface updatedLandmark) {
     state = state.map((landmark) {
-      return landmark.id == updatedLandmark.id ? updatedLandmark : landmark;
+      return landmark.landmarkId == updatedLandmark.landmarkId
+          ? updatedLandmark
+          : landmark;
     }).toList();
   }
 
@@ -86,10 +65,8 @@ class LandmarkListNotifier extends StateNotifier<List<LandmarkInterface>> {
     state = [];
   }
 
-  /// 특정 랜드마크 가져오기
-  LandmarkInterface? getLandmarkById(int id) {
-    // return state.firstWhere((landmark) => landmark.id == id,
-    //     orElse: () => null);
+  List<LandmarkInterface> get() {
+    return state;
   }
 }
 
