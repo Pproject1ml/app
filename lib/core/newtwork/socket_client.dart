@@ -39,7 +39,7 @@ class SocketClient {
 
         heartbeatOutgoing: const Duration(seconds: 10),
         heartbeatIncoming: const Duration(seconds: 10),
-        reconnectDelay: const Duration(seconds: 5), // 재연결 간격
+        reconnectDelay: const Duration(seconds: 30), // 재연결 간격
       ),
     );
     if (_isClientInitailized()) {

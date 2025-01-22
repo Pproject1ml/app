@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:chat_location/common/components/network_image.dart';
 import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
@@ -11,18 +13,18 @@ class ChatRoomBox extends StatelessWidget {
   const ChatRoomBox(
       {super.key, this.type = ChatRoomBoxType.available, this.data});
   final ChatRoomBoxType type;
-
   final ChatRoomInterface? data;
   @override
   Widget build(BuildContext context) {
     if (data == null) {
       return Container();
     }
+
     return Opacity(
-      opacity: data!.available ? 1 : 0.5,
+      opacity: data!.active ? 1 : 0.5,
       child: Container(
         decoration: BoxDecoration(
-            color: data!.available ? TTColors.white : Colors.transparent),
+            color: data!.active ? TTColors.white : Colors.transparent),
         padding: EdgeInsets.symmetric(
             horizontal: widthRatio(20),
             vertical: type == ChatRoomBoxType.available
@@ -51,8 +53,8 @@ class ChatRoomBox extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 SingleChildScrollView(
-                                  child: _chatRoomInfo(data!.title,
-                                      data!.profiles.entries.length, context),
+                                  child: _chatRoomInfo(
+                                      data!.title, data!.count, context),
                                 ),
                                 _timeManager(data!.lastMessageAt, context)
                               ],
@@ -76,6 +78,7 @@ class ChatRoomBox extends StatelessWidget {
                                   Text(
                                     textAlign: TextAlign.left,
                                     data!.lastMessage ?? '',
+                                    maxLines: 1,
                                     style: Theme.of(context)
                                         .textTheme
                                         .labelMedium
@@ -120,10 +123,9 @@ class ChatRoomBox extends StatelessWidget {
     return Container(
         height: heightRatio(50),
         width: heightRatio(50),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16), // 원하는 반지름 설정
-        ),
-        child: NetWorkImage(imagePath: imageUrl));
+        child: ClipRRect(
+            borderRadius: BorderRadius.circular(16.0),
+            child: NetWorkImage(imagePath: imageUrl)));
   }
 
   Widget _chatRoomInfo(String title, int count, BuildContext context) {

@@ -13,6 +13,7 @@ class ChatMessageInterface {
   final String content;
   final String messageType;
   final DateTime? createdAt;
+  final List<ProfileInterface>? profiles;
 
   ChatMessageInterface(
       {this.messageId,
@@ -20,7 +21,8 @@ class ChatMessageInterface {
       required this.profileId,
       required this.content,
       this.createdAt,
-      required this.messageType});
+      required this.messageType,
+      this.profiles});
 
   factory ChatMessageInterface.fromHiveModel(ChatMessageHiveModel data) {
     return ChatMessageInterface(
@@ -34,13 +36,15 @@ class ChatMessageInterface {
   }
   factory ChatMessageInterface.fromChatMessageModel(ChatMessageModel data) {
     return ChatMessageInterface(
-      messageId: data.messageId,
-      chatroomId: data.chatroomId,
-      profileId: data.profileId,
-      content: data.content,
-      messageType: data.messageType,
-      createdAt: data.createdAt,
-    );
+        messageId: data.messageId,
+        chatroomId: data.chatroomId,
+        profileId: data.profileId,
+        content: data.content,
+        messageType: data.messageType,
+        createdAt: data.createdAt,
+        profiles: data.profiles
+            ?.map((profile) => ProfileInterface.fromProfileModel(profile))
+            .toList());
   }
   ChatMessageModel toChatMessageModel() {
     return ChatMessageModel(

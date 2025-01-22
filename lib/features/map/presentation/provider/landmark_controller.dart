@@ -21,6 +21,7 @@ class LandmarkListNotifier extends StateNotifier<List<LandmarkInterface>> {
 
       final landmarks =
           res.map((v) => LandmarkInterface.fromLandmarkModel(v)).toList();
+
       state = landmarks;
       return landmarks;
     } catch (e, s) {
@@ -41,7 +42,6 @@ class LandmarkListNotifier extends StateNotifier<List<LandmarkInterface>> {
 
   /// 랜드마크들 중에 바뀐것 업데이트
   void updateLandmarks(List<LandmarkInterface> updatedLandmarks) {
-    log("updated landmark markers");
     final updatedMap = {
       for (var landmark in updatedLandmarks) landmark.landmarkId: landmark
     };

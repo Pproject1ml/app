@@ -83,17 +83,7 @@ class _LoginPageState extends ConsumerState<LoginPageT> {
                   right: 12,
                   bottom: heightRatio(80),
                 ),
-                child: Column(
-                  children: [
-                    TextButton(
-                      onPressed: () async {
-                        await ref.read(authProvider.notifier).logout();
-                      },
-                      child: const Text("유저 초기화"),
-                    ),
-                    LoginButtonList(onButtonPressed: handleClickButton),
-                  ],
-                ),
+                child: LoginButtonList(onButtonPressed: handleClickButton),
               ),
             ],
           ),

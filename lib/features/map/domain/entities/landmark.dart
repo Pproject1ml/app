@@ -9,6 +9,7 @@ class LandmarkInterface {
   final int radius; // 랜드마크 반경 (미터 단위)
   final String? imagePath;
   final ChatRoomInterface? chatroom;
+  final String? address;
   LandmarkInterface(
       {required this.landmarkId,
       required this.name,
@@ -16,7 +17,8 @@ class LandmarkInterface {
       required this.longitude,
       required this.radius,
       this.imagePath,
-      this.chatroom});
+      this.chatroom,
+      this.address});
 
   factory LandmarkInterface.fromLandmarkModel(LandmarkModel data) {
     return LandmarkInterface(
@@ -28,7 +30,8 @@ class LandmarkInterface {
         imagePath: data.imagePath,
         chatroom: data.chatroom != null
             ? ChatRoomInterface.fromChatRoomModel(data.chatroom!)
-            : null);
+            : null,
+        address: data.address);
   }
   // copyWith 메서드 추가
   LandmarkInterface copyWith(
@@ -37,13 +40,17 @@ class LandmarkInterface {
       double? latitude,
       double? longitude,
       int? radius,
-      ChatRoomInterface? chatroom}) {
+      String? imagePath,
+      ChatRoomInterface? chatroom,
+      String? address}) {
     return LandmarkInterface(
         landmarkId: landmarkId ?? this.landmarkId,
         name: name ?? this.name,
         latitude: latitude ?? this.latitude,
         longitude: longitude ?? this.longitude,
         radius: radius ?? this.radius,
-        chatroom: chatroom ?? this.chatroom);
+        imagePath: imagePath ?? this.imagePath,
+        chatroom: chatroom ?? this.chatroom,
+        address: address ?? this.address);
   }
 }

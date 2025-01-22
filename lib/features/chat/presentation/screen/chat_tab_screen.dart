@@ -43,6 +43,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final notifier = ref.read(chattingControllerProvider.notifier);
     final data = ref.watch(chattingControllerProvider);
     final position = ref.watch(positionProvider);
+    log("currentRoomId : ${notifier.getCurrentRoomId()}");
     return Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: TTColors.gray100,
@@ -64,6 +65,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           ),
         ),
         body: data.when(
+            skipError: true,
             data: (_data) {
               return SafeArea(
                   child: Column(

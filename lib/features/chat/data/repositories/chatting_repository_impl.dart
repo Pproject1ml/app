@@ -102,7 +102,7 @@ class ChattingRepositoryImp implements ChattingRepository {
       String? command,
       Map<String, String>? headers}) async {
     final destination = '$SUBSCRIBE_BASE_URL/room/$roomId';
-    final Map<String, String> _header = {};
+    final Map<String, String> _header = {"chatroomId": roomId};
     if (command != null) _header.addAll({"COMMAND": command});
     // headers가 존재할 경우 _header에 병합
     if (headers != null) {
@@ -157,7 +157,7 @@ class ChattingRepositoryImp implements ChattingRepository {
           endpoint: '/chat/list', queryParameters: queryParameters);
 
       final datas = res['data'] as List<dynamic>;
-
+      log("refresh : ${res['data']}");
       final chatRooms = datas.map((json) {
         return ChatRoomModel.fromJson(json as Map<String, dynamic>);
       }).toList();
@@ -212,6 +212,7 @@ class ChattingRepositoryImp implements ChattingRepository {
   }
 
   //  -------------------------------------------- LOCAL -----------------------------------------
+
   @override
   Future<void> saveMessageLocal(ChatMessageHiveModel data) async {
     try {
@@ -251,9 +252,23 @@ class ChattingRepositoryImp implements ChattingRepository {
     try {
       final boxKey = HIVE_CHATROOM;
       final box = _getHiveChatRoomBox(boxKey);
+
       await box.delete(chatroomId);
     } catch (e, s) {
       log(e.toString() + s.toString());
+    }
+  }
+
+  @override
+  Future<void> updateChatroomLocal(ChatRoomHiveModel data) async {
+    try {
+      final boxKey = HIVE_CHATROOM;
+      final box = _getHiveChatRoomBox(boxKey);
+      final chatroomKey = data.chatroomId;
+      await box.put(chatroomKey, data);
+    } catch (e, s) {
+      log(e.toString() + s.toString());
+      throw '채팅방 업데이트에 실패하였습니다';
     }
   }
 
@@ -282,7 +297,7 @@ class ChattingRepositoryImp implements ChattingRepository {
     }
   }
 
-  Future<void> addChatRoomLocal(ChatRoomHiveModel chatRoom) async {
+  Future<void> createChatRoomLocal(ChatRoomHiveModel chatRoom) async {
     try {
       final boxKey = HIVE_CHATROOM;
       final box = _getHiveChatRoomBox(boxKey);
@@ -304,7 +319,7 @@ class ChattingRepositoryImp implements ChattingRepository {
     // candidateKeys 중에서 현재 index를 넘겨줍니다.
     int _getIndexOfCurrentMessage(String? messageId) {
       if (messageId == null) return -1;
-      return candidateKeys.firstWhere((v) => v == int.parse(messageId));
+      return candidateKeys.indexWhere((v) => v == int.parse(messageId));
     }
 
     final boxKey = HIVE_CHAT_MESSAGE + "${chatroomId}";
@@ -322,12 +337,13 @@ class ChattingRepositoryImp implements ChattingRepository {
         lastMessageIndex <= -1 ? candidateKeys.length - 1 : lastMessageIndex,
         limit);
 
-    for (var i = 0; i < _keys.length; i++) {
+    for (var i = _keys.length - 1; i >= 0; i--) {
       final _message = await box.get(_keys[i].toString());
       if (_message != null) {
         localMessages.add(ChatMessageInterface.fromHiveModel(_message));
       }
     }
+
     return localMessages;
   }
 }

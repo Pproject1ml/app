@@ -1,3 +1,5 @@
+
+
 plugins {
     id "com.android.application"
     id "kotlin-android"
@@ -8,7 +10,14 @@ plugins {
 dependencies {
     // flutter_local_notification setting
 coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
+implementation("com.google.android.material:material:1.12.0")
 }
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     // dotenv package 를 통해서 key 가져오기 위한 android 설정
     def dotenv = new Properties()
@@ -39,7 +48,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.chat_location"
+        applicationId = "com.travelTalk.chat_location"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdkVersion = 21               
@@ -60,12 +69,20 @@ android {
         // flutter_local_notification setting
         multiDexEnabled true
     }
- 
+ signingConfigs {
+        release {
+            keyAlias = keystoreProperties['keyAlias']
+            keyPassword = keystoreProperties['keyPassword']
+            storeFile = keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword = keystoreProperties['storePassword']
+        }
+    }
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+         
+            signingConfig = signingConfigs.release
         }
     }
 }

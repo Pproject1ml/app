@@ -10,7 +10,7 @@ class LandmarkModel {
   final int radius;
   final String? imagePath;
   final ChatRoomModel? chatroom;
-
+  final String? address;
   LandmarkModel(
       {required this.landmarkId,
       required this.name,
@@ -18,7 +18,8 @@ class LandmarkModel {
       required this.longitude,
       required this.radius,
       this.imagePath,
-      this.chatroom});
+      this.chatroom,
+      this.address});
 
   // Factory constructor for creating a LandmarkModel instance from a JSON object
   factory LandmarkModel.fromJson(Map<String, dynamic> json) {
@@ -31,7 +32,8 @@ class LandmarkModel {
         imagePath: json['imagePath'] as String?,
         chatroom: json['chatroom'] != null
             ? ChatRoomModel.fromJson(json['chatroom'] as Map<String, dynamic>)
-            : null);
+            : null,
+        address: json['address'] as String?);
   }
 
   // Method for converting a LandmarkModel instance to a JSON object
@@ -43,7 +45,8 @@ class LandmarkModel {
       'longitude': longitude,
       'radius': radius,
       'imagePath': imagePath,
-      'chatroom': chatroom?.toJson()
+      'chatroom': chatroom?.toJson(),
+      'address': address
     };
   }
 }

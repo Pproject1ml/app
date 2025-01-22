@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:chat_location/core/database/no_sql/chat_room.dart';
 import 'package:chat_location/features/chat/data/model/chatroom.dart';
 import 'package:chat_location/features/chat/domain/entities/chat_message.dart';
@@ -16,7 +18,7 @@ class ChatRoomInterface {
   final double longitude;
   final List<int> hiveKeys;
   final double? distance;
-  final bool available;
+  final bool active;
   final String? imagePath;
   ChatRoomInterface(
       {required this.chatroomId,
@@ -31,7 +33,7 @@ class ChatRoomInterface {
       this.chatting = const [],
       this.hiveKeys = const [],
       this.distance,
-      this.available = true,
+      this.active = true,
       this.imagePath});
 
   factory ChatRoomInterface.fromHiveModel(ChatRoomHiveModel data) {
@@ -47,7 +49,9 @@ class ChatRoomInterface {
         longitude: data.longitude,
         lastMessage: data.lastMessage,
         lastReadMessageId: data.lastReadMessageId,
-        lastMessageAt: data.lastMessageAt);
+        lastMessageAt: data.lastMessageAt,
+        imagePath: data.imagePath,
+        active: data.active);
   }
   factory ChatRoomInterface.fromChatRoomModel(ChatRoomModel data) {
     return ChatRoomInterface(
@@ -62,7 +66,9 @@ class ChatRoomInterface {
         latitude: data.latitude,
         lastMessage: data.lastMessage,
         lastReadMessageId: data.lastReadMessageId,
-        lastMessageAt: data.lastMessageAt);
+        lastMessageAt: data.lastMessageAt,
+        imagePath: data.imagePath,
+        active: data.active);
   }
 
   ChatRoomHiveModel toHiveModel() {
@@ -76,7 +82,9 @@ class ChatRoomInterface {
         longitude: longitude,
         lastMessage: lastMessage,
         lastReadMessageId: lastReadMessageId,
-        lastMessageAt: lastMessageAt);
+        lastMessageAt: lastMessageAt,
+        imagePath: imagePath,
+        active: active);
   }
 
   ChatRoomModel toChatRoomModel() {
@@ -91,36 +99,42 @@ class ChatRoomInterface {
         longitude: longitude,
         lastMessage: lastMessage,
         lastReadMessageId: lastReadMessageId,
-        lastMessageAt: lastMessageAt);
+        lastMessageAt: lastMessageAt,
+        imagePath: imagePath,
+        active: active);
   }
 
-  ChatRoomInterface copyWith(
-      {String? chatroomId,
-      String? title,
-      int? count,
-      Map<String, ProfileInterface>? profiles,
-      String? lastMessage,
-      String? lastReadMessageId,
-      DateTime? lastMessageAt,
-      List<ChatMessageInterface>? chatting,
-      double? latitude,
-      double? longitude,
-      double? distance,
-      bool? available,
-      List<int>? hiveKeys}) {
+  ChatRoomInterface copyWith({
+    String? chatroomId,
+    String? title,
+    int? count,
+    Map<String, ProfileInterface>? profiles,
+    String? lastMessage,
+    String? lastReadMessageId,
+    DateTime? lastMessageAt,
+    List<ChatMessageInterface>? chatting,
+    double? latitude,
+    double? longitude,
+    double? distance,
+    bool? active,
+    List<int>? hiveKeys,
+    String? imagePath,
+  }) {
     return ChatRoomInterface(
-        chatroomId: chatroomId ?? this.chatroomId,
-        title: title ?? this.title,
-        profiles: profiles ?? this.profiles,
-        lastMessage: lastMessage ?? this.lastMessage,
-        lastReadMessageId: lastReadMessageId ?? this.lastReadMessageId,
-        lastMessageAt: lastMessageAt ?? this.lastMessageAt,
-        chatting: chatting ?? this.chatting,
-        count: count ?? this.count,
-        latitude: latitude ?? this.latitude,
-        longitude: longitude ?? this.longitude,
-        distance: distance ?? this.distance,
-        available: available ?? this.available,
-        hiveKeys: hiveKeys ?? this.hiveKeys);
+      chatroomId: chatroomId ?? this.chatroomId,
+      title: title ?? this.title,
+      profiles: profiles ?? this.profiles,
+      lastMessage: lastMessage ?? this.lastMessage,
+      lastReadMessageId: lastReadMessageId ?? this.lastReadMessageId,
+      lastMessageAt: lastMessageAt ?? this.lastMessageAt,
+      chatting: chatting ?? this.chatting,
+      count: count ?? this.count,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      distance: distance ?? this.distance,
+      active: active ?? this.active,
+      hiveKeys: hiveKeys ?? this.hiveKeys,
+      imagePath: imagePath ?? this.imagePath,
+    );
   }
 }

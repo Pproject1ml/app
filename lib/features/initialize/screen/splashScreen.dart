@@ -19,6 +19,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:lottie/lottie.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 /// Splash 화면으로 초기화 작업 및 사용자 인증 확인을 처리합니다.
@@ -36,22 +37,26 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    log("splash Screen initState");
-    // 앱 초기화 작업을 실행하고 사용자 인증 상태를 확인합니다.
-    _initializeApp().then((_) {
-      log("initialized finish");
-      Future.delayed(Duration.zero, () async {
-        await ref.read(authProvider.notifier).checkIfAuthenticated();
-        ref.read(notificationControllerProvider.notifier).build();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeApp().then((_) {
+        log("initialized finish");
+        Future.delayed(Duration.zero, () async {
+          await ref.read(authProvider.notifier).checkIfAuthenticated();
+          ref.read(notificationControllerProvider.notifier).build();
+        });
       });
     });
+    // 앱 초기화 작업을 실행하고 사용자 인증 상태를 확인합니다.
   }
 
   /// 비동기로 초기화 작업을 수행합니다.
   Future<void> _initializeApp() async {
-    log("initialize start");
     // 환경 변수 파일 로드
     await dotenv.load(fileName: 'assets/config/.env');
+    await [
+      Permission.location,
+      Permission.notification,
+    ].request();
 
     // Kakao SDK 초기화
     KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY']!);
@@ -79,7 +84,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       'assets/svgs/kakao.svg',
       'assets/svgs/google.svg',
     ]);
-    await Future.delayed(const Duration(seconds: 2));
+
     log("splash screen init end");
   }
 

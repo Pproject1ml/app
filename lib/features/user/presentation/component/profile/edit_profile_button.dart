@@ -15,7 +15,6 @@ class EditProfileButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Future<void> _onClickSave(MemberInterface userInfo) async {
       try {
-        log("clci");
         await ref.read(userProvider.notifier).updateUserInfo(userInfo);
       } catch (e) {
         showSnackBar(context: context, message: e.toString());

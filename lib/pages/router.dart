@@ -47,7 +47,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           name: ChatPage.pageName,
           builder: (context, state) {
             final String id = state.pathParameters['id']!;
-            log("ID: ${id}");
+
             return ChatPage(roomNumber: id);
           },
         ),

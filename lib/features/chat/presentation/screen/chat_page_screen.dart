@@ -1,14 +1,11 @@
 import 'dart:developer';
 
-import 'package:chat_location/common/ui/box/rounded_box.dart';
-import 'package:chat_location/common/ui/button/nextButton.dart';
 import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
 import 'package:chat_location/constants/text_style.dart';
 import 'package:chat_location/features/chat/presentation/component/chat_page.dart';
 import 'package:chat_location/features/chat/presentation/component/chat_page_profiles.dart';
-import 'package:chat_location/features/chat/presentation/provider/chat_message_controller.dart';
-import 'package:chat_location/features/chat/presentation/provider/chat_room_controller.dart';
+
 import 'package:chat_location/features/chat/presentation/provider/chatting_controller.dart';
 import 'package:chat_location/features/chat/presentation/screen/chat_tab_screen.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +27,6 @@ class _ChatPageState extends ConsumerState<ChatPage> {
 
   @override
   void initState() {
-    initialize();
     super.initState();
   }
 
@@ -39,18 +35,12 @@ class _ChatPageState extends ConsumerState<ChatPage> {
     super.dispose();
   }
 
-  Future<void> initialize() async {
-    // enter 또는 join 확인해야함
-    await ref
-        .read(chattingControllerProvider.notifier)
-        .enterAction(widget.roomNumber);
-  }
-
   bool isEndDrawerOpned = false;
 
   @override
   Widget build(BuildContext context) {
     final notifier = ref.read(chattingControllerProvider.notifier);
+
     return Scaffold(
         onEndDrawerChanged: (isOpened) {
           setState(() {
@@ -60,6 +50,14 @@ class _ChatPageState extends ConsumerState<ChatPage> {
         key: _scaffoldKey,
         resizeToAvoidBottomInset: !isEndDrawerOpned,
         appBar: AppBar(
+          // leading: IconButton(
+          //     onPressed: () async {
+          //       await ref
+          //           .read(chattingControllerProvider.notifier)
+          //           .leaveAction();
+          //       context.pop();
+          //     },
+          //     icon: Icon(Icons.arrow_back_ios_new)),
           title: Text('Chat Room ${widget.roomNumber}'),
           actions: [
             IconButton(

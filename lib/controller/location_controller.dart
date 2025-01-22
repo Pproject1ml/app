@@ -65,7 +65,7 @@ class PositionNotifier extends StateNotifier<LatLng?> {
       subscribedChatrooms.when(
         data: (rooms) {
           for (final room in rooms) {
-            final _prevState = room.available;
+            final _prevState = room.active;
             final _distance = getDistance(
               position.latitude,
               position.longitude,
@@ -81,7 +81,7 @@ class PositionNotifier extends StateNotifier<LatLng?> {
             if (_prevState != _isWithinRadius) {
               ref
                   .read(chattingControllerProvider.notifier)
-                  .updateChatRoomAvilable(room, _isWithinRadius);
+                  .updateChatRoomByLocation(room, _isWithinRadius);
             }
           }
         },
@@ -106,7 +106,8 @@ class PositionNotifier extends StateNotifier<LatLng?> {
         );
         final _updatedRoom = landmark.copyWith(
             chatroom: landmark.chatroom!
-                .copyWith(available: _isWithinRadius, distance: _distance));
+                .copyWith(active: _isWithinRadius, distance: _distance));
+
         chagedLandmarks.add(_updatedRoom);
       }
       ref.read(landmarkListProvider.notifier).updateLandmarks(chagedLandmarks);

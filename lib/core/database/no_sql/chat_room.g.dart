@@ -26,13 +26,15 @@ class ChatRoomHiveModelAdapter extends TypeAdapter<ChatRoomHiveModel> {
       longitude: fields[6] as double,
       latitude: fields[7] as double,
       lastMessageAt: fields[8] as DateTime?,
+      imagePath: fields[9] as String?,
+      active: fields[10] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, ChatRoomHiveModel obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.chatroomId)
       ..writeByte(1)
@@ -50,7 +52,11 @@ class ChatRoomHiveModelAdapter extends TypeAdapter<ChatRoomHiveModel> {
       ..writeByte(7)
       ..write(obj.latitude)
       ..writeByte(8)
-      ..write(obj.lastMessageAt);
+      ..write(obj.lastMessageAt)
+      ..writeByte(9)
+      ..write(obj.imagePath)
+      ..writeByte(10)
+      ..write(obj.active);
   }
 
   @override
@@ -83,6 +89,8 @@ ChatRoomHiveModel _$ChatRoomHiveModelFromJson(Map<String, dynamic> json) =>
       lastMessageAt: json['lastMessageAt'] == null
           ? null
           : DateTime.parse(json['lastMessageAt'] as String),
+      imagePath: json['imagePath'] as String?,
+      active: json['active'] as bool,
     );
 
 Map<String, dynamic> _$ChatRoomHiveModelToJson(ChatRoomHiveModel instance) =>
@@ -96,4 +104,6 @@ Map<String, dynamic> _$ChatRoomHiveModelToJson(ChatRoomHiveModel instance) =>
       'longitude': instance.longitude,
       'latitude': instance.latitude,
       'lastMessageAt': instance.lastMessageAt?.toIso8601String(),
+      'imagePath': instance.imagePath,
+      'active': instance.active,
     };

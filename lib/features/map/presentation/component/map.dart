@@ -69,6 +69,7 @@ class _GoogleMapState extends ConsumerState<Map> {
       final data = await ref
           .read(landmarkListProvider.notifier)
           .getAllLandMarkFromServer(position);
+
       await ref.read(googleMapStateProvider.notifier).updateMarker(data);
     } catch (e, s) {
       log(e.toString() + s.toString());

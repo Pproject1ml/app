@@ -35,6 +35,12 @@ class ChatRoomHiveModel extends HiveObject {
   @HiveField(8)
   final DateTime? lastMessageAt;
 
+  @HiveField(9)
+  final String? imagePath;
+
+  @HiveField(10)
+  final bool active;
+
   ChatRoomHiveModel(
       {required this.chatroomId,
       required this.title,
@@ -44,7 +50,9 @@ class ChatRoomHiveModel extends HiveObject {
       this.lastReadMessageId,
       required this.longitude,
       required this.latitude,
-      this.lastMessageAt});
+      this.lastMessageAt,
+      this.imagePath,
+      required this.active});
 
   factory ChatRoomHiveModel.fromJson(Map<String, dynamic> json) =>
       _$ChatRoomHiveModelFromJson(json);

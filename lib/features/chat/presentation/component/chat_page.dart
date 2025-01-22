@@ -67,8 +67,12 @@ class _HiveChatPageState extends ConsumerState<ChatPageContainer> {
   void _scrollListener() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent) {
+      log('hi');
       if (!isAtTop) {
-        // ref.read(chattingControllerProvider.notifier).loadMore();
+        log('top');
+        ref
+            .read(chattingControllerProvider.notifier)
+            .loadMoreAction(widget.roomNumber);
         setState(() {
           isAtTop = true; // 맨 위 상태로 변경
         });
@@ -133,7 +137,7 @@ class _HiveChatPageState extends ConsumerState<ChatPageContainer> {
           final _profiles = _chatroomInfo.profiles;
           final _isDialogVisible = isDialogOpen(context);
 
-          if (_chatroomInfo.available) {
+          if (_chatroomInfo.active) {
             if (_isDialogVisible) {
               if (Navigator.canPop(context)) {
                 Navigator.pop(context);
@@ -204,15 +208,15 @@ class _HiveChatPageState extends ConsumerState<ChatPageContainer> {
       bool isSameSender, ProfileInterface? profile) {
     switch (message.messageType) {
       case "TEXT":
-        return _textMessage(message, isMyMessage, isMyMessage);
+        return _textMessage(message, isMyMessage, isSameSender);
       case "ENTER":
         break;
       case "JOIN":
-        return chattingJoinBox("JOIN", profile);
+        return chattingJoinBox("JOIN", message);
       case "LEAVE":
         break;
       case "DIE":
-        return chattingJoinBox("DIE", profile);
+        return chattingJoinBox("DIE", message);
       case "DATE":
         return chattingDateBox(message);
       case "IMAGE":
@@ -268,8 +272,9 @@ class _HiveChatPageState extends ConsumerState<ChatPageContainer> {
           Padding(
             padding: EdgeInsets.only(
                 right: widthRatio(16),
+                top: isSameSender ? 0 : heightRatio(16),
                 bottom: heightRatio(4),
-                left: widthRatio(16)),
+                left: widthRatio(62)),
             child: chatBubbleBox(
                 message: message.content,
                 time: message.createdAt!,
@@ -282,14 +287,14 @@ class _HiveChatPageState extends ConsumerState<ChatPageContainer> {
     // UI 빌드
     if (isSameSender) {
       return Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
             padding: EdgeInsets.only(
                 right: widthRatio(16),
                 bottom: heightRatio(4),
-                left: widthRatio(16)),
+                left: widthRatio(62)),
             child: chatBubbleBox(
                 message: message.content,
                 time: message.createdAt!,
@@ -304,8 +309,9 @@ class _HiveChatPageState extends ConsumerState<ChatPageContainer> {
         children: [
           Padding(
             padding: EdgeInsets.only(
+                top: heightRatio(16),
                 right: widthRatio(16),
-                bottom: heightRatio(16),
+                bottom: heightRatio(4),
                 left: widthRatio(16)),
             child: ChattingBoxWithImage(
               data: message,

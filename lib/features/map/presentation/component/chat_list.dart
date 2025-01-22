@@ -1,12 +1,17 @@
+import 'dart:developer';
+
 import 'package:chat_location/common/dialog/landmark_dialog.dart';
 import 'package:chat_location/common/ui/box/chat_room_box.dart';
 import 'package:chat_location/common/ui/box/rounded_box.dart';
+import 'package:chat_location/common/utils/bottom_snack_bar.dart';
 import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
+import 'package:chat_location/features/chat/domain/entities/chatroom.dart';
 import 'package:chat_location/features/chat/presentation/provider/chatting_controller.dart';
 import 'package:chat_location/features/chat/presentation/screen/chat_page_screen.dart';
 import 'package:chat_location/features/chat/presentation/screen/chat_tab_screen.dart';
 import 'package:chat_location/features/map/domain/entities/landmark.dart';
+import 'package:chat_location/features/map/presentation/screen/mapScreen.dart';
 import 'package:chat_location/features/map/presentation/ui/open_list_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -70,9 +75,37 @@ class _ChatListBoxState extends ConsumerState<ChatListBox>
     }
   }
 
+  Future<void> onTapPositive(ChatRoomInterface chatroom) async {
+    try {
+      // TODO: 1. 이미 가입된 채팅방인지 확인
+      final userChatroomList =
+          ref.read(chattingControllerProvider.notifier).getData();
+
+      final _isJoined =
+          userChatroomList.any((v) => v.chatroomId == chatroom.chatroomId);
+
+      if (_isJoined) {
+        context.goNamed(ChatScreen.pageName);
+        context.pushNamed(ChatPage.pageName,
+            pathParameters: {'id': chatroom.chatroomId});
+      } else {
+        await ref
+            .read(chattingControllerProvider.notifier)
+            .joinAction(chatroom);
+        context.goNamed(ChatScreen.pageName);
+        context.pushNamed(ChatPage.pageName,
+            pathParameters: {'id': chatroom.chatroomId});
+      }
+    } catch (e, s) {
+      log(e.toString() + s.toString());
+      showSnackBar(context: context, message: "채팅방 참가에 실패하였습니다.");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final notifier = ref.read(chattingControllerProvider.notifier);
+
     return Container(
       decoration: BoxDecoration(boxShadow: [
         BoxShadow(
@@ -150,14 +183,10 @@ class _ChatListBoxState extends ConsumerState<ChatListBox>
                                 children: widget.landmarks
                                     .map((item) => GestureDetector(
                                         onTap: () async {
-                                          // landmarkDialog(context, item);
-                                          await notifier
-                                              .joinAction(item.chatroom!);
-                                          context.goNamed(ChatScreen.pageName);
-                                          context.pushNamed(ChatPage.pageName,
-                                              pathParameters: {
-                                                'id': item.chatroom!.chatroomId
-                                              });
+                                          landmarkDialog(context, item,
+                                              () async {
+                                            await onTapPositive(item.chatroom!);
+                                          });
                                         },
                                         child:
                                             ChatRoomBox(data: item.chatroom)))

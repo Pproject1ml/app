@@ -12,6 +12,7 @@ class ChatRoomModel {
   final double latitude;
   final DateTime? lastMessageAt;
   final String? imagePath;
+  final bool active;
   ChatRoomModel(
       {required this.chatroomId,
       required this.title,
@@ -22,7 +23,8 @@ class ChatRoomModel {
       required this.latitude,
       required this.longitude,
       this.lastMessageAt,
-      this.imagePath});
+      this.imagePath,
+      required this.active});
 
   factory ChatRoomModel.fromJson(Map<String, dynamic> json) {
     return ChatRoomModel(
@@ -41,49 +43,54 @@ class ChatRoomModel {
         lastMessageAt: json['lastMessageAt'] != null
             ? DateTime.parse(json['lastMessageAt'] as String)
             : null,
-        imagePath: json['imagePath'] as String?);
+        imagePath: json['imagePath'] as String?,
+        active: json['active'] as bool);
   }
 
   Map<String, dynamic> toJson() {
     return {
       'chatroomId': chatroomId,
       'title': title,
+      'count': count,
       'profiles': profiles?.map((e) => e.toJson()).toList(),
       'lastMessage': lastMessage,
       'lastReadMessageId': lastReadMessageId,
-      'lastMessageAt': lastMessageAt?.toIso8601String(),
-      'latitude': latitude,
       'longitude': longitude,
-      'count': count
+      'latitude': latitude,
+      'lastMessageAt': lastMessageAt?.toIso8601String(),
+      'imagePath': imagePath,
+      'active': active
     };
   }
 
   factory ChatRoomModel.fromHiveModel(ChatRoomHiveModel hiveModel) {
     return ChatRoomModel(
-      chatroomId: hiveModel.chatroomId,
-      title: hiveModel.title,
-      count: 0,
-      profiles:
-          hiveModel.profiles.map((e) => ProfileModel.fromHive(e)).toList(),
-      latitude: hiveModel.latitude,
-      longitude: hiveModel.longitude,
-      lastMessage: hiveModel.lastMessage,
-      lastReadMessageId: hiveModel.lastReadMessageId,
-      lastMessageAt: hiveModel.lastMessageAt,
-    );
+        chatroomId: hiveModel.chatroomId,
+        title: hiveModel.title,
+        count: 0,
+        profiles:
+            hiveModel.profiles.map((e) => ProfileModel.fromHive(e)).toList(),
+        latitude: hiveModel.latitude,
+        longitude: hiveModel.longitude,
+        lastMessage: hiveModel.lastMessage,
+        lastReadMessageId: hiveModel.lastReadMessageId,
+        lastMessageAt: hiveModel.lastMessageAt,
+        imagePath: hiveModel.imagePath,
+        active: hiveModel.active);
   }
 
   ChatRoomHiveModel toHiveModel() {
     return ChatRoomHiveModel(
-      chatroomId: chatroomId,
-      title: title,
-      profiles: profiles?.map((e) => e.toHiveProfileModel()).toList() ?? [],
-      count: count,
-      longitude: longitude,
-      latitude: latitude,
-      lastMessage: lastMessage,
-      lastReadMessageId: lastReadMessageId,
-      lastMessageAt: lastMessageAt,
-    );
+        chatroomId: chatroomId,
+        title: title,
+        profiles: profiles?.map((e) => e.toHiveProfileModel()).toList() ?? [],
+        count: count,
+        longitude: longitude,
+        latitude: latitude,
+        lastMessage: lastMessage,
+        lastReadMessageId: lastReadMessageId,
+        lastMessageAt: lastMessageAt,
+        imagePath: imagePath,
+        active: active);
   }
 }

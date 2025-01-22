@@ -21,10 +21,12 @@ Widget chatBubbleBox(
       Flexible(
         child: Container(
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20), color: backgroundColor),
+              borderRadius: BorderRadius.circular(20),
+              color: reversed ? TTColors.gray100 : backgroundColor),
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
           child: Text(message,
               softWrap: true, // 줄바꿈 허용
+
               overflow: TextOverflow.visible, // 넘친 텍스트 처리
               style: TTTextTheme.lightTextTheme.labelMedium?.copyWith(
                   color: textColor, fontWeight: FontWeight.w400)), // 메시지 내용

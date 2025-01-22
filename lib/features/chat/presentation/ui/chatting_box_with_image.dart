@@ -20,27 +20,29 @@ class ChattingBoxWithImage extends StatelessWidget {
       textDirection: isMyMessage ? TextDirection.rtl : TextDirection.ltr,
       children: [
         roundUserImageBox(),
-        const SizedBox(
-          width: 6,
+        SizedBox(
+          width: widthRatio(6),
         ),
-        Column(
-          crossAxisAlignment:
-              isMyMessage ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-          children: [
-            if (!isMyMessage)
-              Padding(
-                padding: EdgeInsets.only(bottom: heightRatio(3)),
-                child: Text(data.profileId,
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelSmall
-                        ?.copyWith(color: TTColors.gray500)),
-              ),
-            chatBubbleBox(
-                message: data.content,
-                time: data.createdAt!,
-                reversed: isMyMessage ? true : false)
-          ],
+        Flexible(
+          child: Column(
+            crossAxisAlignment:
+                isMyMessage ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            children: [
+              if (!isMyMessage)
+                Padding(
+                  padding: EdgeInsets.only(bottom: heightRatio(3)),
+                  child: Text(data.profileId,
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelSmall
+                          ?.copyWith(color: TTColors.gray500)),
+                ),
+              chatBubbleBox(
+                  message: data.content,
+                  time: data.createdAt!,
+                  reversed: isMyMessage ? true : false)
+            ],
+          ),
         ),
       ],
     );

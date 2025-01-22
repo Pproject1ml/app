@@ -1,12 +1,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+<uses-permission android:name="android.permission.INTERNET"/>
 <!-- background 실행에서도 위치를 받고 싶다면 아래 permission 넣어주기-->
 <!-- <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> -->
     <application
-        android:label="chat_location"
+        android:label="틀래블 톡"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon"
+       
+        >
             <!-- TODO: Add your Google Maps API key here -->
         <!-- <meta-data android:name="com.google.android.geo.API_KEY"
                android:value="${GOOGLE_MAP_API_KEY}"/> -->

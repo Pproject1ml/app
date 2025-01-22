@@ -6,7 +6,7 @@ import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
 import 'package:chat_location/constants/text_style.dart';
 import 'package:chat_location/constants/theme.dart';
-import 'package:chat_location/features/chat/presentation/provider/chat_room_controller.dart';
+
 import 'package:chat_location/features/chat/presentation/provider/chatting_controller.dart';
 import 'package:chat_location/features/user/domain/entities/profile.dart';
 import 'package:flutter/material.dart';
