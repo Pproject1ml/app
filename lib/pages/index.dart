@@ -1,10 +1,18 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:chat_location/common/utils/permissions.dart';
 import 'package:chat_location/constants/colors.dart';
+import 'package:chat_location/controller/notification_controller.dart';
 import 'package:chat_location/features/chat/presentation/provider/chatting_controller.dart';
+import 'package:chat_location/features/chat/presentation/screen/chat_tab_screen.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+
+StreamController<String> streamController = StreamController.broadcast();
 
 class ShellRouteIndex extends ConsumerStatefulWidget {
   const ShellRouteIndex({super.key, required this.navigationShell});
@@ -19,7 +27,35 @@ class _ShellRouteIndexState extends ConsumerState<ShellRouteIndex> {
   void initState() {
     permissionWithNotification();
     super.initState();
-    Future.microtask(() => {ref.read(chattingControllerProvider.notifier)});
+    Future.microtask(() => {
+          ref.read(chattingControllerProvider.notifier),
+          FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+            if (message.notification != null &&
+                message.notification!.body != null &&
+                message.notification!.title != null &&
+                message.messageId != null) {
+              ref
+                  .read(notificationControllerProvider.notifier)
+                  .showNotification(
+                      body: message.notification!.body!,
+                      id: message.messageId!.hashCode,
+                      title: message.notification!.title!);
+            }
+          })
+        });
+    _configureSelectNotificationSubject();
+  }
+
+  void _configureSelectNotificationSubject() {
+    streamController.stream.listen((String? payload) {
+      context.goNamed(ChatScreen.pageName);
+    });
+  }
+
+  @override
+  void dispose() {
+    streamController.close();
+    super.dispose();
   }
 
   @override

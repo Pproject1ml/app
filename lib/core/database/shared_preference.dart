@@ -11,7 +11,6 @@ class SharedPreferencesHelper {
   // 초기화 메서드
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
-    log('shared preferenceinitial 완료');
   }
 
   // 로그아웃 시 모든 데이터 삭제

@@ -1,8 +1,10 @@
 import 'package:chat_location/constants/colors.dart';
-import 'package:chat_location/constants/theme.dart';
+import 'package:chat_location/constants/text_style.dart';
 import 'package:flutter/material.dart';
 
-Widget roundedWithSharp(String message) {
+Widget roundedWithSharp(
+  String message,
+) {
   return Column(
     mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.center,
@@ -20,7 +22,8 @@ Widget roundedWithSharp(String message) {
         child: Text(
           message,
           textAlign: TextAlign.center,
-          style: TTTextTheme.lightTextTheme.labelMedium?.copyWith(height: 1.5),
+          style: TTTextStyle.bodyRegular14.copyWith(
+              height: 1.22, letterSpacing: -0.3, color: TTColors.black),
         ),
       ),
     ],

@@ -10,6 +10,7 @@ class ChatRoomInterface {
   final String title;
   final int count;
   final Map<String, ProfileInterface> profiles;
+  final Map<String, int> lastReadMap;
   final String? lastMessage;
   final String? lastReadMessageId;
   final DateTime? lastMessageAt;
@@ -20,10 +21,12 @@ class ChatRoomInterface {
   final double? distance;
   final bool active;
   final String? imagePath;
+  final bool alarm;
   ChatRoomInterface(
       {required this.chatroomId,
       required this.title,
       required this.profiles,
+      this.lastReadMap = const {},
       this.lastMessage,
       this.lastReadMessageId,
       this.lastMessageAt,
@@ -34,7 +37,8 @@ class ChatRoomInterface {
       this.hiveKeys = const [],
       this.distance,
       this.active = true,
-      this.imagePath});
+      this.imagePath,
+      this.alarm = true});
 
   factory ChatRoomInterface.fromHiveModel(ChatRoomHiveModel data) {
     return ChatRoomInterface(
@@ -51,12 +55,13 @@ class ChatRoomInterface {
         lastReadMessageId: data.lastReadMessageId,
         lastMessageAt: data.lastMessageAt,
         imagePath: data.imagePath,
-        active: data.active);
+        active: data.active,
+        alarm: data.alarm);
   }
   factory ChatRoomInterface.fromChatRoomModel(ChatRoomModel data) {
     return ChatRoomInterface(
         chatroomId: data.chatroomId,
-        title: data.title,
+        title: data.title ?? '알수없음',
         profiles: {
           for (var v in data.profiles ?? [])
             v.profileId: ProfileInterface.fromProfileModel(v),
@@ -68,7 +73,8 @@ class ChatRoomInterface {
         lastReadMessageId: data.lastReadMessageId,
         lastMessageAt: data.lastMessageAt,
         imagePath: data.imagePath,
-        active: data.active);
+        active: data.active,
+        alarm: data.alarm);
   }
 
   ChatRoomHiveModel toHiveModel() {
@@ -84,7 +90,8 @@ class ChatRoomInterface {
         lastReadMessageId: lastReadMessageId,
         lastMessageAt: lastMessageAt,
         imagePath: imagePath,
-        active: active);
+        active: active,
+        alarm: alarm);
   }
 
   ChatRoomModel toChatRoomModel() {
@@ -101,40 +108,41 @@ class ChatRoomInterface {
         lastReadMessageId: lastReadMessageId,
         lastMessageAt: lastMessageAt,
         imagePath: imagePath,
-        active: active);
+        active: active,
+        alarm: alarm);
   }
 
-  ChatRoomInterface copyWith({
-    String? chatroomId,
-    String? title,
-    int? count,
-    Map<String, ProfileInterface>? profiles,
-    String? lastMessage,
-    String? lastReadMessageId,
-    DateTime? lastMessageAt,
-    List<ChatMessageInterface>? chatting,
-    double? latitude,
-    double? longitude,
-    double? distance,
-    bool? active,
-    List<int>? hiveKeys,
-    String? imagePath,
-  }) {
+  ChatRoomInterface copyWith(
+      {String? chatroomId,
+      String? title,
+      int? count,
+      Map<String, ProfileInterface>? profiles,
+      String? lastMessage,
+      String? lastReadMessageId,
+      DateTime? lastMessageAt,
+      List<ChatMessageInterface>? chatting,
+      double? latitude,
+      double? longitude,
+      double? distance,
+      bool? active,
+      List<int>? hiveKeys,
+      String? imagePath,
+      bool? alarm}) {
     return ChatRoomInterface(
-      chatroomId: chatroomId ?? this.chatroomId,
-      title: title ?? this.title,
-      profiles: profiles ?? this.profiles,
-      lastMessage: lastMessage ?? this.lastMessage,
-      lastReadMessageId: lastReadMessageId ?? this.lastReadMessageId,
-      lastMessageAt: lastMessageAt ?? this.lastMessageAt,
-      chatting: chatting ?? this.chatting,
-      count: count ?? this.count,
-      latitude: latitude ?? this.latitude,
-      longitude: longitude ?? this.longitude,
-      distance: distance ?? this.distance,
-      active: active ?? this.active,
-      hiveKeys: hiveKeys ?? this.hiveKeys,
-      imagePath: imagePath ?? this.imagePath,
-    );
+        chatroomId: chatroomId ?? this.chatroomId,
+        title: title ?? this.title,
+        profiles: profiles ?? this.profiles,
+        lastMessage: lastMessage ?? this.lastMessage,
+        lastReadMessageId: lastReadMessageId ?? this.lastReadMessageId,
+        lastMessageAt: lastMessageAt ?? this.lastMessageAt,
+        chatting: chatting ?? this.chatting,
+        count: count ?? this.count,
+        latitude: latitude ?? this.latitude,
+        longitude: longitude ?? this.longitude,
+        distance: distance ?? this.distance,
+        active: active ?? this.active,
+        hiveKeys: hiveKeys ?? this.hiveKeys,
+        imagePath: imagePath ?? this.imagePath,
+        alarm: alarm ?? this.alarm);
   }
 }

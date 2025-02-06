@@ -29,7 +29,7 @@ class UserProfileNotifier extends StateNotifier<MemberInterface> {
     descriptionController.removeListener(_descriptionEventListener);
     nickNameFocusNode.dispose();
     descriptionFocusNode.dispose();
-    log("dispose");
+
     super.dispose();
   }
 

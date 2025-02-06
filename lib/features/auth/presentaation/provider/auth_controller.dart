@@ -1,5 +1,7 @@
 import 'dart:developer';
+import 'dart:io';
 import 'package:chat_location/constants/data.dart';
+import 'package:chat_location/features/user/data/models/member.dart';
 import 'package:chat_location/features/user/presentation/provider/user_controller.dart';
 import 'package:chat_location/core/database/secure_storage.dart';
 import 'package:chat_location/core/database/shared_preference.dart';
@@ -13,18 +15,17 @@ import 'package:chat_location/features/initialize/screen/splashScreen.dart';
 import 'package:chat_location/features/map/presentation/screen/mapScreen.dart';
 import 'package:chat_location/features/user/domain/entities/member.dart';
 import 'package:chat_location/features/user/util/oauth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 enum LoginPlatform { GOOGLE, KAKAO }
-
-enum RUNTIMEMODE { normal, passLogin, toSignUp }
-
-const RUNTIMEMODE mode = RUNTIMEMODE.normal;
 
 class AuthController with ChangeNotifier {
   OauthInterface authState = OauthInterface();
@@ -46,21 +47,51 @@ class AuthController with ChangeNotifier {
   Future<MemberInterface?> checkIfAuthenticated() async {
     authState = authState.copyWith(authState: AuthStateT.authenticating);
     //1. local에 유저 정보가 있는지 확인
-    final _user = await SharedPreferencesHelper.loadUser();
-    //1-1. 있다면 서버에서 확인
-    if (_user != null) {
-      // 서버에서 확인하는 코드
-      final res = await Future.delayed(Duration(seconds: 2));
 
-      // 서버에서 유저를 가져왔다면
-      //유저 다시 저장  await SharedPreferencesHelper.saveUser(updatedUser);
-      userNotifier.setUser(_user);
-      authState = authState.copyWith(
-          oauthId: _user.oauthId,
-          oauthProvider: _user.oauthProvider,
-          authState: AuthStateT.authenticated);
-      notifyListeners();
-      return _user;
+    final _user = await SharedPreferencesHelper.loadUser();
+    final _jtwToken = await SecureStorageHelper.getAuthToken();
+    final _fcmToken = await SecureStorageHelper.getFcmToken();
+    //
+    //1-1. 있다면 서버에서 확인
+    if (_user != null && _jtwToken != null) {
+      // 서버에서 확인하는 코드
+
+      // jwt 토큰 확인
+      try {
+        final _member = await authRepository.isJwtValid(_jtwToken);
+        final _memberInfo = MemberInterface.fromMermerModel(_member);
+        await SharedPreferencesHelper.saveUser(_memberInfo);
+        userNotifier.setUser(_memberInfo);
+        authState = authState.copyWith(
+            oauthId: _memberInfo.oauthId,
+            oauthProvider: _memberInfo.oauthProvider,
+            authState: AuthStateT.authenticated);
+        notifyListeners();
+        // fcm 토큰 확인하기
+        final _isFcmValid = false;
+        if (_fcmToken != null) {
+          final _isFcmValid = await authRepository.isFcmValid(
+              _fcmToken, _memberInfo.profile.profileId);
+        }
+        if (!_isFcmValid) {
+          // fcm 토큰 발급
+
+          final _newFcmToken = await FirebaseMessaging.instance.getToken();
+
+          if (_newFcmToken != null) {
+            await authRepository.saveFcmToken(_newFcmToken);
+            await SecureStorageHelper.saveFcmToken(_newFcmToken);
+          }
+          // fcm 토큰 저장
+        }
+
+        return _memberInfo;
+      } catch (e, s) {
+        authState = OauthInterface(authState: AuthStateT.unauthenticated);
+        notifyListeners();
+        log("error");
+        throw '유효하지 않은 토큰입니다';
+      }
     }
 
     //1-2. 없다면 unAuthenticated로 변경
@@ -115,23 +146,6 @@ class AuthController with ChangeNotifier {
       notifyListeners();
     }
 
-    if (mode == RUNTIMEMODE.passLogin) {
-      final dynamic res = {
-        "memberId": "2a1c9422-0c10-4582-81d0-e41aad8fe5ef",
-        "nickname": "테스트",
-        "email": "ethanleast@gmail.com",
-        "profileImage": null,
-        "introduction": "사이",
-        "age": 22,
-        "gender": "male",
-        "role": "ROLE_USER",
-        "oauthId": "1124",
-        "oauthProvider": "GOOGLE",
-        "isDeleted": false,
-        "isVisible": false
-      };
-      return _successState(res);
-    }
     try {
       // signIn api 실행
 
@@ -142,6 +156,23 @@ class AuthController with ChangeNotifier {
         return _redirectionSatate();
       } else {
         final appUser = await _successState(res.toMemberInterface());
+        final _fcmToken = await SecureStorageHelper.getFcmToken();
+        final _isFcmValid = false;
+        if (_fcmToken != null) {
+          final _isFcmValid = await authRepository.isFcmValid(
+              _fcmToken, appUser.profile.profileId);
+        }
+        if (!_isFcmValid) {
+          // fcm 토큰 발급
+
+          final _newFcmToken = await FirebaseMessaging.instance.getToken();
+
+          if (_newFcmToken != null) {
+            await authRepository.saveFcmToken(_newFcmToken);
+            await SecureStorageHelper.saveFcmToken(_newFcmToken);
+          }
+          // fcm 토큰 저장
+        }
         return appUser;
       }
     } catch (e) {
@@ -207,9 +238,7 @@ class AuthController with ChangeNotifier {
 
       // 2. oauth 정보를 바탕으로 signIn 하기
       await signIn();
-      log("login success");
     } catch (e) {
-      log("login fail: ${e.toString()}");
       authState = authState.copyWith(
           authState: AuthStateT.unauthenticated,
           oauthId: null,
@@ -220,16 +249,22 @@ class AuthController with ChangeNotifier {
     }
   }
 
-// 유저 로그아웃
-  Future<void> logout() async {
+// 유저 탈퇴
+  Future<void> deleteUser() async {
     try {
-      // 1.서버에 로그아웃 알림
-      await Future.delayed(Duration(seconds: 2));
+      // 1.서버에 탈퇴 알림
+      await authRepository.deleteUser();
+
       // 2.oauth 로그아웃 알림
       await oauthLogOut();
 
       // 3.local 저장소 초기화
       await SecureStorageHelper.clearAll();
+      await SharedPreferencesHelper.clear();
+
+      // 열려 있는 모든 박스 닫기
+      // await Hive.deleteFromDisk();
+
       //4. 상태 변경
       authState = authState.copyWith(
           authState: AuthStateT.unauthenticated,
@@ -238,14 +273,52 @@ class AuthController with ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
+      // // 3.local 저장소 초기화
+      await SecureStorageHelper.clearAll();
+      await SharedPreferencesHelper.clear();
+
+      // await Hive.deleteFromDisk();
+      authState = authState.copyWith(
+          authState: AuthStateT.unauthenticated,
+          oauthId: null,
+          oauthProvider: null);
+
+      notifyListeners();
+      throw e.toString();
+    }
+  }
+
+// 유저 로그아웃
+  Future<void> logout() async {
+    try {
+      // 1.서버에 로그아웃 알림
+      await authRepository.logOut();
+
+      // 2.oauth 로그아웃 알림
+      await oauthLogOut();
+
       // 3.local 저장소 초기화
       await SecureStorageHelper.clearAll();
+      await SharedPreferencesHelper.clear();
+      //4. 상태 변경
+      authState = authState.copyWith(
+          authState: AuthStateT.unauthenticated,
+          oauthId: null,
+          oauthProvider: null);
 
+      notifyListeners();
+    } catch (e, s) {
+      // 3.local 저장소 초기화
+      await SecureStorageHelper.clearAll();
+      await SharedPreferencesHelper.clear();
+      await oauthLogOut();
       authState = authState.copyWith(
           authState: AuthStateT.unauthenticated,
           oauthId: null,
           oauthProvider: null);
       notifyListeners();
+
+      log(e.toString() + s.toString());
       throw e.toString();
     }
   }
@@ -255,9 +328,6 @@ class AuthController with ChangeNotifier {
     required GoRouterState goRouterState,
     required bool showErrorIfNonExistentRoute,
   }) {
-    log("route ${goRouterState.fullPath}");
-    log("state:${authState.authState.toString()}");
-
     final isAuthInitial =
         switch (authState.authState) { AuthStateT.initial => true, _ => false };
     final isAutheticating = switch (authState.authState) {
@@ -293,7 +363,8 @@ final authProvider = ChangeNotifierProvider((ref) {
 });
 
 // base Url입력하면 됩니다.
-final apiClientProvider = Provider((ref) => ApiClient(BASE_URL));
+final apiClientProvider =
+    Provider((ref) => ApiClient(BASE_URL, HTTPS_BASE_URL));
 
 final authRepositoryProvider =
     Provider((ref) => AuthRepositoryImpl(ref.read(apiClientProvider)));

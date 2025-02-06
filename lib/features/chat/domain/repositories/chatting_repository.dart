@@ -16,7 +16,8 @@ abstract class ChattingRepository {
   Future<void> unSubscribeChatRoom({required String roomId, String? command});
   Future<void> disconnectSocket();
   // Future<List<int>> getChatMessages(String startChatId, String? endChatId);
-  Future<void> sendChatMessage(ChatMessageModel message);
+  Future<void> sendChatMessage(
+      {required ChatMessageModel message, bool isPrivate = false});
   Future<ChatMessageModel> updateChatMessage(ChatMessageModel message);
   Future<void> saveMessageLocal(ChatMessageHiveModel message);
   Future<void> saveChatroomLocal(ChatRoomHiveModel message);

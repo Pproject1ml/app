@@ -1,1 +1,38 @@
- {"installed":{"client_id":"264618676917-4j9ls4plm4s6rtvoj17ku2chcgttg9i7.apps.googleusercontent.com","project_id":"chatloaction","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs"}}
+{
+  "project_info": {
+    "project_number": "264618676917",
+    "project_id": "chatloaction",
+    "storage_bucket": "chatloaction.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:264618676917:android:3c06a6065822641072e4fc",
+        "android_client_info": {
+          "package_name": "com.travelTalk.chat_location"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "264618676917-4j9ls4plm4s6rtvoj17ku2chcgttg9i7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.travelTalk.chat_location",
+            "certificate_hash": "fe013da383ab8e4171d5456fce8b9c4d4a336def"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJs1bU8BKJRn-pdCt8BfYvBNm_ZVFa0rg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,24 +1,55 @@
 import 'dart:convert';
 import 'dart:developer';
+
 import 'package:chat_location/core/database/secure_storage.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:http/http.dart' as http;
 
 class ApiClient {
   final String baseUrl;
+  final String httpsBaseUrl;
+  final bool isHttps = true;
+  ApiClient(this.baseUrl, this.httpsBaseUrl);
 
-  ApiClient(this.baseUrl);
+  Future<dynamic> multipartPatch(
+      {required String endpoint,
+      required dio.FormData formdata,
+      bool withAuth = true,
+      Map<String, dynamic>? queryParameters}) async {
+    final headers = await _getHeaders(withAuth: withAuth);
+    final uri = Uri.http(baseUrl, endpoint, queryParameters);
+    final httpsUri = Uri.https(httpsBaseUrl, endpoint, queryParameters);
+
+    try {
+      final response = await dio.Dio().patch(
+          isHttps ? httpsUri.toString() : uri.toString(),
+          queryParameters: queryParameters,
+          options: dio.Options(headers: headers),
+          data: formdata);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.data['data'];
+      } else {
+        throw "유저 정보 저장에 실패하였습니다.";
+      }
+    } catch (e, s) {
+      log(e.toString() + s.toString());
+      rethrow;
+    }
+  }
 
   // GET 요청
   Future<dynamic> get(
       {required String endpoint,
       bool setToken = false,
+      bool withAuth = true,
       Map<String, dynamic>? queryParameters}) async {
-    final headers = await _getHeaders();
+    final headers = await _getHeaders(withAuth: withAuth);
     final uri = Uri.http(baseUrl, endpoint, queryParameters);
-    log("http get : ${uri.toString()}");
+    final httpsUri = Uri.https(httpsBaseUrl, endpoint, queryParameters);
+
     return _requestWithAuth(
       request: () => http.get(
-        uri,
+        isHttps ? httpsUri : uri,
         headers: headers,
       ),
       setToken: setToken,
@@ -33,10 +64,11 @@ class ApiClient {
       bool setToken = false}) async {
     final headers = await _getHeaders();
     final uri = Uri.http(baseUrl, endpoint, queryParameters);
-    log("http post: ${uri.toString()}");
+    final httpsUri = Uri.https(httpsBaseUrl, endpoint, queryParameters);
+
     return _requestWithAuth(
       request: () => http.post(
-        uri,
+        isHttps ? httpsUri : uri,
         headers: headers,
         body: jsonEncode(data),
       ),
@@ -53,9 +85,11 @@ class ApiClient {
   }) async {
     final headers = await _getHeaders();
     final uri = Uri.http(baseUrl, endpoint, queryParameters);
+    final httpsUri = Uri.https(httpsBaseUrl, endpoint, queryParameters);
+
     return _requestWithAuth(
       request: () => http.patch(
-        uri,
+        isHttps ? httpsUri : uri,
         headers: headers,
         body: jsonEncode(data),
       ),
@@ -63,7 +97,27 @@ class ApiClient {
     );
   }
 
+// DELETE 요청
+  Future<dynamic> delete({
+    required String endpoint,
+    Map<String, dynamic>? queryParameters,
+    bool setToken = false,
+  }) async {
+    final headers = await _getHeaders();
+    final uri = Uri.http(baseUrl, endpoint, queryParameters);
+    final httpsUri = Uri.https(httpsBaseUrl, endpoint, queryParameters);
+
+    return _requestWithAuth(
+      request: () => http.delete(
+        isHttps ? httpsUri : uri,
+        headers: headers,
+      ),
+      setToken: setToken,
+    );
+  }
+
   // 공통 요청 처리
+
   Future<dynamic> _requestWithAuth(
       {required Future<http.Response> Function() request,
       bool setToken = false}) async {
@@ -73,7 +127,6 @@ class ApiClient {
       // 성공 시 응답 처리
       if (response.statusCode == 200 || response.statusCode == 201) {
         if (setToken) {
-          log("header 정보${response.headers.toString()}");
           final token = response.headers['authorization'];
           if (token != null) {
             await SecureStorageHelper.saveAuthToken(token);
@@ -85,7 +138,6 @@ class ApiClient {
 
       // 권한 문제 (403) 발생 시 토큰 갱신
       if (response.statusCode == 403) {
-        log('Token expired. Refreshing token...');
         await _refreshToken();
         return await request(); // 요청 재시도
       }
@@ -94,21 +146,20 @@ class ApiClient {
         return jsonDecode(utf8.decode(response.bodyBytes));
       }
       // 기타 에러
-      throw Exception(
-          'Request failed: ${response.statusCode} - ${response.body}');
+      throw 'Request failed: ${response.statusCode} - ${response.body}';
     } catch (e, s) {
-      log('Error during request: $e, ${s.toString()}');
+      log(e.toString() + s.toString());
       rethrow;
     }
   }
 
   // 헤더 생성
-  Future<Map<String, String>> _getHeaders() async {
+  Future<Map<String, String>> _getHeaders({bool withAuth = true}) async {
     final token = await SecureStorageHelper.getAuthToken();
-    log("token:${token}");
+
     return {
       'Content-Type': 'application/json',
-      if (token != null) 'Authorization': token,
+      if (token != null && withAuth) 'Authorization': token,
     };
   }
 
@@ -130,7 +181,6 @@ class ApiClient {
       final newAuthToken = response.headers['authorization']; // 헤더에서 토큰 추출
       if (newAuthToken != null) {
         await SecureStorageHelper.saveAuthToken(newAuthToken);
-        log('New token saved: $newAuthToken');
       } else {
         throw Exception('Authorization token not found in response');
       }

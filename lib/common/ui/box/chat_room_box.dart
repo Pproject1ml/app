@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:chat_location/common/components/network_image.dart';
 import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
+import 'package:chat_location/constants/text_style.dart';
 import 'package:chat_location/features/chat/domain/entities/chatroom.dart';
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -10,10 +11,14 @@ import 'package:timeago/timeago.dart' as timeago;
 enum ChatRoomBoxType { joined, notAvailable, available }
 
 class ChatRoomBox extends StatelessWidget {
-  const ChatRoomBox(
-      {super.key, this.type = ChatRoomBoxType.available, this.data});
+  ChatRoomBox(
+      {super.key,
+      this.type = ChatRoomBoxType.available,
+      this.data,
+      this.backgroundColor});
   final ChatRoomBoxType type;
   final ChatRoomInterface? data;
+  Color? backgroundColor;
   @override
   Widget build(BuildContext context) {
     if (data == null) {
@@ -24,7 +29,7 @@ class ChatRoomBox extends StatelessWidget {
       opacity: data!.active ? 1 : 0.5,
       child: Container(
         decoration: BoxDecoration(
-            color: data!.active ? TTColors.white : Colors.transparent),
+            color: data!.active ? backgroundColor : Colors.transparent),
         padding: EdgeInsets.symmetric(
             horizontal: widthRatio(20),
             vertical: type == ChatRoomBoxType.available
@@ -54,9 +59,23 @@ class ChatRoomBox extends StatelessWidget {
                               children: [
                                 SingleChildScrollView(
                                   child: _chatRoomInfo(
-                                      data!.title, data!.count, context),
+                                      data!.title,
+                                      data!.count,
+                                      TTTextStyle.bodyBold18.copyWith(
+                                        overflow: TextOverflow.ellipsis,
+                                        height: 1.22,
+                                      ),
+                                      TTTextStyle.bodyMedium14.copyWith(
+                                          color: TTColors.gray400,
+                                          height: 1.22,
+                                          letterSpacing: -0.3)),
                                 ),
-                                _timeManager(data!.lastMessageAt, context)
+                                _timeManager(
+                                    data!.lastMessageAt,
+                                    TTTextStyle.bodyMedium14.copyWith(
+                                        color: TTColors.gray500,
+                                        height: 1.22,
+                                        letterSpacing: -0.3))
                               ],
                             ),
                           )
@@ -71,7 +90,18 @@ class ChatRoomBox extends StatelessWidget {
                                       data!.title,
                                       data!.profiles.entries.length,
                                       data!.lastMessageAt,
-                                      context),
+                                      TTTextStyle.bodyBold18.copyWith(
+                                        overflow: TextOverflow.ellipsis,
+                                        height: 1.22,
+                                      ),
+                                      TTTextStyle.bodyMedium14.copyWith(
+                                          color: TTColors.gray400,
+                                          height: 1.22,
+                                          letterSpacing: -0.3),
+                                      TTTextStyle.bodyMedium14.copyWith(
+                                          color: TTColors.gray500,
+                                          height: 1.22,
+                                          letterSpacing: -0.3)),
                                   SizedBox(
                                     height: heightRatio(4),
                                   ),
@@ -79,14 +109,10 @@ class ChatRoomBox extends StatelessWidget {
                                     textAlign: TextAlign.left,
                                     data!.lastMessage ?? '',
                                     maxLines: 1,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelMedium
-                                        ?.copyWith(
-                                          color: TTColors.gray500,
-                                          fontWeight: FontWeight.w500,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
+                                    style: TTTextStyle.bodyMedium14.copyWith(
+                                      color: TTColors.gray500,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   )
                                 ],
                               ),
@@ -101,9 +127,10 @@ class ChatRoomBox extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text("상세보기",
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: TTColors.ttPurple,
-                          )),
+                      style: TTTextStyle.bodyMedium14.copyWith(
+                          color: TTColors.ttPurple,
+                          height: 1.22,
+                          letterSpacing: -0.3)),
                   const Icon(
                     Icons.arrow_forward_ios_sharp,
                     size: 12,
@@ -128,18 +155,15 @@ class ChatRoomBox extends StatelessWidget {
             child: NetWorkImage(imagePath: imageUrl)));
   }
 
-  Widget _chatRoomInfo(String title, int count, BuildContext context) {
+  Widget _chatRoomInfo(String title, int count, TextStyle? chatroomTextStyle,
+      TextStyle? chatCountTextStyle) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         ConstrainedBox(
           constraints: BoxConstraints(maxWidth: widthRatio(150)),
-          child: Text(
-            title,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
-          ),
+          child: Text(title, style: chatroomTextStyle),
         ),
         SizedBox(
           width: widthRatio(8),
@@ -153,17 +177,19 @@ class ChatRoomBox extends StatelessWidget {
         ),
         Text(
           count.toString(),
-          style: Theme.of(context)
-              .textTheme
-              .labelMedium
-              ?.copyWith(color: TTColors.gray400, fontWeight: FontWeight.w500),
+          style: chatCountTextStyle,
         ) // 참여가 수
       ],
     );
   }
 
   Widget _joinedChatRoomInfo(
-      String title, int count, DateTime? time, BuildContext context) {
+      String title,
+      int count,
+      DateTime? time,
+      TextStyle? chatroomTextStyle,
+      TextStyle? chatCountTextStyle,
+      TextStyle? timeTextStyle) {
     return Row(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -172,15 +198,15 @@ class ChatRoomBox extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _chatRoomInfo(title, count, context),
+            _chatRoomInfo(title, count, chatroomTextStyle, chatCountTextStyle),
           ],
         ),
-        _timeManager(time, context)
+        _timeManager(time, timeTextStyle)
       ],
     );
   }
 
-  Widget _timeManager(DateTime? time, BuildContext context) {
+  Widget _timeManager(DateTime? time, TextStyle? timeTextStyle) {
     if (time == null) {
       return const SizedBox(
         child: Text(""),
@@ -188,10 +214,7 @@ class ChatRoomBox extends StatelessWidget {
     }
     return Text(
       timeago.format(time, locale: "ko"),
-      style: Theme.of(context)
-          .textTheme
-          .labelMedium
-          ?.copyWith(color: TTColors.gray500, fontWeight: FontWeight.w500),
+      style: timeTextStyle,
     );
   }
 }

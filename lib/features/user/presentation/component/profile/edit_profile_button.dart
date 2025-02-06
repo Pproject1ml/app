@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:chat_location/common/components/async_button.dart';
 import 'package:chat_location/common/utils/bottom_snack_bar.dart';
@@ -7,17 +8,24 @@ import 'package:chat_location/features/user/presentation/provider/user_controlle
 import 'package:chat_location/features/user/domain/entities/member.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EditProfileButton extends ConsumerWidget {
-  const EditProfileButton({super.key, required this.tempUser});
+  const EditProfileButton({super.key, required this.tempUser, this.file});
   final MemberInterface tempUser;
+  final XFile? file;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Future<void> _onClickSave(MemberInterface userInfo) async {
       try {
-        await ref.read(userProvider.notifier).updateUserInfo(userInfo);
+        await ref
+            .read(userProvider.notifier)
+            .updateUserInfo(profileInfo: userInfo, profileImage: file);
       } catch (e) {
-        showSnackBar(context: context, message: e.toString());
+        showSnackBar(
+            context: context,
+            message: e.toString(),
+            type: SnackBarType.warning);
       }
     }
 

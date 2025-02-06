@@ -7,11 +7,11 @@ import 'package:chat_location/core/database/no_sql/chat_message.dart';
 import 'package:chat_location/core/database/no_sql/chat_room.dart';
 import 'package:chat_location/core/newtwork/api_client.dart';
 import 'package:chat_location/core/newtwork/socket_client.dart';
+import 'package:chat_location/features/chat/data/model/EnterLeave_message.dart';
 import 'package:chat_location/features/chat/data/model/chat_message.dart';
 import 'package:chat_location/features/chat/data/model/chatroom.dart';
 import 'package:chat_location/features/chat/domain/entities/chat_message.dart';
 import 'package:chat_location/features/chat/domain/repositories/chatting_repository.dart';
-import 'package:chat_location/features/chat/presentation/provider/chatting_controller.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
@@ -25,7 +25,6 @@ class ChattingRepositoryImp implements ChattingRepository {
     this._apiClient,
   );
   LazyBox<ChatMessageHiveModel> _getHiveChatMessageBox(String boxKey) {
-    log('_getHiveChatMessageBox: ${boxKey}');
     if (!Hive.isBoxOpen(boxKey)) {
       throw Exception(
           'LazyBox "chatMessage is not open. Did you forget to open it?');
@@ -53,17 +52,11 @@ class ChattingRepositoryImp implements ChattingRepository {
         onWebSocketError: _onWebSocketError);
   }
 
-  void _onStompError(StompFrame frame) {
-    log("_onStompError: ${frame.toString()}");
-  }
+  void _onStompError(StompFrame frame) {}
 
-  void _onDisconnect(StompFrame frame) {
-    log("_onDisconnect: ${frame.toString()}");
-  }
+  void _onDisconnect(StompFrame frame) {}
 
-  void _onWebSocketError(dynamic error) {
-    log("_onWebSocketError: ${error.toString()}");
-  }
+  void _onWebSocketError(dynamic error) {}
 
   @override
   Future updateChatRoom(String roomId, data) {
@@ -78,9 +71,11 @@ class ChattingRepositoryImp implements ChattingRepository {
       {required String roomId,
       required void Function(StompFrame) onMessage,
       String? command,
+      bool isPrivate = false,
       bool notSubsribeIfSubsbribed = false,
       Map<String, String>? headers}) {
-    final destination = '$SUBSCRIBE_BASE_URL/room/$roomId';
+    final destination =
+        '$SUBSCRIBE_BASE_URL/${isPrivate ? 'private-room' : 'room'}/$roomId';
     final Map<String, String> _header = {};
     if (notSubsribeIfSubsbribed) {
       if (_socketClient.subscritions.containsKey(destination)) {
@@ -100,8 +95,10 @@ class ChattingRepositoryImp implements ChattingRepository {
   Future<void> unSubscribeChatRoom(
       {required String roomId,
       String? command,
+      bool isPrivate = false,
       Map<String, String>? headers}) async {
-    final destination = '$SUBSCRIBE_BASE_URL/room/$roomId';
+    final destination =
+        '$SUBSCRIBE_BASE_URL/${isPrivate ? 'private-room' : 'room'}/$roomId';
     final Map<String, String> _header = {"chatroomId": roomId};
     if (command != null) _header.addAll({"COMMAND": command});
     // headers가 존재할 경우 _header에 병합
@@ -117,9 +114,11 @@ class ChattingRepositoryImp implements ChattingRepository {
   }
 
   @override
-  Future<void> sendChatMessage(ChatMessageModel message) async {
+  Future<void> sendChatMessage(
+      {required ChatMessageModel message, bool isPrivate = false}) async {
     final roomId = message.chatroomId;
-    final destination = '$PUBLISH_BASE_URL/message/$roomId';
+    final destination =
+        '$PUBLISH_BASE_URL/${isPrivate ? 'private-message' : 'message'}/$roomId';
     final json = jsonEncode(message.toJson());
     _socketClient.sendMessage(destination: destination, message: json);
   }
@@ -141,11 +140,45 @@ class ChattingRepositoryImp implements ChattingRepository {
   }
 
   @override
+  Future<void> sendEnterMessage(
+      {required EnterLeaveModel data, bool isPrivate = false}) async {
+    final roomId = data.chatroomId;
+    final destination =
+        '$PUBLISH_BASE_URL/${isPrivate ? 'private-enter' : 'enter'}/$roomId';
+    final json = jsonEncode(data.toJson());
+    _socketClient.sendMessage(destination: destination, message: json);
+  }
+
+  @override
+  void sendLeaveMessage(
+      {required EnterLeaveModel data, bool isPrivate = false}) {
+    final roomId = data.chatroomId;
+    final destination =
+        '$PUBLISH_BASE_URL/${isPrivate ? 'private-leave' : 'leave'}/$roomId';
+    final json = jsonEncode(data.toJson());
+    _socketClient.sendMessage(destination: destination, message: json);
+  }
+
+  @override
   Future<ChatMessageModel> updateChatMessage(ChatMessageModel message) {
     // socket으로 메시지 업데이트 하기
     throw UnimplementedError();
   }
 // ------------------------------------------- http ----------------------------------------
+
+  @override
+  Future<ChatRoomModel> createPrivateChatroom(
+      {required String profileId}) async {
+    try {
+      final data = {"profileId": profileId};
+      final res =
+          await _apiClient.post(endpoint: '/chat/private-chat', data: data);
+      final json = res['data'];
+      return ChatRoomModel.fromJson(json as Map<String, dynamic>);
+    } catch (e, stack_trace) {
+      throw "1:1 채팅 생성하기에 실패하였습니다";
+    }
+  }
 
   @override
   Future<List<ChatRoomModel>> getAllChatRoomsFromServer(
@@ -157,15 +190,35 @@ class ChattingRepositoryImp implements ChattingRepository {
           endpoint: '/chat/list', queryParameters: queryParameters);
 
       final datas = res['data'] as List<dynamic>;
-      log("refresh : ${res['data']}");
+
       final chatRooms = datas.map((json) {
         return ChatRoomModel.fromJson(json as Map<String, dynamic>);
       }).toList();
 
       return chatRooms;
     } catch (e, stack_trace) {
-      log(e.toString());
-      log(stack_trace.toString());
+      throw "서버에서 채팅방 가저오기 실패하였습니다";
+    }
+  }
+
+  @override
+  Future<List<ChatRoomModel>> getAllPrvateChatRoomsFromServer(
+      {required String profileId}) async {
+    // http 로 채팅방 정보를 가져옴
+    try {
+      final queryParameters = {"id": profileId};
+      final res = await _apiClient.get(
+          endpoint: '/chat/private-list', queryParameters: queryParameters);
+
+      final datas = res['data'] as List<dynamic>;
+
+      final chatRooms = datas.map((json) {
+        return ChatRoomModel.fromJson(json as Map<String, dynamic>);
+      }).toList();
+
+      return chatRooms;
+    } catch (e, s) {
+      log(e.toString() + s.toString());
       throw "서버에서 채팅방 가저오기 실패하였습니다";
     }
   }
@@ -193,8 +246,33 @@ class ChattingRepositoryImp implements ChattingRepository {
 
       return chatMessages;
     } catch (e, stack_trace) {
-      log(e.toString());
-      log(stack_trace.toString());
+      throw "서버에서 채팅 가저오기 실패하였습니다";
+    }
+  }
+
+  @override
+  Future<List<ChatMessageModel>> getPrivateChatMessages(
+      {String? startChatId,
+      String? endChatId,
+      required String chatroomId}) async {
+    // http로 메시지 가져오기
+    try {
+      final queryParameters = {
+        "chatroom": chatroomId,
+        'start': startChatId,
+        'end': endChatId
+      };
+      final res = await _apiClient.get(
+          endpoint: '/private-chat/refresh', queryParameters: queryParameters);
+
+      final datas = res['data'] as List<dynamic>;
+
+      final chatMessages = datas.map((json) {
+        return ChatMessageModel.fromJson(json as Map<String, dynamic>);
+      }).toList();
+
+      return chatMessages;
+    } catch (e, stack_trace) {
       throw "서버에서 채팅 가저오기 실패하였습니다";
     }
   }
@@ -206,12 +284,36 @@ class ChattingRepositoryImp implements ChattingRepository {
       final body = {"chatroomId": chatroomId, "profileId": profileId};
       final res = await _apiClient.post(endpoint: '/chat/join', data: body);
     } catch (e, s) {
-      log(e.toString() + s.toString());
       throw "채팅방에 참여할 수 없습니다.";
     }
   }
 
+  @override
+  Future<void> setChatroomAlarm(
+      String chatroomId, String profileId, bool alarm) async {
+    try {
+      final body = {
+        "chatroomId": chatroomId,
+        "profileId": profileId,
+        "alarm": alarm
+      };
+      final res = await _apiClient.post(endpoint: '/chat/alarm', data: body);
+    } catch (e, s) {}
+  }
   //  -------------------------------------------- LOCAL -----------------------------------------
+
+  @override
+  Future<void> updateAlarmLocal(String chatroomId, bool alarm) async {
+    try {
+      const boxKey = HIVE_CHATROOM;
+      final box = _getHiveChatRoomBox(boxKey);
+      ChatRoomHiveModel? _prevState = await box.get(chatroomId);
+      if (_prevState != null) {
+        _prevState.copyWith(alarm: alarm);
+        await box.put(chatroomId, _prevState);
+      }
+    } catch (e, s) {}
+  }
 
   @override
   Future<void> saveMessageLocal(ChatMessageHiveModel data) async {
@@ -219,9 +321,7 @@ class ChattingRepositoryImp implements ChattingRepository {
       final boxKey = HIVE_CHAT_MESSAGE + "${data.chatRoomId}";
       final box = _getHiveChatMessageBox(boxKey);
       await box.put(data.messageId, data);
-    } catch (e, s) {
-      log(e.toString() + s.toString());
-    }
+    } catch (e, s) {}
   }
 
   @override
@@ -231,9 +331,7 @@ class ChattingRepositoryImp implements ChattingRepository {
       final boxKey = HIVE_CHAT_MESSAGE + "${chatroomId}";
       final box = _getHiveChatMessageBox(boxKey);
       await box.putAll(data);
-    } catch (e, s) {
-      log(e.toString() + s.toString());
-    }
+    } catch (e, s) {}
   }
 
   @override
@@ -242,9 +340,7 @@ class ChattingRepositoryImp implements ChattingRepository {
       final boxKey = HIVE_CHATROOM;
       final box = _getHiveChatRoomBox(boxKey);
       await box.put(data.chatroomId, data);
-    } catch (e, s) {
-      log(e.toString() + s.toString());
-    }
+    } catch (e, s) {}
   }
 
   @override
@@ -254,9 +350,7 @@ class ChattingRepositoryImp implements ChattingRepository {
       final box = _getHiveChatRoomBox(boxKey);
 
       await box.delete(chatroomId);
-    } catch (e, s) {
-      log(e.toString() + s.toString());
-    }
+    } catch (e, s) {}
   }
 
   @override
@@ -267,7 +361,6 @@ class ChattingRepositoryImp implements ChattingRepository {
       final chatroomKey = data.chatroomId;
       await box.put(chatroomKey, data);
     } catch (e, s) {
-      log(e.toString() + s.toString());
       throw '채팅방 업데이트에 실패하였습니다';
     }
   }
@@ -278,9 +371,7 @@ class ChattingRepositoryImp implements ChattingRepository {
       final boxKey = HIVE_CHAT_MESSAGE + "${chatroomId}";
       final box = _getHiveChatMessageBox(boxKey);
       await box.deleteFromDisk();
-    } catch (e, s) {
-      log(e.toString() + s.toString());
-    }
+    } catch (e, s) {}
   }
 
   @override
@@ -292,7 +383,6 @@ class ChattingRepositoryImp implements ChattingRepository {
       keys.sort();
       return keys;
     } catch (e, s) {
-      log(e.toString() + s.toString());
       throw [];
     }
   }
@@ -303,7 +393,6 @@ class ChattingRepositoryImp implements ChattingRepository {
       final box = _getHiveChatRoomBox(boxKey);
       await box.put(chatRoom.chatroomId, chatRoom);
     } catch (e, s) {
-      log(e.toString() + s.toString());
       throw '채팅방 추가에 실패하였습니다.';
     }
   }

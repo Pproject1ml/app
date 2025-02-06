@@ -41,6 +41,9 @@ class ChatRoomHiveModel extends HiveObject {
   @HiveField(10)
   final bool active;
 
+  @HiveField(11)
+  final bool alarm;
+
   ChatRoomHiveModel(
       {required this.chatroomId,
       required this.title,
@@ -52,10 +55,41 @@ class ChatRoomHiveModel extends HiveObject {
       required this.latitude,
       this.lastMessageAt,
       this.imagePath,
-      required this.active});
+      required this.active,
+      required this.alarm});
 
   factory ChatRoomHiveModel.fromJson(Map<String, dynamic> json) =>
       _$ChatRoomHiveModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$ChatRoomHiveModelToJson(this);
+
+  ChatRoomHiveModel copyWith({
+    String? chatroomId,
+    String? title,
+    int? count,
+    List<ProfileHiveModel>? profiles,
+    String? lastMessage,
+    String? lastReadMessageId,
+    double? longitude,
+    double? latitude,
+    DateTime? lastMessageAt,
+    String? imagePath,
+    bool? active,
+    bool? alarm,
+  }) {
+    return ChatRoomHiveModel(
+      chatroomId: chatroomId ?? this.chatroomId,
+      title: title ?? this.title,
+      count: count ?? this.count,
+      profiles: profiles ?? this.profiles,
+      lastMessage: lastMessage ?? this.lastMessage,
+      lastReadMessageId: lastReadMessageId ?? this.lastReadMessageId,
+      longitude: longitude ?? this.longitude,
+      latitude: latitude ?? this.latitude,
+      lastMessageAt: lastMessageAt ?? this.lastMessageAt,
+      imagePath: imagePath ?? this.imagePath,
+      active: active ?? this.active,
+      alarm: alarm ?? this.alarm,
+    );
+  }
 }

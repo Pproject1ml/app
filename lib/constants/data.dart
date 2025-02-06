@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 double deviceWidth = 0;
 double deviceHeight = 0;
@@ -20,20 +21,18 @@ double heightRatio(double height) {
   return height * deviceHeightRatio;
 }
 
-double AVAILABLE_RADIUS_M = 2000;
+double AVAILABLE_RADIUS_M = 10000;
+double SEARCH_RADIUS = 100000;
 
-const String server = "3.37.171.121:8080";
-const String local1 = "192.168.0.219:8080";
-const String local2 = "192.168.0.168:8080";
-const String local3 = "192.168.0.190:8080";
-const String localAnyang = "172.30.1.24:8080";
-
-const String BASE_URL = server;
-const String LOCAL_URL = server;
+final String BASE_URL = dotenv.env['SERVER_URL'] ?? '';
+final String HTTPS_BASE_URL = dotenv.env['SERVER_SERVICE_URL'] ?? '';
 
 const String HIVE_CHATROOM = 'room';
 const String HIVE_CHAT_MESSAGE = 'message';
 const String HIVE_PROFILE = 'profile';
+
+const String HIVE_PERSONAL_CHATROOM = 'personalroom';
+const String HIVE_PERSONAL_CHAT_MESSAGE = 'personalmessage';
 
 const String SUBSCRIBE_BASE_URL = '/sub';
 const String PUBLISH_BASE_URL = '/pub';

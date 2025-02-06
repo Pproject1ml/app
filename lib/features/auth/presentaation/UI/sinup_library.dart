@@ -1,7 +1,6 @@
-import 'dart:developer';
-
 import 'package:chat_location/constants/colors.dart';
-import 'package:chat_location/constants/data.dart';
+import 'package:chat_location/constants/text_style.dart';
+
 import 'package:chat_location/constants/theme.dart';
 
 import 'package:flutter/material.dart';
@@ -12,8 +11,10 @@ class SignUpTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(title,
-        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.bold, letterSpacing: -0.6, height: 1.28));
+        style: TTTextStyle.headingBold24.copyWith(
+            color: Theme.of(context).textTheme.bodyLarge?.color,
+            letterSpacing: -0.6,
+            height: 1.28));
   }
 }
 
@@ -24,8 +25,8 @@ class SignUpSubTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(message,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            color: TTColors.gray500, height: 1.2, letterSpacing: -0.3));
+        style: TTTextStyle.bodyMedium14.copyWith(
+            color: TTColors.gray500, letterSpacing: -0.3, height: 1.22));
   }
 }
 
@@ -77,10 +78,10 @@ class SignUpTextInput extends StatelessWidget {
         hintText: hintText,
         hintStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
             color: TTColors.gray600, height: 1.5, letterSpacing: -0.3),
-        labelStyle: Theme.of(context)
-            .textTheme
-            .labelMedium
-            ?.copyWith(height: 1.5, letterSpacing: -0.3),
+        labelStyle: TTTextStyle.bodyRegular18.copyWith(
+            color: Theme.of(context).textTheme.bodyLarge?.color,
+            letterSpacing: -0,
+            height: 1.8),
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
             borderSide: const BorderSide(
@@ -92,6 +93,10 @@ class SignUpTextInput extends StatelessWidget {
               color: TTColors.gray300,
             )),
       ),
+      style: TTTextStyle.bodyRegular18.copyWith(
+          color: Theme.of(context).textTheme.bodyLarge?.color,
+          letterSpacing: -0,
+          height: 1.8),
     );
   }
 }
@@ -107,7 +112,7 @@ Widget nickNameValidationgButton({bool isButtonValid = false}) {
       alignment: Alignment.center,
       child: Text(
         "중복확인",
-        style: TTTextTheme.lightTextTheme.labelMedium
+        style: lightTextTheme.labelMedium
             ?.copyWith(color: isButtonValid ? Colors.white : TTColors.gray500),
       ),
     ),

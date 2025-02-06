@@ -77,7 +77,8 @@ final landmarkListProvider = StateNotifierProvider.autoDispose<
 });
 
 // base Url입력하면 됩니다.
-final apiClientProvider = Provider((ref) => ApiClient(BASE_URL));
+final apiClientProvider =
+    Provider((ref) => ApiClient(BASE_URL, HTTPS_BASE_URL));
 
 // landmark 관련 provider
 final landmarkRepositoryProvider =

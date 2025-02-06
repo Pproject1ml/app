@@ -3,8 +3,10 @@ import 'dart:developer';
 import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
 import 'package:chat_location/constants/text_style.dart';
+import 'package:chat_location/features/chat/domain/entities/chatroom.dart';
 import 'package:chat_location/features/chat/presentation/component/chat_page.dart';
 import 'package:chat_location/features/chat/presentation/component/chat_page_profiles.dart';
+import 'package:chat_location/features/chat/presentation/component/chatroom_alarm.dart';
 
 import 'package:chat_location/features/chat/presentation/provider/chatting_controller.dart';
 import 'package:chat_location/features/chat/presentation/screen/chat_tab_screen.dart';
@@ -28,6 +30,9 @@ class _ChatPageState extends ConsumerState<ChatPage> {
   @override
   void initState() {
     super.initState();
+    Future.microtask(() async => await ref
+        .read(chattingControllerProvider.notifier)
+        .enterAction(widget.roomNumber));
   }
 
   @override
@@ -40,181 +45,163 @@ class _ChatPageState extends ConsumerState<ChatPage> {
   @override
   Widget build(BuildContext context) {
     final notifier = ref.read(chattingControllerProvider.notifier);
-
-    return Scaffold(
-        onEndDrawerChanged: (isOpened) {
-          setState(() {
-            isEndDrawerOpned = isOpened;
-          });
+    return ref.watch(chattingControllerProvider).when(data: (v) {
+      ChatRoomInterface? _chatroomInfo;
+      try {
+        _chatroomInfo = v.firstWhere(
+          (v) => v.chatroomId == widget.roomNumber,
+        );
+      } catch (e, s) {
+        _chatroomInfo = null;
+        return Container();
+      }
+      return PopScope(
+        onPopInvokedWithResult: (didPop, result) {
+          ref
+              .read(chattingControllerProvider.notifier)
+              .leaveAction(widget.roomNumber);
         },
-        key: _scaffoldKey,
-        resizeToAvoidBottomInset: !isEndDrawerOpned,
-        appBar: AppBar(
-          // leading: IconButton(
-          //     onPressed: () async {
-          //       await ref
-          //           .read(chattingControllerProvider.notifier)
-          //           .leaveAction();
-          //       context.pop();
-          //     },
-          //     icon: Icon(Icons.arrow_back_ios_new)),
-          title: Text('Chat Room ${widget.roomNumber}'),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: () {
-                _scaffoldKey.currentState?.openEndDrawer();
-                FocusScope.of(context).unfocus();
-              },
+        child: Scaffold(
+            backgroundColor: Theme.of(context).cardColor,
+            onEndDrawerChanged: (isOpened) {
+              setState(() {
+                isEndDrawerOpned = isOpened;
+              });
+            },
+            key: _scaffoldKey,
+            resizeToAvoidBottomInset: !isEndDrawerOpned,
+            appBar: AppBar(
+              title: Text(_chatroomInfo.title),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.menu),
+                  onPressed: () {
+                    _scaffoldKey.currentState?.openEndDrawer();
+                    FocusScope.of(context).unfocus();
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
-        endDrawer: Align(
-          alignment: Alignment.topRight,
-          child: SafeArea(
-            child: Drawer(
-                width:
-                    MediaQuery.of(context).size.width * 0.85 >= widthRatio(300)
+            endDrawer: Align(
+              alignment: Alignment.topRight,
+              child: SafeArea(
+                child: Drawer(
+                    width: MediaQuery.of(context).size.width * 0.85 >=
+                            widthRatio(300)
                         ? widthRatio(300)
                         : MediaQuery.of(context).size.width * 0.85,
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: widthRatio(18),
-                            vertical: heightRatio(17)),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              textAlign: TextAlign.start,
-                              widget.roomNumber,
-                              style: TextTheme.of(context)
-                                  .titleSmall
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: heightRatio(22),
-                            ),
-                            Expanded(
-                              child: ChatPageProfiles(
-                                  chatroomId: widget.roomNumber),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      color: TTColors.gray100,
-                      width: double.infinity,
-                      child: Row(
-                        children: [
-                          Expanded(
-                              flex: 1,
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                    padding: EdgeInsets.zero,
-                                    shape: const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.zero,
-                                    ),
-                                    overlayColor: TTColors.gray400),
-                                onPressed: () async {
-                                  await notifier.dieAction(widget.roomNumber);
-                                  context.goNamed(ChatScreen.pageName);
-                                },
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: heightRatio(15)),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      SvgPicture.asset(
-                                        'assets/svgs/out.svg',
-                                        width: widthRatio(20),
-                                      ),
-                                      SizedBox(
-                                        width: widthRatio(6),
-                                      ),
-                                      Text(
-                                        "나가기",
-                                        style: TTTextStyle.captionMedium12
-                                            .copyWith(color: TTColors.gray500),
-                                      )
-                                    ],
-                                  ),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: widthRatio(18),
+                                vertical: heightRatio(17)),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  textAlign: TextAlign.start,
+                                  _chatroomInfo.title,
+                                  style: TextTheme.of(context)
+                                      .titleSmall
+                                      ?.copyWith(fontWeight: FontWeight.bold),
                                 ),
-                              )),
-                          Expanded(
-                              flex: 1,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  SvgPicture.asset(
-                                    'assets/svgs/notifications.svg',
-                                    width: widthRatio(20),
-                                  ),
-                                  SizedBox(
-                                    width: widthRatio(6),
-                                  ),
-                                  Text(
-                                    "알림 켬",
-                                    style: TTTextStyle.captionMedium12
-                                        .copyWith(color: TTColors.gray500),
-                                  )
-                                ],
-                              )),
-                          Expanded(
-                              flex: 1,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.settings_outlined,
-                                      size: widthRatio(20),
-                                      color: TTColors.gray500),
-                                  SizedBox(
-                                    width: widthRatio(6),
-                                  ),
-                                  Text(
-                                    "환경설정",
-                                    style: TTTextStyle.captionMedium12
-                                        .copyWith(color: TTColors.gray500),
-                                  )
-                                ],
-                              )),
-                        ],
-                      ),
-                    )
-                  ],
-                )),
-          ),
-        ),
-        body: ChatPageContainer(roomNumber: widget.roomNumber));
-  }
-
-  void _showDangerDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (context) => Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          backgroundColor: TTColors.white,
-          child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: widthRatio(20),
-                vertical: heightRatio(20),
+                                SizedBox(
+                                  height: heightRatio(22),
+                                ),
+                                Expanded(
+                                  child: ChatPageProfiles(
+                                      chatroomId: _chatroomInfo.chatroomId),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                        Container(
+                          color: TTColors.gray100,
+                          width: double.infinity,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                  flex: 1,
+                                  child: TextButton(
+                                    style: TextButton.styleFrom(
+                                        padding: EdgeInsets.zero,
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.zero,
+                                        ),
+                                        overlayColor: TTColors.gray400),
+                                    onPressed: () async {
+                                      await notifier
+                                          .dieAction(widget.roomNumber);
+                                      context.goNamed(ChatScreen.pageName);
+                                    },
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: heightRatio(15)),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          SvgPicture.asset(
+                                            'assets/svgs/out.svg',
+                                            width: widthRatio(20),
+                                          ),
+                                          SizedBox(
+                                            width: widthRatio(6),
+                                          ),
+                                          Text(
+                                            "나가기",
+                                            style: TTTextStyle.captionMedium12
+                                                .copyWith(
+                                                    color: TTColors.gray500),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  )),
+                              CharoomAlarm(
+                                chatroom: _chatroomInfo,
+                              ),
+                              // Expanded(
+                              //     flex: 1,
+                              //     child: Row(
+                              //       mainAxisAlignment: MainAxisAlignment.center,
+                              //       crossAxisAlignment: CrossAxisAlignment.center,
+                              //       children: [
+                              //         Icon(Icons.settings_outlined,
+                              //             size: widthRatio(20),
+                              //             color: TTColors.gray500),
+                              //         SizedBox(
+                              //           width: widthRatio(6),
+                              //         ),
+                              //         Text(
+                              //           "환경설정",
+                              //           style: TTTextStyle.captionMedium12
+                              //               .copyWith(color: TTColors.gray500),
+                              //         )
+                              //       ],
+                              //     )),
+                            ],
+                          ),
+                        )
+                      ],
+                    )),
               ),
-              child: Text("data"))),
-    );
+            ),
+            body: ChatPageContainer(chatroom: _chatroomInfo)),
+      );
+    }, error: (e, s) {
+      return Container();
+    }, loading: () {
+      return Container();
+    });
   }
 }

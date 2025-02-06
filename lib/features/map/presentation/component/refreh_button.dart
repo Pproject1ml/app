@@ -1,5 +1,6 @@
 import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
+import 'package:chat_location/constants/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -51,6 +52,7 @@ class _RefreshButtonState extends State<RefreshButton>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return GestureDetector(
       onTap: _handleRefresh,
       child: Container(
@@ -76,10 +78,7 @@ class _RefreshButtonState extends State<RefreshButton>
             ),
             Text(
               "위치 새로고침",
-              style: Theme.of(context)
-                  .textTheme
-                  .labelMedium
-                  ?.copyWith(color: Colors.white),
+              style: TTTextStyle.bodySemibold16.copyWith(color: TTColors.white),
             )
           ],
         ),

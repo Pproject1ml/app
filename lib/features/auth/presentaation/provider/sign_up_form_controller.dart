@@ -197,7 +197,7 @@ class SignUpFormControllerT extends StateNotifier<SignUpInterface> {
   }
 
   // 닉네임 중복 확인 요청
-  Future<void> isNickNameValid() async {
+  Future<bool> isNickNameValid() async {
     final nickName = state.nickname;
 
     try {
@@ -210,10 +210,13 @@ class SignUpFormControllerT extends StateNotifier<SignUpInterface> {
       if (!isAvailable) {
         _isNicknameValid = false;
       }
+      _pageValidChecker(state);
+      return isAvailable;
     } catch (e) {
       _isNicknameValid = false;
+      _pageValidChecker(state);
+      return false;
     }
-    _pageValidChecker(state);
   }
 
   void setCurrentPage(index) {
@@ -291,4 +294,5 @@ final signUpFormProvider =
 );
 
 // base Url입력하면 됩니다.
-final apiClientProvider = Provider((ref) => ApiClient(BASE_URL));
+final apiClientProvider =
+    Provider((ref) => ApiClient(BASE_URL, HTTPS_BASE_URL));

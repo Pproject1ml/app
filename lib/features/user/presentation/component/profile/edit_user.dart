@@ -1,17 +1,19 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:chat_location/common/ui/box/round_user_image_box.dart';
 import 'package:chat_location/common/ui/box/text_field.dart';
 import 'package:chat_location/common/ui/text_input/bottom_border_text_input.dart';
 import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
+import 'package:chat_location/constants/text_style.dart';
 import 'package:chat_location/features/user/domain/entities/member.dart';
 import 'package:chat_location/features/user/presentation/component/profile/edit_profile_button.dart';
 import 'package:chat_location/features/user/presentation/provider/edit_user_controller.dart';
 import 'package:chat_location/features/user/presentation/ui/build_tag_box.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EditUser extends ConsumerStatefulWidget {
   const EditUser({super.key, required this.currentUser});
@@ -22,6 +24,18 @@ class EditUser extends ConsumerStatefulWidget {
 }
 
 class _EditUserState extends ConsumerState<EditUser> {
+  XFile? file;
+
+  Future<void> _pickImage() async {
+    ImagePicker().pickImage(source: ImageSource.gallery).then((image) {
+      if (image != null) {
+        setState(() {
+          file = image;
+        });
+      }
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -42,9 +56,9 @@ class _EditUserState extends ConsumerState<EditUser> {
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.transparent,
       body: Container(
-        decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
+        decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(40), topRight: Radius.circular(40))),
         height: heightRatio(763),
         child: Column(
@@ -56,9 +70,9 @@ class _EditUserState extends ConsumerState<EditUser> {
                   alignment: Alignment.center,
                   child: Text(
                     "프로필 수정",
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                    style: TTTextStyle.bodyBold18.copyWith(
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                        height: 1.22),
                   ),
                 ),
                 Positioned(
@@ -68,10 +82,10 @@ class _EditUserState extends ConsumerState<EditUser> {
                         onPressed: () => {Navigator.of(context).pop()},
                         child: Text(
                           '취소',
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(color: TTColors.gray500, height: 0.22),
+                          style: TTTextStyle.bodyMedium14.copyWith(
+                              color: TTColors.gray500,
+                              height: 1.22,
+                              letterSpacing: -0.3),
                         )))
               ],
             ),
@@ -87,25 +101,68 @@ class _EditUserState extends ConsumerState<EditUser> {
 
                       Text(
                         '프로필 사진',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        style: TTTextStyle.bodySemibold16.copyWith(
                             letterSpacing: 0,
                             height: 1.4,
-                            fontWeight: FontWeight.bold),
+                            color:
+                                Theme.of(context).textTheme.bodyLarge?.color),
                       ),
                       const SizedBox(
                         height: 12,
                       ),
-                      roundUserImageBox(size: 100, editable: true),
+
+                      SizedBox(
+                        height: widthRatio(110),
+                        width: widthRatio(110),
+                        child: Stack(
+                          children: [
+                            file != null
+                                ? SizedBox(
+                                    height: widthRatio(100),
+                                    width: widthRatio(100),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(100),
+                                      child: Image.file(
+                                        File(file!.path),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  )
+                                : Align(
+                                    alignment: Alignment.topLeft,
+                                    child: roundUserImageBox(
+                                      imageUrl: widget
+                                          .currentUser.profile.profileImage,
+                                      size: 100,
+                                    ),
+                                  ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: IconButton(
+                                  icon: const CircleAvatar(
+                                    radius: 16,
+                                    backgroundColor: Colors.white,
+                                    child: Icon(Icons.camera_alt,
+                                        size: 18, color: Colors.grey),
+                                  ),
+                                  onPressed: _pickImage),
+                            ),
+                          ],
+                        ),
+                      ),
+
                       const SizedBox(height: 30),
 
                       // 닉네임
-                      Text(
-                        '닉네임',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            letterSpacing: 0,
-                            height: 1.4,
-                            fontWeight: FontWeight.bold),
-                      ),
+                      Text('닉네임',
+                          style: TTTextStyle.bodySemibold16.copyWith(
+                              letterSpacing: 0,
+                              height: 1.4,
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.color)),
                       const SizedBox(height: 8),
                       BottomBorderTextInput(
                         controller: _tempUserNotifier.nicknameController,
@@ -114,32 +171,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                         focusNode: _tempUserNotifier.nickNameFocusNode,
                         autofocus: false,
                       ),
-                      // TextField(
-                      //   onTapOutside: (event) {
-                      //     // FocusScope.of(context).unfocus();
-                      //   },
-                      //   controller: _nickNamecontroller, // 텍스트,
-                      //   decoration: InputDecoration(
-                      //     hintText: '닉네임을 입력하세요',
-                      //     hintStyle: Theme.of(context)
-                      //         .textTheme
-                      //         .titleSmall
-                      //         ?.copyWith(
-                      //             height: 1.4, fontWeight: FontWeight.w400),
-                      //     labelStyle: Theme.of(context)
-                      //         .textTheme
-                      //         .titleSmall
-                      //         ?.copyWith(
-                      //             height: 1.4, fontWeight: FontWeight.w400),
-                      //     border: const UnderlineInputBorder(),
-                      //     suffixText:
-                      //         '${_tempUserInfo.nickname.length}/10', // 글자수 표시
-                      //   ),
-                      //   onChanged: (value) {
-                      //     // 상태 업데이트
-                      //     _tempUserNotifier.updateName(value);
-                      //   },
-                      // ),
+
                       const SizedBox(height: 40),
 
                       Row(
@@ -147,15 +179,36 @@ class _EditUserState extends ConsumerState<EditUser> {
                         children: [
                           Text(
                             '나이 / 성별 공개',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                    letterSpacing: 0,
-                                    height: 1.4,
-                                    fontWeight: FontWeight.bold),
+                            style: TTTextStyle.bodySemibold16.copyWith(
+                                letterSpacing: 0,
+                                height: 1.4,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.color),
                           ),
                           Switch(
+                              overlayColor: MaterialStateProperty.resolveWith(
+                                (final Set<MaterialState> states) {
+                                  return Colors.transparent;
+                                },
+                              ),
+                              thumbColor:
+                                  MaterialStateProperty.resolveWith<Color>(
+                                      (Set<MaterialState> states) {
+                                return Colors.white;
+                              }),
+                              trackOutlineColor:
+                                  MaterialStateProperty.resolveWith(
+                                (final Set<MaterialState> states) {
+                                  return Colors.transparent;
+                                },
+                              ),
+                              activeColor: TTColors.ttPurple,
+                              activeTrackColor:
+                                  TTColors.ttPurple.withOpacity(1.0),
+                              inactiveTrackColor:
+                                  TTColors.gray300.withOpacity(1.0),
                               value: _tempMemberInfo.profile.isVisible,
                               onChanged: (value) {
                                 _tempUserNotifier.toggleGenderVisibility(value);
@@ -164,53 +217,15 @@ class _EditUserState extends ConsumerState<EditUser> {
                       ),
                       const SizedBox(height: 38),
 
-                      // 나의 랜드마크 공개
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //   children: [
-                      //     Text(
-                      //       '나의 랜드마크 공개',
-                      //       style: Theme.of(context)
-                      //           .textTheme
-                      //           .labelLarge
-                      //           ?.copyWith(
-                      //               letterSpacing: 0,
-                      //               height: 1.4,
-                      //               fontWeight: FontWeight.bold),
-                      //     ),
-                      //     Switch(value: true, onChanged: (value) {}),
-                      //   ],
-                      // ),
-                      // const SizedBox(height: 15),
-                      // Wrap(
-                      //   spacing: 8,
-                      //   runSpacing: 8,
-                      //   children: [
-                      //     buildTag('잠실 롯데타워'),
-                      //     buildTag('경복궁'),
-                      //     buildTag('홍대'),
-                      //     buildTag('명동'),
-                      //     buildTag('남산타워'),
-                      //   ],
-                      // ),
-                      // const SizedBox(height: 8),
-                      // Text(
-                      //   '내가 자주 갔던 상위 5개의 랜드마크 태그로 노출돼요.',
-                      //   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      //       fontSize: 10,
-                      //       letterSpacing: -0.3,
-                      //       fontWeight: FontWeight.w400),
-                      // ),
-                      // const SizedBox(height: 26),
-
                       // 한줄소개
-                      Text(
-                        '한줄소개',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            letterSpacing: 0,
-                            height: 1.4,
-                            fontWeight: FontWeight.bold),
-                      ),
+                      Text('한줄소개',
+                          style: TTTextStyle.bodySemibold16.copyWith(
+                              letterSpacing: 0,
+                              height: 1.4,
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.color)),
                       const SizedBox(height: 8),
                       CustomTextField(
                         controller: _tempUserNotifier.descriptionController,
@@ -236,6 +251,7 @@ class _EditUserState extends ConsumerState<EditUser> {
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                 child: EditProfileButton(
                   tempUser: _tempMemberInfo,
+                  file: file,
                 )),
           ],
         ),

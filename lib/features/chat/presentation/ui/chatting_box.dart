@@ -1,5 +1,6 @@
 import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
+import 'package:chat_location/constants/text_style.dart';
 import 'package:chat_location/constants/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
@@ -9,7 +10,7 @@ Widget chatBubbleBox(
     {required String message,
     Color backgroundColor = TTColors.gray100,
     Color textColor = Colors.black,
-    int unread = -1,
+    int unread = 0,
     required DateTime time,
     bool reversed = false}) {
   return Row(
@@ -21,15 +22,15 @@ Widget chatBubbleBox(
       Flexible(
         child: Container(
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: reversed ? TTColors.gray100 : backgroundColor),
+              borderRadius: BorderRadius.circular(20), color: backgroundColor),
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
           child: Text(message,
               softWrap: true, // 줄바꿈 허용
-
               overflow: TextOverflow.visible, // 넘친 텍스트 처리
-              style: TTTextTheme.lightTextTheme.labelMedium?.copyWith(
-                  color: textColor, fontWeight: FontWeight.w400)), // 메시지 내용
+              style: TTTextStyle.bodyMedium14.copyWith(
+                  color: textColor,
+                  height: 1.22,
+                  letterSpacing: -0.3)), // 메시지 내용
         ),
       ),
       SizedBox(
@@ -41,23 +42,20 @@ Widget chatBubbleBox(
         crossAxisAlignment:
             reversed ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
-          // Text(
-          //   unread.toString(),
-          //   style: const TextStyle(
-          //       height: 0,
-          //       fontSize: 10,
-          //       color: TTColors.gray,
-          //       letterSpacing: 0,
-          //       fontWeight: FontWeight.normal),
-          // ),
+          if (unread > 0)
+            Text(
+              unread.toString(),
+              style: const TextStyle(
+                  height: 0,
+                  fontSize: 10,
+                  color: TTColors.gray600,
+                  letterSpacing: 0,
+                  fontWeight: FontWeight.normal),
+            ),
           Text(
             koreamTimeForamt.format(time),
-            style: const TextStyle(
-                height: 0,
-                fontSize: 10,
-                color: TTColors.gray600,
-                letterSpacing: -0,
-                fontWeight: FontWeight.normal),
+            style: TTTextStyle.captionRegular10.copyWith(
+                color: TTColors.gray600, letterSpacing: -0.3, height: 1.5),
           )
         ],
       )

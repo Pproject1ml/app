@@ -1,16 +1,16 @@
-import 'dart:developer';
-
 import 'package:chat_location/core/database/secure_storage.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 class SocketClient {
   final String baseUrl;
   final String endPoint;
+  final String httpsBaseUrl;
+  final bool isHttps = false;
   StompClient? stompClient;
   final Map<String, void Function({Map<String, String>? unsubscribeHeaders})>
       subscritions = {};
 
-  SocketClient(this.baseUrl, this.endPoint);
+  SocketClient(this.baseUrl, this.endPoint, this.httpsBaseUrl);
 
   // WebSocket 연결 초기화
   Future<void> connect(
@@ -22,10 +22,12 @@ class SocketClient {
       return;
     }
     final headers = await _getHeaders();
-    final uri = "http://${baseUrl}${endPoint}";
+    final uri = isHttps
+        ? "wss://${httpsBaseUrl}${endPoint}"
+        : "ws://${baseUrl}${endPoint}";
 
     stompClient = StompClient(
-      config: StompConfig.sockJS(
+      config: StompConfig(
         url: uri,
         onConnect: onConnect,
         onStompError: onStompError,
@@ -33,9 +35,7 @@ class SocketClient {
         onDisconnect: onDisconnect,
         stompConnectHeaders: headers,
         webSocketConnectHeaders: headers,
-        onDebugMessage: (p0) {
-          log("socket dubg: ${p0}");
-        },
+        onDebugMessage: (p0) {},
 
         heartbeatOutgoing: const Duration(seconds: 10),
         heartbeatIncoming: const Duration(seconds: 10),
@@ -44,7 +44,6 @@ class SocketClient {
     );
     if (_isClientInitailized()) {
       stompClient!.activate();
-      log('Connecting to WebSocket...');
     }
   }
 
@@ -58,20 +57,17 @@ class SocketClient {
     if (!_isClientInitailized()) return;
 
     if (!stompClient!.connected) {
-      log('WebSocket not connected. Cannot subscribe.');
       return;
     }
     final subScriber = stompClient!.subscribe(
         destination: destination, callback: onMessage, headers: headers);
     subscritions[destination] = subScriber;
-    log('Subscribed to: $destination');
   }
 
   void unsubscribeRoom(
       {required String destination, Map<String, String>? headers}) {
     if (!_isClientInitailized()) return;
     if (!stompClient!.connected) {
-      log('WebSocket not connected. Cannot unsubscribe.');
       return;
     }
 
@@ -86,14 +82,12 @@ class SocketClient {
   void sendMessage({required String destination, required String message}) {
     if (!_isClientInitailized()) return;
     if (!stompClient!.connected) {
-      log('WebSocket not connected. Cannot send message.');
       return;
     }
     stompClient!.send(
       destination: destination,
       body: message,
     );
-    log('Message sent to $destination: $message');
   }
 
   // WebSocket 연결 종료
@@ -101,14 +95,13 @@ class SocketClient {
     if (!_isClientInitailized()) return;
     if (stompClient!.connected) {
       stompClient!.deactivate();
-      log('Disconnected from WebSocket');
     }
   }
 
   // 헤더 생성
   Future<Map<String, String>> _getHeaders() async {
     final token = await SecureStorageHelper.getAuthToken();
-    log("header token: ${token}");
+
     return {
       'Authorization': token ?? '',
     };

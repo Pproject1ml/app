@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:chat_location/common/components/custom_buttom.dart';
 import 'package:flutter/material.dart';
 
 class AsyncButton extends StatefulWidget {
@@ -38,8 +39,8 @@ class _AsyncButtonState extends State<AsyncButton> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
+    return CustomAnimatedButton(
+      onPressed: () async {
         if (!_isLoading) await handleClickButton();
       },
       child: Opacity(

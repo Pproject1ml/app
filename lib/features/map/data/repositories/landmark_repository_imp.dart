@@ -24,7 +24,7 @@ class LandmarkRepositoryImp implements LandmarkRepository {
       final queryParameters = {
         'longitude': lon.toString(),
         'latitude': lat.toString(),
-        "radius": (AVAILABLE_RADIUS_M * 1.2).toInt().toString()
+        "radius": (SEARCH_RADIUS).toInt().toString()
       };
 
       final response = await apiClient.get(

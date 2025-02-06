@@ -1,19 +1,13 @@
-import 'dart:developer';
-
 import 'package:chat_location/common/components/custom_buttom.dart';
 import 'package:chat_location/common/components/network_image.dart';
 import 'package:chat_location/constants/colors.dart';
 import 'package:chat_location/constants/data.dart';
-import 'package:chat_location/features/chat/domain/entities/chatroom.dart';
-import 'package:chat_location/features/chat/presentation/screen/chat_tab_screen.dart';
-import 'package:chat_location/features/chat/presentation/screen/chat_page_screen.dart';
+import 'package:chat_location/constants/text_style.dart';
 import 'package:chat_location/features/map/domain/entities/landmark.dart';
-
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 Future<void> landmarkDialog(BuildContext context, LandmarkInterface landmark,
-    Future<void> Function() onTapPositive) {
+    Future<void> Function()? onTapPositive) {
   final String count = landmark.chatroom == null
       ? "0"
       : landmark.chatroom!.count >= 1000
@@ -51,26 +45,29 @@ Future<void> landmarkDialog(BuildContext context, LandmarkInterface landmark,
                   Text(
                     landmark.name,
                     textAlign: TextAlign.start,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        letterSpacing: -0.6, fontWeight: FontWeight.bold),
+                    style: TTTextStyle.bodyBold20.copyWith(
+                        fontSize: 24,
+                        letterSpacing: -0.6,
+                        height: 1.28,
+                        color: Theme.of(context).textTheme.labelLarge?.color),
                   ),
                   SizedBox(
                     width: widthRatio(8),
                   ),
                   Image.asset(
                     'assets/images/people_alt.png',
-                    height: 18,
-                    width: 18,
+                    height: widthRatio(18),
+                    width: widthRatio(18),
                     color: TTColors.gray600,
                   ),
                   SizedBox(
                     width: widthRatio(4),
                   ),
                   Text(count,
-                      style: Theme.of(context)
-                          .textTheme
-                          .labelMedium
-                          ?.copyWith(color: TTColors.gray600))
+                      style: TTTextStyle.bodyMedium14.copyWith(
+                          color: TTColors.gray600,
+                          letterSpacing: 0.3,
+                          height: 1.22))
                 ],
               ),
             ),
@@ -86,10 +83,8 @@ Future<void> landmarkDialog(BuildContext context, LandmarkInterface landmark,
                   ),
                   Text(
                     landmark.address ?? '',
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelSmall
-                        ?.copyWith(color: TTColors.gray500),
+                    style: TTTextStyle.captionMedium12
+                        .copyWith(color: TTColors.gray500, letterSpacing: -0.3),
                   ),
                   SizedBox(
                     height: heightRatio(16),
@@ -109,19 +104,23 @@ Future<void> landmarkDialog(BuildContext context, LandmarkInterface landmark,
                   ),
                   Row(
                     children: [
-                      Text(
-                        "내 위치에서",
-                        style: Theme.of(context).textTheme.labelMedium,
-                      ),
+                      Text("내 위치에서",
+                          style: TTTextStyle.bodyRegular14.copyWith(
+                              color:
+                                  Theme.of(context).textTheme.labelLarge?.color,
+                              letterSpacing: -0.3,
+                              height: 1.22)),
                       Text(distance,
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelMedium
-                              ?.copyWith(color: TTColors.ttPurple)),
-                      Text(
-                        "거리에 있어요.",
-                        style: Theme.of(context).textTheme.labelMedium,
-                      )
+                          style: TTTextStyle.bodyRegular14.copyWith(
+                              color: TTColors.ttPurple,
+                              letterSpacing: -0.3,
+                              height: 1.22)),
+                      Text("이내에 있어요.",
+                          style: TTTextStyle.bodyRegular14.copyWith(
+                              color:
+                                  Theme.of(context).textTheme.labelLarge?.color,
+                              letterSpacing: -0.3,
+                              height: 1.22))
                     ],
                   ),
                   SizedBox(
@@ -130,14 +129,16 @@ Future<void> landmarkDialog(BuildContext context, LandmarkInterface landmark,
                   Row(
                     children: [
                       Text(count,
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelMedium
-                              ?.copyWith(color: TTColors.ttPurple)),
-                      Text(
-                        "명 의 사람들이 채팅에 참여하고 있어요.",
-                        style: Theme.of(context).textTheme.labelMedium,
-                      )
+                          style: TTTextStyle.bodyRegular14.copyWith(
+                              color: TTColors.ttPurple,
+                              letterSpacing: -0.3,
+                              height: 1.22)),
+                      Text(" 명 의 사람들이 채팅에 참여하고 있어요.",
+                          style: TTTextStyle.bodyRegular14.copyWith(
+                              color:
+                                  Theme.of(context).textTheme.labelLarge?.color,
+                              letterSpacing: -0.3,
+                              height: 1.22))
                     ],
                   ),
                 ],
@@ -146,62 +147,63 @@ Future<void> landmarkDialog(BuildContext context, LandmarkInterface landmark,
             SizedBox(
               height: heightRatio(30),
             ),
-            Padding(
-              padding: EdgeInsets.only(
-                  left: widthRatio(20),
-                  right: widthRatio(20),
-                  bottom: heightRatio(18)),
-              child: Row(
-                children: [
-                  CustomAnimatedButton(
-                    width: widthRatio(92),
-                    height: 52,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: TTColors.gray300,
-                          borderRadius: BorderRadius.circular(8)),
-                      alignment: Alignment.center,
-                      child: Text(
-                        "닫기",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelLarge
-                            ?.copyWith(color: TTColors.gray500),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: widthRatio(8),
-                  ),
-                  Flexible(
-                    child: CustomAnimatedButton(
-                      width: double.infinity,
-                      height: 52,
-                      onPressed: () async {
-                        Navigator.pop(context);
-                        await onTapPositive();
+            if (onTapPositive != null)
+              Padding(
+                padding: EdgeInsets.only(
+                    left: widthRatio(20),
+                    right: widthRatio(20),
+                    bottom: heightRatio(18)),
+                child: Row(
+                  children: [
+                    CustomAnimatedButton(
+                      width: widthRatio(92),
+                      height: heightRatio(52),
+                      onPressed: () {
+                        Navigator.of(context).pop();
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                            color: TTColors.ttPurple,
+                            color: TTColors.gray300,
                             borderRadius: BorderRadius.circular(8)),
                         alignment: Alignment.center,
                         child: Text(
-                          "채팅방 입장하기",
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(color: Colors.white),
+                          "닫기",
+                          style: TTTextStyle.bodyMedium16.copyWith(
+                              letterSpacing: -0.3,
+                              height: 1.22,
+                              color: TTColors.gray500),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                    SizedBox(
+                      width: widthRatio(8),
+                    ),
+                    Flexible(
+                      child: CustomAnimatedButton(
+                        width: double.infinity,
+                        height: 52,
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          await onTapPositive();
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: TTColors.ttPurple,
+                              borderRadius: BorderRadius.circular(8)),
+                          alignment: Alignment.center,
+                          child: Text(
+                            "채팅방 입장하기",
+                            style: TTTextStyle.bodyMedium16.copyWith(
+                                letterSpacing: -0.3,
+                                height: 1.22,
+                                color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       );

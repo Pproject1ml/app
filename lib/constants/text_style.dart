@@ -1,3 +1,4 @@
+import 'package:chat_location/constants/colors.dart';
 import 'package:flutter/material.dart';
 
 class TTTextStyle {
@@ -84,6 +85,7 @@ class TTTextStyle {
       fontSize: 12,
       fontWeight: FontWeight.w500,
       height: 1,
+      color: TTColors.gray600,
       letterSpacing: 0);
   static const captionRegular12 = TextStyle(
       fontFamily: 'Pretendard',

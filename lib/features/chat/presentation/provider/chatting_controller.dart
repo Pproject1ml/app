@@ -9,12 +9,14 @@ import 'package:chat_location/core/database/no_sql/chat_message.dart';
 import 'package:chat_location/core/database/no_sql/chat_room.dart';
 import 'package:chat_location/core/newtwork/api_client.dart';
 import 'package:chat_location/core/newtwork/socket_client.dart';
+import 'package:chat_location/features/chat/data/model/EnterLeave_message.dart';
 import 'package:chat_location/features/chat/data/model/chat_message.dart';
 import 'package:chat_location/features/chat/data/model/chatroom.dart';
 
 import 'package:chat_location/features/chat/data/repositories/chatting_repository_impl.dart';
 import 'package:chat_location/features/chat/domain/entities/chat_message.dart';
 import 'package:chat_location/features/chat/domain/entities/chatroom.dart';
+import 'package:chat_location/features/chat/presentation/provider/personal_chatting_controller.dart';
 
 import 'package:chat_location/features/user/domain/entities/profile.dart';
 import 'package:chat_location/features/user/presentation/provider/user_controller.dart';
@@ -29,17 +31,12 @@ class ChattingController
   final LazyBox<ChatRoomHiveModel> _chatRoomBox;
   final ChattingRepositoryImp chattingRepository;
   final ProfileInterface userInfo;
-  String? _currentRoomId;
-  final void Function({
-    required String body,
-    required int id,
-    required String title,
-  }) notificationAction;
-  ChattingController(this._chatRoomBox, this.chattingRepository, this.userInfo,
-      this.notificationAction)
+  final Future<void> Function() onConnect;
+
+  ChattingController(
+      this._chatRoomBox, this.chattingRepository, this.userInfo, this.onConnect)
       : super(const AsyncValue.loading()) {
     _socketConnect();
-    log("provider initialize");
   }
   // --------------chatting  actions ------------------
   Future<void> joinAction(ChatRoomInterface chatroom) async {
@@ -64,17 +61,15 @@ class ChattingController
           onMessage: onMessageHandler,
           command: "JOIN",
           headers: joinHeader);
-      _currentRoomId = chatroomId;
     } catch (e, s) {
       log(e.toString() + s.toString());
-      _currentRoomId = null;
+
       throw "채팅방에 입장할 수 없습니다.";
     }
   }
 
   Future<void> dieAction(String chatroomId) async {
     try {
-      log("die action");
       // 1. Socket 구독 취소를 한다.( unsubscribe/die)
       _unsubscribe(
           roomId: chatroomId, command: "DIE", profileId: userInfo.profileId);
@@ -87,11 +82,8 @@ class ChattingController
 
       //4. Local db에 채팅을 삭제한다. ( delete)
       chattingRepository.deleteMessageLocal(chatroomId);
-
-      _currentRoomId = null;
     } catch (e, s) {
       log(e.toString() + s.toString());
-      _currentRoomId = null;
     }
   }
 
@@ -124,6 +116,7 @@ class ChattingController
 
       //3. localDb에서 room active를 false로 한다.
       chattingRepository.updateChatroomLocal(_disabledChatroom.toHiveModel());
+      // 4. 서버에 active false로 바꾼다.
     } catch (e, s) {
       log(e.toString() + s.toString());
     }
@@ -150,10 +143,9 @@ class ChattingController
   }
 
   Future<void> initAction() async {
-    log("init action start");
     try {
       final hiveChatroomKeys = _chatRoomBox.keys.toList();
-      log("hiveChatroomKeys: ${hiveChatroomKeys}");
+
       List<ChatRoomInterface> chatrooms = [];
 
       // 1. 서버에서 채팅방을 가져온다.(http)
@@ -183,7 +175,7 @@ class ChattingController
 
         for (final _room in normalRooms) {
           final chatroomId = _room.chatroomId;
-          log("정상 채팅: ${chatroomId}");
+
           // 해당 채팅방이 Active 이라면
           if (_room.active) {
             // 채팅 box가 안켜져 있다면 키도록
@@ -198,7 +190,7 @@ class ChattingController
           }
           final _hiveChattingkeys =
               await chattingRepository.getMessageKeysLocal(chatroomId);
-          log("chatting key: ${chatroomId}, ${_hiveChattingkeys.toString()}");
+
           // obj 업데이트
           final _roomData = _room.copyWith(hiveKeys: _hiveChattingkeys);
           chatrooms.add(_roomData);
@@ -213,7 +205,7 @@ class ChattingController
 
         for (final _room in needtoAddRooms) {
           final chatroomId = _room.chatroomId;
-          log("server에만 있는 채팅: ${chatroomId}");
+
           // able인 경우
           if (_room.active) {
             // 채팅방을 local에 추가
@@ -230,7 +222,7 @@ class ChattingController
 
             // 임시 List에 추가
             chatrooms.add(_room);
-            chattingRepository.createChatRoomLocal(_room.toHiveModel());
+            // chattingRepository.createChatRoomLocal(_room.toHiveModel());
           }
           //disabled인 경우
           else {
@@ -247,14 +239,13 @@ class ChattingController
 
         for (final _room in needtoDeleteRooms) {
           final chatroomId = _room.chatroomId;
-          log("삭제  채팅: ${chatroomId}");
+
           // local db에서 채팅방 삭제
           chattingRepository.deleteChatroomLocal(chatroomId);
           // local db에서 채팅 삭제
           chattingRepository.deleteMessageLocal(chatroomId);
         }
-      }
-      if (!_fetchSuccess) {
+      } else {
         List<ChatRoomInterface> _hiveChatrooms = [];
         for (final key in hiveChatroomKeys) {
           final ChatRoomHiveModel? _hiveRoom = await _chatRoomBox.get(key);
@@ -292,24 +283,7 @@ class ChattingController
           }
         }
       }
-      // 상태를 업데이트 한다.
-      chatrooms.sort((a, b) {
-        if (a.active != b.active) {
-          return (a.active ? 1 : 0) - (b.active ? 1 : 0);
-        }
 
-        if (a.lastMessageAt == null && b.lastMessageAt == null) {
-          // 둘 다 null이면 순서를 유지
-          return 0;
-        } else if (a.lastMessageAt == null) {
-          // dateA가 null이면 아래로
-          return -1;
-        } else if (b.lastMessageAt == null) {
-          // dateB가 null이면 아래로
-          return 1;
-        }
-        return b.lastMessageAt!.compareTo(a.lastMessageAt!);
-      });
       state = AsyncData(chatrooms);
       if (!_fetchSuccess) {
         throw "채팅방 정보를 가져올 수 없습니다.";
@@ -332,7 +306,7 @@ class ChattingController
 
       final List<ChatRoomInterface> _fetchedRooms = await _fetchChatRoomList();
 
-// 2. server data를 기준으로 메모리에서와 서버 데이터를 비교한다.
+      // 2. server data를 기준으로 메모리에서와 서버 데이터를 비교한다.
       final _fetchedChatroomIdsSet =
           _fetchedRooms.map((room) => room.chatroomId).toSet();
       final _currentStateIdsSet =
@@ -342,7 +316,20 @@ class ChattingController
           _currentStateIdsSet.intersection(_fetchedChatroomIdsSet);
       final normalRooms = currentState
           .where((room) => normalIds.contains(room.chatroomId))
-          .toList();
+          .map((room) {
+        final updatedRoom = _fetchedRooms.firstWhere(
+            (fetchedRoom) => fetchedRoom.chatroomId == room.chatroomId);
+        return room.copyWith(
+            profiles: updatedRoom.profiles,
+            title: updatedRoom.title,
+            count: updatedRoom.count,
+            active: updatedRoom.active,
+            lastMessage: updatedRoom.lastMessage,
+            lastMessageAt: updatedRoom.lastMessageAt,
+            latitude: updatedRoom.latitude,
+            longitude: updatedRoom.longitude,
+            alarm: updatedRoom.alarm);
+      }).toList();
 
       chatrooms.addAll(normalRooms);
 
@@ -402,13 +389,14 @@ class ChattingController
     }
   }
 
-  Future<void> leaveAction() async {
+  void leaveAction(String chatroomId) async {
     try {
-      _currentRoomId = null;
+      final EnterLeaveModel leaveData = EnterLeaveModel(
+          chatroomId: chatroomId, profileId: userInfo.profileId);
+      chattingRepository.sendLeaveMessage(data: leaveData);
       // socket으로 leave action 보내기
     } catch (e, s) {
       log(e.toString() + s.toString());
-      _currentRoomId = null;
     }
   }
 
@@ -416,8 +404,11 @@ class ChattingController
     ChatRoomInterface _roomInfo = state.maybeWhen(
         data: (v) => v.firstWhere((room) => room.chatroomId == chatroomId),
         orElse: () => throw "state 문제");
+
     try {
-      // log("current first chat : ${_roomInfo.chatting[0].messageId!}");
+      final EnterLeaveModel enterData = EnterLeaveModel(
+          chatroomId: chatroomId, profileId: userInfo.profileId);
+      chattingRepository.sendEnterMessage(data: enterData);
       // 2. 해당 오브젝트에서 hive_keys 를 통해 이전 채팅 데이터 키를 가져온다.  key의 마지막과 chatting state의 첫번째를 비교해서 chating state 의 id가 더 크다면 안불러와도됩니다.
       final bool needToFetchLocal = _roomInfo.hiveKeys.isEmpty
           ? false
@@ -468,12 +459,11 @@ class ChattingController
         ...localMessages.toList()
       ];
 
-      // room 채팅 정보 변경
-      _roomInfo = _roomInfo
-          .copyWith(chatting: [..._roomInfo.chatting, ..._updatedChatMessages]);
       state = AsyncData(state
           .maybeWhen(data: (v) => v, orElse: () => throw "state 문제")
-          .map((v) => v.chatroomId == _roomInfo.chatroomId ? _roomInfo : v)
+          .map((v) => v.chatroomId == _roomInfo.chatroomId
+              ? v.copyWith(chatting: [...v.chatting, ..._updatedChatMessages])
+              : v)
           .toList());
 
       // http 응답 데이터 local 저장하기
@@ -481,12 +471,11 @@ class ChattingController
         for (int i = 0; i < serverData.length; i++)
           serverData[i].messageId!: serverData[i].toHiveMessage()
       };
-      _currentRoomId = chatroomId;
+
       // 비동기로 처리하기
       chattingRepository.saveMessagesLocal(_hiveData, chatroomId);
     } catch (e, s) {
       log(e.toString() + s.toString());
-      _currentRoomId = null;
     }
   }
 
@@ -499,7 +488,25 @@ class ChattingController
           profileId: userId,
           content: message,
           messageType: "TEXT");
-      await chattingRepository.sendChatMessage(_message.toChatMessageModel());
+      await chattingRepository.sendChatMessage(
+          message: _message.toChatMessageModel());
+    } catch (e) {
+      log(e.toString());
+      throw "메시지 전송에 실패하였습니다.";
+    }
+  }
+
+  Future<void> sendEnterAction(
+      String message, String userId, String chatroomId) async {
+    // socket에 message 보내기
+    try {
+      final ChatMessageInterface _message = ChatMessageInterface(
+          chatroomId: chatroomId,
+          profileId: userId,
+          content: message,
+          messageType: "ENTER");
+      await chattingRepository.sendChatMessage(
+          message: _message.toChatMessageModel());
     } catch (e) {
       log(e.toString());
       throw "메시지 전송에 실패하였습니다.";
@@ -507,7 +514,6 @@ class ChattingController
   }
 
   Future<void> loadMoreAction(String chatroomId) async {
-    log("loadmore call");
     try {
       ChatRoomInterface _roomInfo = state.maybeWhen(
           data: (v) => v.firstWhere((room) => room.chatroomId == chatroomId),
@@ -548,12 +554,26 @@ class ChattingController
     }
   }
 
+  Future<void> alarmSettingAction(String chatroomId, bool alarm) async {
+    try {
+      // 서버에 요청
+      await chattingRepository.setChatroomAlarm(
+          chatroomId, userInfo.profileId, alarm);
+      // state 변경
+      _updateAlarm(chatroomId, alarm);
+      // local 변경
+      chattingRepository.updateAlarmLocal(chatroomId, alarm);
+    } catch (e, s) {
+      log(e.toString() + s.toString());
+      throw ("alarm 변경에 실패하였습니다.");
+    }
+  }
+
   // --------------socket actions ------------------------
   Future<void> _socketConnect() async {
     await chattingRepository.connect(onConnect: (cli) async {
-      log("socket connectd");
-
       await initAction();
+      await onConnect();
     });
   }
 
@@ -588,7 +608,7 @@ class ChattingController
   // stomp command 가 MESSAGE 일때의 handler
   Future<void> _SocketMessageHandler(StompFrame stompMessage) async {
     final stompBody = jsonDecode(stompMessage.body!);
-    log("_onSocketSendReceive: ${stompBody}");
+
     final _message = stompBody['data'];
 
     switch (_message['messageType']) {
@@ -658,7 +678,7 @@ class ChattingController
       state = AsyncValue.data([_currentRoom, ...filteredList]);
 
       // notification 주기
-      _showNotification(res);
+      // _showNotification(res);
 
       // local에 메시지 저장하기
       _saveMessageLocal(res);
@@ -670,18 +690,18 @@ class ChattingController
     }
   }
 
-  void _showNotification(ChatMessageModel message) {
-    final isFromOtherUser = userInfo.profileId != message.profileId;
-    final isTextMessage = message.messageType == "TEXT";
-    if (isFromOtherUser &&
-        isTextMessage &&
-        _currentRoomId != message.chatroomId) {
-      notificationAction(
-          id: int.parse(message.messageId!),
-          body: message.content,
-          title: message.chatroomId);
-    }
-  }
+  // void _showNotification(ChatMessageModel message) {
+  //   final isFromOtherUser = userInfo.profileId != message.profileId;
+  //   final isTextMessage = message.messageType == "TEXT";
+  //   if (isFromOtherUser &&
+  //       isTextMessage &&
+  //       _currentRoomId != message.chatroomId) {
+  //     notificationAction(
+  //         id: int.parse(message.messageId!),
+  //         body: message.content,
+  //         title: message.chatroomId);
+  //   }
+  // }
 
   void _onReceiveDATE(dynamic data) {
     try {
@@ -792,11 +812,67 @@ class ChattingController
   }
 
   void _onReceiveDIE(dynamic _message) {
-    // profiles 업데이트 하기
+    try {
+      // TODO: 1. 해당방을 업데이트 해주자.  2. 채팅 업데이트 해주자.  2.profiles 업데이트 하기  4. local에 저장하자
+
+      final _chatroomId = _message!['chatroomId'];
+
+      final _content = _message!['content'];
+
+      final _lastMessageAt = DateTime.parse(_message['createdAt'] as String);
+
+      // model convert
+      final ChatMessageModel res = ChatMessageModel.fromJson(_message);
+
+      // ㅡmodel convert
+      final ChatMessageInterface message =
+          ChatMessageInterface.fromChatMessageModel(res);
+
+      // ㅡchatroom temp model
+      ChatRoomInterface _currentRoom = state.maybeWhen(
+          data: (v) => v.firstWhere((room) => room.chatroomId == _chatroomId),
+          orElse: () => throw "state 문제");
+
+      List<ChatMessageInterface> _chatting = _currentRoom.chatting;
+      _chatting = [
+        message,
+        ..._chatting,
+      ];
+      // TODO: 프로필 업데이트 하기
+      Map<String, ProfileInterface>? _profiles;
+      if (message.profiles != null) {
+        _profiles = {
+          for (final profile in message.profiles!) profile.profileId: profile
+        };
+      }
+
+      _currentRoom = _currentRoom.copyWith(
+          lastMessage: message.content,
+          lastMessageAt: message.createdAt,
+          chatting: _chatting,
+          profiles: _profiles);
+
+      List<ChatRoomInterface> filteredList = state
+          .maybeWhen(data: (v) => v, orElse: () => throw "state 문제")
+          .where((room) => room.chatroomId != _currentRoom.chatroomId)
+          .toList();
+
+      // 상태 변경해주기
+      state = AsyncValue.data([_currentRoom, ...filteredList]);
+
+      // local에 저장하기
+      _saveMessageLocal(res);
+
+      _saveChatRoomLocal(_currentRoom.toChatRoomModel());
+    } catch (e, s) {
+      log(e.toString() + s.toString());
+    }
   }
+
   void _onReceiveLEAVE(dynamic _message) {
     // profiles 업데이트 하기
   }
+
   void _onReceiveENTER(dynamic _message) {
     // profiles 업데이트 하기
   }
@@ -814,14 +890,12 @@ class ChattingController
   // message local db 열기
   Future<void> _openChattingMessageBox(String chatRoomId) async {
     final boxName = HIVE_CHAT_MESSAGE + "${chatRoomId}";
-    log("message box name : ${boxName}");
+
     try {
       if (!Hive.isBoxOpen(boxName)) {
         await Hive.openLazyBox<ChatMessageHiveModel>(boxName);
-        log("message box opened:${boxName}");
       }
     } catch (e) {
-      log("채팅 박스 열기 실패");
       throw '핸드폰에 저장된 채팅정보를 불러오는데 실패하였습니다.';
     }
   }
@@ -906,6 +980,22 @@ class ChattingController
     // state = [_tmpData, ...state.sublist(roomIndex)];
   }
 
+  void _updateAlarm(String chatroomId, bool alarm) {
+    try {
+      final prevState =
+          state.maybeWhen(data: (v) => v, orElse: () => throw 'state error');
+      state = AsyncData([
+        for (final room in prevState)
+          if (room.chatroomId == chatroomId)
+            room.copyWith(alarm: alarm)
+          else
+            room
+      ]);
+    } catch (e, s) {
+      log(e.toString() + s.toString());
+    }
+  }
+
   // 프로필 정보 추가 (DIE)시 활용
   void deleteProfile(String roomId, ProfileInterface profile) {
     // // 현재 데이터 저장 index 찾기
@@ -922,15 +1012,13 @@ class ChattingController
     // state = [_tmpData, ...state.sublist(roomIndex)];
   }
 
+  // -------------------- hive action ---------------------------
   Future<void> _saveMessageLocal(ChatMessageModel message) async {
     try {
       final ChatMessageHiveModel _message = message.toHiveMessage();
 
       await chattingRepository.saveMessageLocal(_message);
-    } catch (e, s) {
-      log("save messag error");
-      log("${e.toString()}, ${s.toString()}");
-    }
+    } catch (e, s) {}
   }
 
   Future<void> _saveChatRoomLocal(ChatRoomModel chatroom) async {
@@ -938,12 +1026,10 @@ class ChattingController
       final ChatRoomHiveModel _room = chatroom.toHiveModel();
 
       await chattingRepository.saveChatroomLocal(_room);
-    } catch (e, s) {
-      log("save chatroom error");
-      log("${e.toString()}, ${s.toString()}");
-    }
+    } catch (e, s) {}
   }
 
+  // -------------------getter ----------------------------
   AsyncValue<List<ChatRoomInterface>> get() => state;
   List<ChatRoomInterface> getData() {
     try {
@@ -955,8 +1041,6 @@ class ChattingController
       throw e;
     }
   }
-
-  String? getCurrentRoomId() => _currentRoomId;
 }
 
 // Hive LazyBox Provider
@@ -977,33 +1061,24 @@ final chattingControllerProvider = StateNotifierProvider<ChattingController,
   final userInfo = ref.read(userProvider)?.profile;
   // final isolateController = ref.read(hiveIsolateProvider);
   assert(userInfo != null);
-  log("chat room controller start");
+  Future<void> onConnect() async {
+    await ref.read(personalchattingControllerProvider.notifier).initAction();
+  }
+
   ref.onDispose(
     () {
       chatRepository.disconnectSocket();
-      log("chat room controller dispose");
     },
   );
 
-  final void Function({
-    required String body,
-    required int id,
-    required String title,
-  }) notificationAction = ({
-    required String body,
-    required int id,
-    required String title,
-  }) {
-    ref
-        .read(notificationControllerProvider.notifier)
-        .showNotification(body: body, id: id, title: title);
-  };
-  return ChattingController(box, chatRepository, userInfo!, notificationAction);
+  return ChattingController(box, chatRepository, userInfo!, onConnect);
 });
 
 // chatRoom 관련 provider
 final chattingRepositoryProvider = Provider((ref) => ChattingRepositoryImp(
     ref.read(sockeClientProvier), ref.read(apiClientProvider)));
 
-final apiClientProvider = Provider((ref) => ApiClient(BASE_URL));
-final sockeClientProvier = Provider((ref) => SocketClient(BASE_URL, "/ws"));
+final apiClientProvider =
+    Provider((ref) => ApiClient(BASE_URL, HTTPS_BASE_URL));
+final sockeClientProvier =
+    Provider((ref) => SocketClient(BASE_URL, "/ws", HTTPS_BASE_URL));

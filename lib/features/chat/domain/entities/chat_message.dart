@@ -13,6 +13,7 @@ class ChatMessageInterface {
   final String content;
   final String messageType;
   final DateTime? createdAt;
+  final int unread;
   final List<ProfileInterface>? profiles;
 
   ChatMessageInterface(
@@ -22,6 +23,7 @@ class ChatMessageInterface {
       required this.content,
       this.createdAt,
       required this.messageType,
+      this.unread = 0,
       this.profiles});
 
   factory ChatMessageInterface.fromHiveModel(ChatMessageHiveModel data) {

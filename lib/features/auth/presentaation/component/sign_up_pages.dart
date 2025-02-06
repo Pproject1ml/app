@@ -196,15 +196,22 @@ class SignUpNicknameContainer extends StatefulWidget {
 
 class _SignUpNicknameContainerState extends State<SignUpNicknameContainer> {
   bool _isValidating = false;
-
+  String? errorMessage = null;
+  String? helperText = null;
   Future<void> handleTapButton() async {
     setState(() {
       _isValidating = true;
     });
-
-    await widget.notifier.isNickNameValid();
+    bool isValid = false;
+    try {
+      isValid = await widget.notifier.isNickNameValid();
+    } catch (e, s) {
+      isValid = false;
+    }
 
     setState(() {
+      errorMessage = !isValid ? '이미 사용중인 닉네임이에요 :(' : null;
+      helperText = isValid ? '사용 가능한 닉네임입니다 :)' : null;
       _isValidating = false;
     });
   }
@@ -212,7 +219,6 @@ class _SignUpNicknameContainerState extends State<SignUpNicknameContainer> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: heightRatio(48),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -222,6 +228,8 @@ class _SignUpNicknameContainerState extends State<SignUpNicknameContainer> {
             focusNode: widget.notifier.nickNameFocus,
             isCounterVisible: true,
             maxLength: 10,
+            errorMessage: errorMessage,
+            helperText: helperText,
             enabled: !_isValidating,
           )),
           const SizedBox(

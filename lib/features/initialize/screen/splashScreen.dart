@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:chat_location/common/utils/pre_load_svg.dart';
 import 'package:chat_location/constants/data.dart';
 import 'package:chat_location/constants/time_ago_setting.dart';
@@ -39,7 +37,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeApp().then((_) {
-        log("initialized finish");
         Future.delayed(Duration.zero, () async {
           await ref.read(authProvider.notifier).checkIfAuthenticated();
           ref.read(notificationControllerProvider.notifier).build();
@@ -77,21 +74,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     Hive.registerAdapter(ChatMessageHiveModelAdapter()); // 채팅 어댑터
     Hive.registerAdapter(ProfileHiveModelAdapter());
     await Hive.openLazyBox<ChatRoomHiveModel>(HIVE_CHATROOM); // LazyBox 열기
-
+    await Hive.openLazyBox<ChatRoomHiveModel>(
+        HIVE_PERSONAL_CHATROOM); // LazyBox 열기
     // SVG 리소스 미리 로드
     await preloadSvg([
       'assets/svgs/logo.svg',
       'assets/svgs/kakao.svg',
       'assets/svgs/google.svg',
     ]);
-
-    log("splash screen init end");
   }
 
   @override
   Widget build(BuildContext context) {
-    log("splash Screen build");
-
     return Scaffold(
       body: SafeArea(
         child: Center(

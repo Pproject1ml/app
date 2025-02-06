@@ -3,7 +3,7 @@ import 'package:chat_location/features/user/data/models/profile.dart';
 
 class ChatRoomModel {
   final String chatroomId;
-  final String title;
+  final String? title;
   final int count;
   final List<ProfileModel>? profiles;
   final String? lastMessage;
@@ -13,24 +13,26 @@ class ChatRoomModel {
   final DateTime? lastMessageAt;
   final String? imagePath;
   final bool active;
+  final bool alarm;
   ChatRoomModel(
       {required this.chatroomId,
-      required this.title,
-      required this.count,
+      this.title,
+      this.count = 0,
       required this.profiles,
       this.lastMessage,
       this.lastReadMessageId,
-      required this.latitude,
-      required this.longitude,
+      this.latitude = 0,
+      this.longitude = 0,
       this.lastMessageAt,
       this.imagePath,
-      required this.active});
+      required this.active,
+      required this.alarm});
 
   factory ChatRoomModel.fromJson(Map<String, dynamic> json) {
     return ChatRoomModel(
         chatroomId: json['chatroomId'] as String,
-        title: json['title'] as String,
-        count: json['count'] as int,
+        title: json['title'] as String?,
+        count: json['count'] != null ? json['count'] as int : 0,
         profiles: json['profiles'] != null
             ? (json['profiles'] as List<dynamic>)
                 .map((e) => ProfileModel.fromJson(e as Map<String, dynamic>))
@@ -38,13 +40,14 @@ class ChatRoomModel {
             : [],
         lastMessage: json['lastMessage'] as String?,
         lastReadMessageId: json['lastReadMessageId'] as String?,
-        latitude: json['latitude'] as double,
-        longitude: json['longitude'] as double,
+        latitude: json['latitude'] != null ? json['latitude'] as double : 0,
+        longitude: json['longitude'] != null ? json['longitude'] as double : 0,
         lastMessageAt: json['lastMessageAt'] != null
             ? DateTime.parse(json['lastMessageAt'] as String)
             : null,
         imagePath: json['imagePath'] as String?,
-        active: json['active'] as bool);
+        active: json['active'] as bool,
+        alarm: json['alarm'] as bool);
   }
 
   Map<String, dynamic> toJson() {
@@ -59,7 +62,8 @@ class ChatRoomModel {
       'latitude': latitude,
       'lastMessageAt': lastMessageAt?.toIso8601String(),
       'imagePath': imagePath,
-      'active': active
+      'active': active,
+      'alarm': alarm
     };
   }
 
@@ -76,13 +80,14 @@ class ChatRoomModel {
         lastReadMessageId: hiveModel.lastReadMessageId,
         lastMessageAt: hiveModel.lastMessageAt,
         imagePath: hiveModel.imagePath,
-        active: hiveModel.active);
+        active: hiveModel.active,
+        alarm: hiveModel.alarm);
   }
 
   ChatRoomHiveModel toHiveModel() {
     return ChatRoomHiveModel(
         chatroomId: chatroomId,
-        title: title,
+        title: title ?? '알수없음',
         profiles: profiles?.map((e) => e.toHiveProfileModel()).toList() ?? [],
         count: count,
         longitude: longitude,
@@ -91,6 +96,7 @@ class ChatRoomModel {
         lastReadMessageId: lastReadMessageId,
         lastMessageAt: lastMessageAt,
         imagePath: imagePath,
-        active: active);
+        active: active,
+        alarm: alarm);
   }
 }

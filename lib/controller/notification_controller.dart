@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:chat_location/pages/index.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,7 +19,7 @@ class NotificationController extends Notifier<FlutterLocalNotificationsPlugin> {
   /// 초기화
   Future<void> _initializeNotifications() async {
     const AndroidInitializationSettings androidInitializationSettings =
-        AndroidInitializationSettings("@mipmap/ic_launcher");
+        AndroidInitializationSettings("@mipmap/launcher_icon");
 
     const DarwinInitializationSettings iosInitializationSettings =
         DarwinInitializationSettings(
@@ -31,7 +34,15 @@ class NotificationController extends Notifier<FlutterLocalNotificationsPlugin> {
       iOS: iosInitializationSettings,
     );
 
-    await _localNotificationsPlugin.initialize(initializationSettings);
+    await _localNotificationsPlugin.initialize(initializationSettings,
+        onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
+  }
+
+  void onDidReceiveNotificationResponse(NotificationResponse respoonse) {
+    final String payload = respoonse.payload ?? "";
+    if (respoonse.payload != null || respoonse.payload!.isNotEmpty) {
+      streamController.add(payload);
+    }
   }
 
   /// 알림 표시
@@ -52,12 +63,8 @@ class NotificationController extends Notifier<FlutterLocalNotificationsPlugin> {
       android: androidDetails,
     );
 
-    await _localNotificationsPlugin.show(
-      id,
-      title,
-      body,
-      notificationDetails,
-    );
+    await _localNotificationsPlugin.show(id, title, body, notificationDetails,
+        payload: 'chatMessage');
   }
 }
 

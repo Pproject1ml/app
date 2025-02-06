@@ -30,6 +30,7 @@ class BottomNavigationBarIndexProvider extends StateNotifier<int> {
 
 // StateNotifierProvider 생성
 final bottomNavigationBarIndexProvider =
-    StateNotifierProvider<BottomNavigationBarIndexProvider, int>((ref) {
+    StateNotifierProvider.autoDispose<BottomNavigationBarIndexProvider, int>(
+        (ref) {
   return BottomNavigationBarIndexProvider();
 });

@@ -1,9 +1,14 @@
+import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 import 'package:chat_location/core/database/no_sql/chat_room.dart';
 import 'package:chat_location/core/newtwork/api_client.dart';
 import 'package:chat_location/features/user/data/models/member.dart';
 import 'package:chat_location/features/user/data/models/profile.dart';
 import 'package:chat_location/features/user/domain/repositories/user_repository.dart';
+import 'package:dio/dio.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http_parser/http_parser.dart';
 
 // 실제 api 호출 로직이 작성되어있습니다.
 const signupStatusCode = 31;
@@ -15,24 +20,39 @@ class UserRepositoryImpl implements UserRepository {
   UserRepositoryImpl(this.apiClient);
 
   @override
-  Future<MemeberModel> getUserProfile() async {
+  Future<ProfileModel> getUserProfile() async {
     try {
       final response = await apiClient.get(endpoint: '/user');
-      // return UserModel.fromJson(response);
-      throw Error;
+      return ProfileModel.fromJson(response);
     } catch (error, stackTrace) {
-      log('Error in getUserProfile: $error', stackTrace: stackTrace);
-
       throw Exception('Failed to fetch user profile');
     }
   }
 
   @override
-  Future<void> updateUser(ProfileModel user) async {
+  Future<ProfileModel> updateUser(
+      {required ProfileModel user, XFile? profileImage}) async {
     try {
-      final userJson = user.toJson();
-      await apiClient.patch(endpoint: '/user', data: userJson, setToken: true);
-    } catch (e) {
+      Map<String, dynamic> rawData = {
+        "profile": MultipartFile.fromString(
+          jsonEncode(user.toJson()),
+          contentType: MediaType.parse('application/json'),
+        ),
+      };
+      if (profileImage != null) {
+        rawData['profileImage'] = await MultipartFile.fromFile(
+            File(profileImage.path).path,
+            filename: "userProfileImage",
+            contentType: MediaType.parse('image/jpeg'));
+      }
+      final data = FormData.fromMap(rawData);
+
+      final res =
+          await apiClient.multipartPatch(endpoint: '/user', formdata: data);
+
+      return ProfileModel.fromJson(res);
+    } catch (e, s) {
+      log(e.toString() + s.toString());
       throw "유저업데이트에 실패하였습니다.";
     }
   }
