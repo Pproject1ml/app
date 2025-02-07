@@ -1,16 +1,10 @@
-# chat_location
+# TT - Travel Talk
 
-A new Flutter project.
+여행기 위치 기반 채팅 서비스
 
-## Getting Started
+## 배포 현황
+- Google closed test
+- https://play.google.com/store/apps/details?id=com.travelTalk.chat_location
 
-This project is a starting point for a Flutter application.
+## 어플리케이션 소개
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
